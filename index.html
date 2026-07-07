@@ -15,6 +15,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Serif+Bengali:wght@400;500;600;700&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body data-theme="light">
@@ -101,23 +102,23 @@
 <nav class="bottom-nav" id="bottomNav">
   <button class="bn-item active" data-view="home">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-    <span>হোম</span>
+    <span data-i18n="nav_home">হোম</span>
   </button>
   <button class="bn-item" data-view="planner">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 3v3M16 3v3"/></svg>
-    <span>প্ল্যানার</span>
+    <span data-i18n="nav_planner">প্ল্যানার</span>
   </button>
   <button class="bn-item" data-view="topics">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
-    <span>বিষয়ভিত্তিক</span>
+    <span data-i18n="nav_topics">বিষয়ভিত্তিক</span>
   </button>
   <button class="bn-item" data-view="library">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6a3 3 0 013 3v13a2.5 2.5 0 00-2.5-2.5H4z"/><path d="M20 4h-6a3 3 0 00-3 3v13a2.5 2.5 0 012.5-2.5H20z"/></svg>
-    <span>লাইব্রেরি</span>
+    <span data-i18n="nav_library">লাইব্রেরি</span>
   </button>
   <button class="bn-item" data-view="stats">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
-    <span>পরিসংখ্যান</span>
+    <span data-i18n="nav_stats">পরিসংখ্যান</span>
   </button>
 </nav>
 
@@ -126,29 +127,114 @@
 <aside id="moreDrawer">
   <div class="drawer-search">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <input type="text" placeholder="মেনুতে খুঁজুন...">
+    <input type="text" id="drawerSearchInput" data-i18n-ph="menu_search_ph" placeholder="মেনুতে খুঁজুন...">
   </div>
   <div class="drawer-list">
-    <button class="drawer-item" id="drawerGoToAyah"><span class="di-ic">⤴</span> নির্দিষ্ট আয়াতে যান</button>
-    <button class="drawer-item" id="drawerNotifications"><span class="di-ic">🔔</span> নোটিফিকেশন <span class="di-badge">৩</span></button>
-    <button class="drawer-item" id="drawerPrayerTimes"><span class="di-ic">🕐</span> সালাতের সময়সূচি</button>
-    <button class="drawer-item" id="drawerDictionary"><span class="di-ic">📖</span> অভিধান</button>
-    <button class="drawer-item" id="drawerOtherApps"><span class="di-ic">📱</span> আমাদের অন্যান্য অ্যাপস</button>
-    <button class="drawer-item" id="drawerSettings"><span class="di-ic">⚙️</span> সেটিংস</button>
-    <button class="drawer-item" id="drawerRateUs"><span class="di-ic">⭐</span> অ্যাপ রেটিং দিন</button>
-    <button class="drawer-item" id="drawerTutorial"><span class="di-ic">▶</span> টিউটোরিয়াল দেখুন</button>
-    <button class="drawer-item" id="drawerTranslationHelp"><span class="di-ic">🅰</span> অনুবাদে সহায়তা করুন</button>
-    <button class="drawer-item" id="drawerShare"><span class="di-ic">🔗</span> অ্যাপটি শেয়ার করুন</button>
-    <button class="drawer-item" id="drawerHelp"><span class="di-ic">❓</span> সাহায্য ও সহযোগিতা</button>
-    <button class="drawer-item" id="drawerFeedback"><span class="di-ic">💬</span> ফীডব্যাক শেয়ার করুন</button>
+    <button class="drawer-item" id="drawerGoToAyah"><span class="di-ic"><i class="fa-solid fa-arrow-turn-up"></i></span> <span data-i18n="menu_goto_ayah">নির্দিষ্ট আয়াতে যান</span></button>
+    <button class="drawer-item" id="drawerPrayerTimes"><span class="di-ic"><i class="fa-solid fa-clock"></i></span> <span data-i18n="menu_prayer_times">সালাতের সময়সূচি</span></button>
+    <button class="drawer-item" id="drawerDictionary"><span class="di-ic"><i class="fa-solid fa-book-open"></i></span> <span data-i18n="menu_dictionary">অভিধান</span></button>
+    <button class="drawer-item" id="drawerOtherApps"><span class="di-ic"><i class="fa-solid fa-mobile-screen-button"></i></span> <span data-i18n="menu_other_apps">আমাদের অন্যান্য অ্যাপস</span></button>
+    <button class="drawer-item" id="drawerSettings"><span class="di-ic"><i class="fa-solid fa-gear"></i></span> <span data-i18n="menu_settings">সেটিংস</span></button>
+    <button class="drawer-item" id="drawerTranslationHelp"><span class="di-ic"><i class="fa-solid fa-language"></i></span> <span data-i18n="menu_translation_help">অনুবাদে সহায়তা করুন</span></button>
+    <button class="drawer-item" id="drawerShare"><span class="di-ic"><i class="fa-solid fa-share-nodes"></i></span> <span data-i18n="menu_share">অ্যাপটি শেয়ার করুন</span></button>
+    <button class="drawer-item" id="drawerHelp"><span class="di-ic"><i class="fa-solid fa-circle-question"></i></span> <span data-i18n="menu_help">সাহায্য ও সহযোগিতা</span></button>
+    <button class="drawer-item" id="drawerFeedback"><span class="di-ic"><i class="fa-solid fa-comment-dots"></i></span> <span data-i18n="menu_feedback">ফীডব্যাক শেয়ার করুন</span></button>
   </div>
   <div class="drawer-social">
-    <a href="#" title="Website">🌐</a>
-    <a href="#" title="Facebook">📘</a>
-    <a href="#" title="Instagram">📷</a>
-    <a href="#" title="X">✕</a>
+    <a href="#" id="socialWebsite" title="Website" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i></a>
+    <a href="#" id="socialFacebook" title="Facebook" target="_blank" rel="noopener"><i class="fa-brands fa-facebook"></i></a>
+    <a href="#" id="socialYoutube" title="YouTube" target="_blank" rel="noopener"><i class="fa-brands fa-youtube"></i></a>
   </div>
 </aside>
+
+<!-- ================= Settings modal ================= -->
+<div class="app-modal" id="settingsModal" style="display:none;">
+  <div class="app-modal-box">
+    <div class="app-modal-head">
+      <h3 data-i18n="settings_title">সেটিংস</h3>
+      <button class="app-modal-close" id="settingsClose">✕</button>
+    </div>
+    <div class="app-modal-body">
+      <div class="settings-row">
+        <div class="settings-label" data-i18n="settings_language">ভাষা</div>
+        <div class="settings-control lang-toggle" id="langToggle">
+          <button data-lang="bn" class="active">বাংলা</button>
+          <button data-lang="en">English</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-label" data-i18n="settings_theme">থিম</div>
+        <div class="settings-control">
+          <button class="settings-btn" id="settingsThemeBtn"><i class="fa-solid fa-moon"></i> <span id="settingsThemeLabel" data-i18n="settings_theme_dark">রাতের মোড</span></button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-label" data-i18n="settings_reciter">ডিফল্ট ক্বারী</div>
+        <div class="settings-control">
+          <select id="settingsReciter"></select>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-label" data-i18n="settings_font">ফন্ট সাইজ</div>
+        <div class="settings-control">
+          <button class="icon-btn" id="settingsDecFont">−</button>
+          <button class="icon-btn" id="settingsIncFont">+</button>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-label" data-i18n="settings_prayer_method">নামাজের সময় হিসাবের পদ্ধতি</div>
+        <div class="settings-control">
+          <select id="settingsPrayerMethod"></select>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-label" data-i18n="settings_prayer_notify">নামাজের সময় বিজ্ঞপ্তি</div>
+        <div class="settings-control">
+          <label class="switch"><input type="checkbox" id="settingsPrayerNotify"><span class="switch-slider"></span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= Prayer times modal ================= -->
+<div class="app-modal" id="prayerModal" style="display:none;">
+  <div class="app-modal-box">
+    <div class="app-modal-head">
+      <h3><i class="fa-solid fa-clock"></i> <span data-i18n="prayer_title">সালাতের সময়সূচি</span></h3>
+      <button class="app-modal-close" id="prayerClose">✕</button>
+    </div>
+    <div class="app-modal-body" id="prayerBody">
+      <div class="prayer-status" id="prayerStatus" data-i18n="prayer_locating">অবস্থান শনাক্ত করা হচ্ছে...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= Dictionary modal ================= -->
+<div class="app-modal" id="dictionaryModal" style="display:none;">
+  <div class="app-modal-box">
+    <div class="app-modal-head">
+      <h3><i class="fa-solid fa-book-open"></i> <span data-i18n="dict_title">অভিধান</span></h3>
+      <button class="app-modal-close" id="dictClose">✕</button>
+    </div>
+    <div class="app-modal-search">
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input type="text" id="dictSearchInput" data-i18n-ph="dict_search_ph" placeholder="শব্দ খুঁজুন...">
+    </div>
+    <div class="app-modal-body" id="dictList"></div>
+  </div>
+</div>
+
+<!-- ================= Help & support modal ================= -->
+<div class="app-modal" id="helpModal" style="display:none;">
+  <div class="app-modal-box">
+    <div class="app-modal-head">
+      <h3><i class="fa-solid fa-circle-question"></i> <span data-i18n="help_title">সাহায্য ও সহযোগিতা</span></h3>
+      <button class="app-modal-close" id="helpClose">✕</button>
+    </div>
+    <div class="app-modal-body" id="helpBody"></div>
+  </div>
+</div>
 
 <div class="search-panel" id="searchPanel" style="display:none;">
   <div class="search-box">
@@ -205,6 +291,7 @@
 <script src="js/planner.js"></script>
 <script src="js/stats.js"></script>
 <script src="js/nav.js"></script>
+<script src="js/menu.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>
