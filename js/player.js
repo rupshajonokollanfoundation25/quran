@@ -185,7 +185,9 @@ function offlineButtonLabel(done, total){
 async function downloadCurrentAudioForOffline(btn){
   if(!state.playlist.length) return;
   const surahNum = state.playlist[0].surah;
+  const isSingleSurah = state.playlist.every(item => item.surah === surahNum);
   const urls = state.playlist.map(item => currentAudioUrl(item));
+  const reciterAtDownload = state.reciter;
   btn.disabled = true;
   btn.textContent = offlineButtonLabel(0, urls.length);
 
@@ -201,7 +203,7 @@ async function downloadCurrentAudioForOffline(btn){
       } else if(msg.type === 'CACHE_AUDIO_DONE'){
         btn.textContent = offlineButtonLabel(msg.total, msg.total);
         btn.classList.add('downloaded');
-        markSurahOffline(surahNum);
+        if(isSingleSurah) markSurahOffline(surahNum, reciterAtDownload, urls, urls.length);
         navigator.serviceWorker.removeEventListener('message', onMsg);
       }
     };
@@ -227,7 +229,7 @@ async function downloadCurrentAudioForOffline(btn){
   }
   btn.textContent = offlineButtonLabel(urls.length, urls.length);
   btn.classList.add('downloaded');
-  markSurahOffline(surahNum);
+  if(isSingleSurah) markSurahOffline(surahNum, reciterAtDownload, urls, urls.length);
 }
 
 let stallTimer = null;
