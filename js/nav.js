@@ -85,13 +85,32 @@ function initMoreDrawer(){
     const [s,a] = ref.split(':').map(n => parseInt(n,10));
     if(Number.isInteger(s) && s>=1 && s<=114) openSurahAndScrollTo(s, Number.isInteger(a) ? a : 1);
   };
+
+  // Live-backed drawer items (implemented in js/menu.js).
+  document.getElementById('drawerPrayerTimes').onclick = () => { close(); openPrayerModal(); };
+  document.getElementById('drawerDictionary').onclick = () => { close(); openDictionaryModal(); };
+  document.getElementById('drawerSettings').onclick = () => { close(); openSettingsModal(); };
+  document.getElementById('drawerShare').onclick = () => { close(); shareApp(); };
+  document.getElementById('drawerHelp').onclick = () => { close(); openHelpModal(); };
+
   // The remaining drawer items don't have a backing feature yet in this
-  // build (notifications, prayer times, dictionary, settings, etc.) — show
-  // a lightweight "coming soon" toast instead of a dead click.
-  ['drawerNotifications','drawerPrayerTimes','drawerDictionary','drawerOtherApps','drawerSettings','drawerRateUs','drawerTutorial','drawerTranslationHelp','drawerShare','drawerHelp','drawerFeedback'].forEach(id => {
+  // build — show a lightweight "coming soon" toast instead of a dead click.
+  ['drawerOtherApps','drawerTranslationHelp','drawerFeedback'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.onclick = () => { close(); showToast('শীঘ্রই আসছে'); };
   });
+
+  // Live filter for the drawer's own search box.
+  const drawerSearch = document.getElementById('drawerSearchInput');
+  if(drawerSearch){
+    drawerSearch.oninput = () => {
+      const q = drawerSearch.value.trim().toLowerCase();
+      document.querySelectorAll('.drawer-item').forEach(btn => {
+        const label = btn.textContent.trim().toLowerCase();
+        btn.style.display = (!q || label.includes(q)) ? '' : 'none';
+      });
+    };
+  }
 }
 
 function showToast(msg){
