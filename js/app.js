@@ -67,12 +67,15 @@ function initInstallPrompt(){
   loadPrefs();
   initTheme();
   initFontControls();
-  initMobileSidebar();
-  initSidebarTabs();
+  initNav();
+  initTopics();
+  initPlanner();
+  initStats();
   initConnectionStatus();
   initInstallPrompt();
   initServiceWorker();
   initSearch();
   initPlayer();
   fetchSurahList();
+  renderHomeExtras();
 })();
