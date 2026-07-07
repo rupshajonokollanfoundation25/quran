@@ -1,39 +1,30 @@
-// ---------- Reader: hero, surah/juz fetch & render, bookmarks, font size ----------
+// ---------- Reader: surah/juz/page/hizb/ruku fetch & render, bookmarks, font size ----------
 const mainContent = document.getElementById('mainContent');
 const readerToolbar = document.getElementById('readerToolbar');
+const homeLanding = document.getElementById('homeLanding');
+const readerArea = document.getElementById('readerArea');
+
+function showReaderArea(){
+  homeLanding.style.display = 'none';
+  readerArea.style.display = 'block';
+}
+function showHomeLanding(){
+  readerArea.style.display = 'none';
+  homeLanding.style.display = 'block';
+}
+
+function initReaderBack(){
+  document.getElementById('readerBackBtn').onclick = showHomeLanding;
+}
 
 function showLoader(){
+  showReaderArea();
   mainContent.innerHTML = `<div class="loader"><div class="spinner"></div><span>Loading verses...</span></div>`;
   readerToolbar.style.display='none';
 }
 
-function renderHero(){
-  let resumeHtml = '';
-  if(state.lastRead){
-    const s = state.surahList.find(x => x.number === state.lastRead.surah);
-    const title = s ? (surahNamesBn[state.lastRead.surah-1] || s.englishName) : ('সূরা ' + state.lastRead.surah);
-    resumeHtml = `<div class="resume-card" id="resumeCard">
-      <div class="ic">▶</div>
-      <div>
-        <div class="rc-label">Continue reading</div>
-        <div class="rc-title">${title} — আয়াত ${toBn(state.lastRead.ayah)}</div>
-      </div>
-    </div>`;
-  }
-  mainContent.innerHTML = `<div class="empty-hero">
-      <span class="ar">القرآن الكريم</span>
-      <h2>শুরু করতে বাম পাশ থেকে একটি সূরা বা পারা নির্বাচন করুন</h2>
-      <p>আরবি টেক্সট, বাংলা অনুবাদ এবং সুন্দর তিলাওয়াত একসাথে উপভোগ করুন, অথবা উপরের বক্সে যেকোনো শব্দ লিখে পুরো কুরআনে খুঁজুন।</p>
-    </div>
-    ${resumeHtml}`;
-  const rc = document.getElementById('resumeCard');
-  if(rc) rc.onclick = () => openSurahAndScrollTo(state.lastRead.surah, state.lastRead.ayah);
-}
-
 function openSurahAndScrollTo(surahNum, ayahInSurah){
-  state.mode = 'surah';
-  setActiveTab('tabSurah');
-  renderSurahList();
+  goToView('home');
   openSurah(surahNum).then(() => {
     setTimeout(() => {
       const el = document.getElementById(`ayah-${surahNum}-${ayahInSurah}`);
@@ -43,7 +34,6 @@ function openSurahAndScrollTo(surahNum, ayahInSurah){
 }
 
 async function openSurah(num){
-  markSelected(num-1);
   showLoader();
   try{
     const [arRes, bnRes] = await Promise.all([
@@ -60,6 +50,7 @@ async function openSurah(num){
     });
     state.lastRead = { surah: num, ayah: ayahs[0] ? ayahs[0].numberInSurah : 1 };
     saveLastRead();
+    recordActivityToday();
   }catch(e){
     mainContent.innerHTML = `<div class="error-box">${offlineAwareErrorMsg('সূরা')}<br><button onclick="openSurah(${num})">Try again.</button></div>`;
   }
@@ -73,7 +64,6 @@ function offlineAwareErrorMsg(label){
 }
 
 async function openJuz(num){
-  markSelected(num-1);
   showLoader();
   try{
     const [arRes, bnRes] = await Promise.all([
@@ -88,12 +78,77 @@ async function openJuz(num){
       showBismillah: false,
       ayahs
     });
+    recordActivityToday();
   }catch(e){
     mainContent.innerHTML = `<div class="error-box">${offlineAwareErrorMsg('পারা')}<br><button onclick="openJuz(${num})">আবার চেষ্টা করুন</button></div>`;
   }
 }
 
+async function openPage(num){
+  showLoader();
+  try{
+    const [arRes, bnRes] = await Promise.all([
+      fetch(`${API}/page/${num}/quran-uthmani`),
+      fetch(`${API}/page/${num}/bn.bengali`)
+    ]);
+    const arData = (await arRes.json()).data;
+    const bnData = (await bnRes.json()).data;
+    const ayahs = arData.ayahs.map((a,i)=>({ number:a.number, numberInSurah:a.numberInSurah, surah:a.surah.number, arabic:a.text, bengali:(bnData.ayahs[i]||{}).text || '' }));
+    renderReader({
+      header: { arName: `صفحة ${num}`, bnName: `পৃষ্ঠা ${toBn(num)}`, meta: `${toBn(arData.ayahs.length)} আয়াত`, playLabel: `সম্পূর্ণ পৃষ্ঠা শুনুন` },
+      showBismillah: false,
+      ayahs
+    });
+    recordActivityToday();
+  }catch(e){
+    mainContent.innerHTML = `<div class="error-box">${offlineAwareErrorMsg('পৃষ্ঠা')}<br><button onclick="openPage(${num})">আবার চেষ্টা করুন</button></div>`;
+  }
+}
+
+async function openHizb(num){
+  showLoader();
+  try{
+    const [arRes, bnRes] = await Promise.all([
+      fetch(`${API}/hizbQuarter/${num}/quran-uthmani`),
+      fetch(`${API}/hizbQuarter/${num}/bn.bengali`)
+    ]);
+    const arData = (await arRes.json()).data;
+    const bnData = (await bnRes.json()).data;
+    const ayahs = arData.ayahs.map((a,i)=>({ number:a.number, numberInSurah:a.numberInSurah, surah:a.surah.number, arabic:a.text, bengali:(bnData.ayahs[i]||{}).text || '' }));
+    renderReader({
+      header: { arName: `حزب ${num}`, bnName: `হিজব ${toBn(num)}`, meta: `${toBn(arData.ayahs.length)} আয়াত`, playLabel: `সম্পূর্ণ হিজব শুনুন` },
+      showBismillah: false,
+      ayahs
+    });
+    recordActivityToday();
+  }catch(e){
+    mainContent.innerHTML = `<div class="error-box">${offlineAwareErrorMsg('হিজব')}<br><button onclick="openHizb(${num})">আবার চেষ্টা করুন</button></div>`;
+  }
+}
+
+async function openRuku(num){
+  showLoader();
+  try{
+    const [arRes, bnRes] = await Promise.all([
+      fetch(`${API}/ruku/${num}/quran-uthmani`),
+      fetch(`${API}/ruku/${num}/bn.bengali`)
+    ]);
+    const arData = (await arRes.json()).data;
+    const bnData = (await bnRes.json()).data;
+    const ayahs = arData.ayahs.map((a,i)=>({ number:a.number, numberInSurah:a.numberInSurah, surah:a.surah.number, arabic:a.text, bengali:(bnData.ayahs[i]||{}).text || '' }));
+    renderReader({
+      header: { arName: `ركوع ${num}`, bnName: `রুকু ${toBn(num)}`, meta: `${toBn(arData.ayahs.length)} আয়াত`, playLabel: `সম্পূর্ণ রুকু শুনুন` },
+      showBismillah: false,
+      ayahs
+    });
+    recordActivityToday();
+  }catch(e){
+    mainContent.innerHTML = `<div class="error-box">${offlineAwareErrorMsg('রুকু')}<br><button onclick="openRuku(${num})">আবার চেষ্টা করুন</button></div>`;
+  }
+}
+
 function renderReader({header, showBismillah, ayahs}){
+  showReaderArea();
   readerToolbar.style.display='flex';
   state.playlist = ayahs.map(a => ({ key:`${a.surah}:${a.numberInSurah}`, globalNumber:a.number, surah:a.surah, numberInSurah:a.numberInSurah, title:(surahNamesBn[a.surah-1]||('সূরা '+a.surah)) }));
   const singleSurah = ayahs.length && ayahs.every(a => a.surah === ayahs[0].surah) ? ayahs[0].surah : null;
@@ -155,7 +210,8 @@ function toggleBookmark(key, btn){
   if(state.bookmarks[key]){ delete state.bookmarks[key]; btn.classList.remove('bookmarked'); btn.textContent='☆ Save'; }
   else { state.bookmarks[key] = true; btn.classList.add('bookmarked'); btn.textContent='★ Reserved'; }
   saveBookmarks();
-  if(state.mode === 'bookmarks') renderBookmarksList();
+  const libList = document.getElementById('libraryListContainer');
+  if(libList && document.getElementById('libTabBookmarks').classList.contains('active')) renderBookmarksList(libList);
 }
 
 function applyFontSize(){
