@@ -11,7 +11,11 @@ const state = {
   isPlaying: false,
   playbackRate: 1,
   history: [],
-  offlineSurahs: []
+  offlineSurahs: [],
+  language: 'bn',
+  prayerMethod: 1,
+  prayerNotify: false,
+  prayerLocation: null
 };
 
 // ---------- localStorage persistence ----------
@@ -25,7 +29,11 @@ const LS_KEYS = {
   lastRead: 'qr_last_read',
   history: 'qr_history',
   offlineSurahs: 'qr_offline_surahs',
-  playbackRate: 'qr_playback_rate'
+  playbackRate: 'qr_playback_rate',
+  language: 'qr_language',
+  prayerMethod: 'qr_prayer_method',
+  prayerNotify: 'qr_prayer_notify',
+  prayerLocation: 'qr_prayer_location'
 };
 
 // Keep well above the "at least 10" requirement so older items don't get
@@ -63,6 +71,38 @@ function loadPrefs(){
     const r = parseFloat(localStorage.getItem(LS_KEYS.playbackRate));
     if(r && r > 0) state.playbackRate = r;
   }catch(e){}
+
+  try{
+    const l = localStorage.getItem(LS_KEYS.language);
+    if(l === 'bn' || l === 'en') state.language = l;
+  }catch(e){}
+
+  try{
+    const m = parseInt(localStorage.getItem(LS_KEYS.prayerMethod), 10);
+    if(Number.isInteger(m)) state.prayerMethod = m;
+  }catch(e){}
+
+  try{
+    state.prayerNotify = localStorage.getItem(LS_KEYS.prayerNotify) === '1';
+  }catch(e){}
+
+  try{
+    const raw = localStorage.getItem(LS_KEYS.prayerLocation);
+    if(raw) state.prayerLocation = JSON.parse(raw);
+  }catch(e){ state.prayerLocation = null; }
+}
+
+function saveLanguage(){
+  try{ localStorage.setItem(LS_KEYS.language, state.language); }catch(e){}
+}
+function savePrayerMethod(){
+  try{ localStorage.setItem(LS_KEYS.prayerMethod, String(state.prayerMethod)); }catch(e){}
+}
+function savePrayerNotify(){
+  try{ localStorage.setItem(LS_KEYS.prayerNotify, state.prayerNotify ? '1' : '0'); }catch(e){}
+}
+function savePrayerLocation(){
+  try{ localStorage.setItem(LS_KEYS.prayerLocation, JSON.stringify(state.prayerLocation)); }catch(e){}
 }
 
 function saveBookmarks(){
