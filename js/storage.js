@@ -142,11 +142,11 @@ function timeAgoBn(ts){
   const diffSec = Math.max(0, Math.floor((Date.now() - ts) / 1000));
   if(diffSec < 60) return 'এইমাত্র';
   const diffMin = Math.floor(diffSec / 60);
-  if(diffMin < 60) return `${toBn(diffMin)} মিনিট আগে`;
+  if(diffMin < 60) return `${toBn(diffMin)} Minutes ago`;
   const diffHr = Math.floor(diffMin / 60);
-  if(diffHr < 24) return `${toBn(diffHr)} ঘণ্টা আগে`;
+  if(diffHr < 24) return `${toBn(diffHr)} Hours ago`;
   const diffDay = Math.floor(diffHr / 24);
-  if(diffDay < 30) return `${toBn(diffDay)} দিন আগে`;
+  if(diffDay < 30) return `${toBn(diffDay)} Days ago`;
   const diffMon = Math.floor(diffDay / 30);
-  return `${toBn(diffMon)} মাস আগে`;
+  return `${toBn(diffMon)} Month ago`;
 }
