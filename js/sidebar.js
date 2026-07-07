@@ -97,11 +97,12 @@ function renderHistoryList(){
 // user can see at a glance what's actually saved on this device (and undo
 // a download to free up space) — separate from the plain surah/juz lists.
 function renderOfflineList(){
-  if(!state.offlineSurahs.length){
+  const validEntries = state.offlineSurahs.filter(o => Number.isInteger(o.surah) && o.surah >= 1 && o.surah <= 114);
+  if(!validEntries.length){
     listContainer.innerHTML = `<div class="empty-list-msg">এখনও কোনো সূরা অফলাইনে সংরক্ষণ করা হয়নি।<br>একটি সূরা খুলে "⬇ অফলাইনে সংরক্ষণ করুন" বাটনে চাপুন।</div>`;
     return;
   }
-  const sorted = [...state.offlineSurahs].sort((a,b) => b.ts - a.ts);
+  const sorted = [...validEntries].sort((a,b) => b.ts - a.ts);
   listContainer.innerHTML = '';
   sorted.forEach(entry => {
     const s = state.surahList.find(x => x.number === entry.surah);
