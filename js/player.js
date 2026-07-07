@@ -14,18 +14,19 @@ function fmtTime(sec){
   return toBn(m) + ':' + toBn(String(s).padStart(2,'0'));
 }
 
-function currentAudioUrl(item){
-  return `${AUDIO_CDN}/${state.reciter}/${item.globalNumber}.mp3`;
+let bitrateAttemptIndex = 0;
+function currentAudioUrl(item, bitrateIdx){
+  const bitrate = BITRATE_FALLBACKS[bitrateIdx != null ? bitrateIdx : bitrateAttemptIndex] || BITRATE_FALLBACKS[0];
+  return `${AUDIO_CDN_BASE}/${bitrate}/${state.reciter}/${item.globalNumber}.mp3`;
 }
 
 function playAtIndex(idx, userInitiated){
   if(idx < 0 || idx >= state.playlist.length) return;
   const item = state.playlist[idx];
   state.playIndex = idx;
+  bitrateAttemptIndex = 0;
   playerBar.classList.add('buffering');
-  audioEl.src = currentAudioUrl(item);
-  audioEl.playbackRate = state.playbackRate;
-  audioEl.play().then(()=>{ state.isPlaying = true; syncPlayingUI(); }).catch(()=>{ handlePlaybackFailure(idx); });
+  loadAndPlay(idx);
   document.getElementById('playerRef').textContent = `আয়াত ${toBn(item.numberInSurah)}`;
   document.getElementById('playerTitle').textContent = item.title;
   playerBar.classList.add('visible');
@@ -36,6 +37,30 @@ function playAtIndex(idx, userInitiated){
   const card = document.getElementById(`ayah-${item.key.replace(':','-')}`);
   if(card && userInitiated) card.scrollIntoView({behavior:'smooth', block:'center'});
   updateMediaSessionMetadata(item);
+}
+
+// Loads the ayah at the current bitrate attempt and tries to play it. Kept
+// separate from playAtIndex so a bitrate retry can reload the same ayah
+// without re-running the scroll/history/media-session side effects above.
+function loadAndPlay(idx){
+  const item = state.playlist[idx];
+  if(!item) return;
+  audioEl.src = currentAudioUrl(item);
+  audioEl.playbackRate = state.playbackRate;
+  audioEl.play().then(()=>{ state.isPlaying = true; syncPlayingUI(); }).catch(()=>{ tryNextBitrateOrFail(idx); });
+}
+
+// Some reciter editions on the CDN aren't available at every bitrate. Before
+// treating a failed ayah as truly broken, cycle through the other bitrates
+// for the same reciter/ayah — only once all of them have failed do we fall
+// through to handlePlaybackFailure (skip ahead / show an error).
+function tryNextBitrateOrFail(idx){
+  if(bitrateAttemptIndex < BITRATE_FALLBACKS.length - 1){
+    bitrateAttemptIndex++;
+    loadAndPlay(idx);
+  } else {
+    handlePlaybackFailure(idx);
+  }
 }
 
 // Called whenever the current track fails to load/play (404 from the CDN,
@@ -186,7 +211,7 @@ async function downloadCurrentAudioForOffline(btn){
   if(!state.playlist.length) return;
   const surahNum = state.playlist[0].surah;
   const isSingleSurah = state.playlist.every(item => item.surah === surahNum);
-  const urls = state.playlist.map(item => currentAudioUrl(item));
+  const urls = state.playlist.map(item => currentAudioUrl(item, 0));
   const reciterAtDownload = state.reciter;
   btn.disabled = true;
   btn.textContent = offlineButtonLabel(0, urls.length);
@@ -282,12 +307,12 @@ function initPlayer(){
     // the spinner running indefinitely.
     clearTimeout(stallTimer);
     stallTimer = setTimeout(() => {
-      if(playerBar.classList.contains('buffering')) handlePlaybackFailure(state.playIndex);
+      if(playerBar.classList.contains('buffering')) tryNextBitrateOrFail(state.playIndex);
     }, 15000);
   });
   audioEl.addEventListener('playing', () => { playerBar.classList.remove('buffering'); clearTimeout(stallTimer); playbackRetryCount = 0; });
   audioEl.addEventListener('canplay', () => { playerBar.classList.remove('buffering'); clearTimeout(stallTimer); });
-  audioEl.addEventListener('error', () => { clearTimeout(stallTimer); handlePlaybackFailure(state.playIndex); });
+  audioEl.addEventListener('error', () => { clearTimeout(stallTimer); tryNextBitrateOrFail(state.playIndex); });
   audioEl.addEventListener('loadedmetadata', () => updatePositionState());
 
   document.getElementById('seekBar').addEventListener('input', (e) => {
