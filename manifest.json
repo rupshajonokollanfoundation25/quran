@@ -1,0 +1,21 @@
+{
+  "name": "কুরআন বাংলা — পড়ুন, শুনুন, খুঁজুন, বুঝুন",
+  "short_name": "কুরআন বাংলা",
+  "description": "অফলাইনেও কুরআনের আরবি টেক্সট, বাংলা অনুবাদ ও তিলাওয়াত শুনুন।",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FBF6EC",
+  "theme_color": "#092723",
+  "lang": "bn",
+  "dir": "ltr",
+  "categories": ["books", "education", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-192-maskable.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
