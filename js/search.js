@@ -43,6 +43,6 @@ async function runSearch(q){
       searchResults.appendChild(div);
     });
   }catch(e){
-    searchResults.innerHTML = `<div class="sr-empty">অনুসন্ধান করা যায়নি, ইন্টারনেট সংযোগ পরীক্ষা করুন।</div>`;
+    searchResults.innerHTML = `<div class="sr-empty">Search failed, check internet connection.</div>`;
   }
 }
