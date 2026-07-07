@@ -88,12 +88,17 @@ if (url.href.startsWith(AUDIO_CDN)) {
     return;
   }
 
+  if (url.href.startsWith(PRAYER_API)) {
+    event.respondWith(networkFirst(req, API_CACHE_NAME));
+    return;
+  }
+
   if (url.origin === self.location.origin) {
     event.respondWith(cacheFirst(req, SHELL_CACHE_NAME));
     return;
   }
 
-  if (url.hostname.endsWith('googleapis.com') || url.hostname.endsWith('gstatic.com')) {
+  if (url.hostname.endsWith('googleapis.com') || url.hostname.endsWith('gstatic.com') || url.hostname.endsWith('cdnjs.cloudflare.com')) {
     event.respondWith(staleWhileRevalidate(req, FONT_CACHE_NAME));
     return;
   }
