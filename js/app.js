@@ -72,6 +72,7 @@ function initInstallPrompt(){
   initTopics();
   initPlanner();
   initStats();
+  initRamadan();
   initConnectionStatus();
   initInstallPrompt();
   initServiceWorker();
