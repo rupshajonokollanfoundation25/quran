@@ -166,6 +166,7 @@ function renderReader({header, showBismillah, ayahs}){
   ayahs.forEach(a => {
     const key = `${a.surah}:${a.numberInSurah}`;
     const isBookmarked = !!state.bookmarks[key];
+    const noteText = getNote(a.surah, a.numberInSurah);
     html += `<div class="ayah-card" id="ayah-${key.replace(':','-')}" data-key="${key}">
       <div class="medallion">
         ${starSvg()}
@@ -177,6 +178,10 @@ function renderReader({header, showBismillah, ayahs}){
         <div class="ayah-actions">
           <button class="play-toggle" data-key="${key}">▶ Listen.</button>
           <button class="${isBookmarked?'bookmarked':''}" onclick="toggleBookmark('${key}', this)">${isBookmarked?'★ Reserved':'☆ Save'}</button>
+          <button class="note-toggle-btn${noteText?' has-note':''}" data-note-key="${key}">${noteText?'📝 নোট দেখুন':'🖊 নোট লিখুন'}</button>
+        </div>
+        <div class="note-preview-wrap" data-note-wrap="${key}">
+          ${noteText ? `<div class="note-preview" data-note-preview="${key}">${escapeHtml(noteText)}</div>` : ''}
         </div>
       </div>
     </div>`;
@@ -196,7 +201,54 @@ function renderReader({header, showBismillah, ayahs}){
       else { playAtIndex(idx, true); }
     };
   });
+  document.querySelectorAll('.note-toggle-btn').forEach(btn => {
+    btn.onclick = () => openNoteEditor(btn.getAttribute('data-note-key'));
+  });
   syncPlayingUI();
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Inline note editor: opens a small textarea + save/cancel right under the
+// ayah whose note button was tapped, so editing stays in context instead of
+// jumping to a separate modal.
+function openNoteEditor(key){
+  const wrap = document.querySelector(`[data-note-wrap="${key}"]`);
+  if(!wrap) return;
+  const [surahStr, ayahStr] = key.split(':');
+  const surah = parseInt(surahStr, 10), ayah = parseInt(ayahStr, 10);
+  const current = getNote(surah, ayah);
+  wrap.innerHTML = `<div class="note-edit-box">
+    <textarea class="note-textarea" placeholder="এই আয়াত সম্পর্কে আপনার নোট লিখুন...">${escapeHtml(current)}</textarea>
+    <div class="note-edit-actions">
+      ${current ? `<button class="note-delete-btn" data-act="delete">🗑 মুছুন</button>` : ''}
+      <button class="note-cancel-btn" data-act="cancel">বাতিল</button>
+      <button class="note-save-btn" data-act="save">সংরক্ষণ করুন</button>
+    </div>
+  </div>`;
+  const textarea = wrap.querySelector('.note-textarea');
+  textarea.focus();
+  wrap.querySelector('[data-act="save"]').onclick = () => {
+    saveNote(surah, ayah, textarea.value);
+    renderNotePreview(wrap, key, surah, ayah);
+  };
+  wrap.querySelector('[data-act="cancel"]').onclick = () => renderNotePreview(wrap, key, surah, ayah);
+  const delBtn = wrap.querySelector('[data-act="delete"]');
+  if(delBtn) delBtn.onclick = () => { deleteNote(surah, ayah); renderNotePreview(wrap, key, surah, ayah); };
+}
+
+function renderNotePreview(wrap, key, surah, ayah){
+  const text = getNote(surah, ayah);
+  wrap.innerHTML = text ? `<div class="note-preview" data-note-preview="${key}">${escapeHtml(text)}</div>` : '';
+  const btn = document.querySelector(`.note-toggle-btn[data-note-key="${key}"]`);
+  if(btn){
+    btn.classList.toggle('has-note', !!text);
+    btn.textContent = text ? '📝 নোট দেখুন' : '🖊 নোট লিখুন';
+  }
+  const libList = document.getElementById('libraryListContainer');
+  if(libList && document.getElementById('libTabNotes') && document.getElementById('libTabNotes').classList.contains('active')) renderNotesList(libList);
 }
 
 function starSvg(){
