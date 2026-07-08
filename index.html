@@ -39,6 +39,7 @@
   <!-- ================= HOME ================= -->
   <section class="view active" id="view-home">
     <div id="homeLanding">
+      <div id="ayahOfDayCard" class="aod-card"></div>
       <div class="section-title" id="lastReadTitle" style="display:none;">সর্বশেষ পড়েছিলেন</div>
       <div class="chip-row" id="lastReadChips"></div>
       <div class="section-title">কুইক লিংক</div>
@@ -85,6 +86,7 @@
   <section class="view" id="view-library">
     <div class="tabs" id="libraryTabs">
       <button id="libTabBookmarks" class="active">Reserved</button>
+      <button id="libTabNotes">নোট</button>
       <button id="libTabHistory">History</button>
       <button id="libTabOffline">Offline</button>
     </div>
@@ -132,6 +134,7 @@
   <div class="drawer-list">
     <button class="drawer-item" id="drawerGoToAyah"><span class="di-ic"><i class="fa-solid fa-arrow-turn-up"></i></span> <span data-i18n="menu_goto_ayah">নির্দিষ্ট আয়াতে যান</span></button>
     <button class="drawer-item" id="drawerPrayerTimes"><span class="di-ic"><i class="fa-solid fa-clock"></i></span> <span data-i18n="menu_prayer_times">সালাতের সময়সূচি</span></button>
+    <button class="drawer-item" id="drawerTaraweeh"><span class="di-ic"><i class="fa-solid fa-moon"></i></span> <span>তারাবীহ ট্র্যাকার</span></button>
     <button class="drawer-item" id="drawerDictionary"><span class="di-ic"><i class="fa-solid fa-book-open"></i></span> <span data-i18n="menu_dictionary">অভিধান</span></button>
     <button class="drawer-item" id="drawerOtherApps"><span class="di-ic"><i class="fa-solid fa-mobile-screen-button"></i></span> <span data-i18n="menu_other_apps">আমাদের অন্যান্য অ্যাপস</span></button>
     <button class="drawer-item" id="drawerSettings"><span class="di-ic"><i class="fa-solid fa-gear"></i></span> <span data-i18n="menu_settings">সেটিংস</span></button>
@@ -193,6 +196,12 @@
           <label class="switch"><input type="checkbox" id="settingsPrayerNotify"><span class="switch-slider"></span></label>
         </div>
       </div>
+      <div class="settings-row">
+        <div class="settings-label">🌙 রমজান মোড</div>
+        <div class="settings-control">
+          <label class="switch"><input type="checkbox" id="settingsRamadanMode"><span class="switch-slider"></span></label>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -233,6 +242,17 @@
       <button class="app-modal-close" id="helpClose">✕</button>
     </div>
     <div class="app-modal-body" id="helpBody"></div>
+  </div>
+</div>
+
+<!-- ================= Taraweeh tracker modal ================= -->
+<div class="app-modal" id="taraweehModal" style="display:none;">
+  <div class="app-modal-box">
+    <div class="app-modal-head">
+      <h3><i class="fa-solid fa-moon"></i> তারাবীহ ট্র্যাকার</h3>
+      <button class="app-modal-close" id="taraweehClose">✕</button>
+    </div>
+    <div class="app-modal-body" id="taraweehBody"></div>
   </div>
 </div>
 
@@ -290,6 +310,7 @@
 <script src="js/topics.js"></script>
 <script src="js/planner.js"></script>
 <script src="js/stats.js"></script>
+<script src="js/ramadan.js"></script>
 <script src="js/nav.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/app.js"></script>
