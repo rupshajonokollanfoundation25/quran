@@ -94,6 +94,7 @@ function initHeaderOffset(){
   initConnectionStatus();
   initInstallPrompt();
   initServiceWorker();
+  if(typeof initForegroundPush === 'function') initForegroundPush();
   initSearch();
   initPlayer();
   fetchSurahList();
