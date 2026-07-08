@@ -19,7 +19,7 @@ function closeModal(id){
 }
 function modalEscHandler(e){
   if(e.key === 'Escape'){
-    ['settingsModal','prayerModal','dictionaryModal','helpModal'].forEach(id => {
+    ['settingsModal','prayerModal','dictionaryModal','helpModal','taraweehModal'].forEach(id => {
       const el = document.getElementById(id);
       if(el && el.style.display === 'flex') closeModal(id);
     });
