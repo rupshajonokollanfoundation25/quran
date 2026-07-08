@@ -8,7 +8,7 @@ const PRAYER_API = 'https://api.aladhan.com/v1';
 
 // Bump the version suffix any time app-shell files change so the service
 // worker picks up a fresh copy instead of serving a stale cached version.
-const SW_VERSION = 'v15';
+const SW_VERSION = 'v14';
 const SHELL_CACHE_NAME = `qr-shell-${SW_VERSION}`;
 const API_CACHE_NAME = `qr-api-${SW_VERSION}`;
 const AUDIO_CACHE_NAME = `qr-audio-${SW_VERSION}`;
@@ -21,6 +21,8 @@ const APP_SHELL_FILES = [
   './css/style.css',
   './js/data.js',
   './js/storage.js',
+  './js/firebase-config.js',
+  './js/auth.js',
   './js/player.js',
   './js/reader.js',
   './js/sidebar.js',
