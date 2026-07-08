@@ -198,7 +198,7 @@ let statsAodState = null;
 async function fetchAyahPair(s, a){
   const [arRes, bnRes] = await Promise.all([
     fetch(`${API}/ayah/${s}:${a}/quran-uthmani`).then(r => r.json()),
-    fetch(`${API}/ayah/${s}:${a}/bn.bengali`).then(r => r.json())
+    fetch(`${API}/ayah/${s}:${a}/${state.translationEdition}`).then(r => r.json())
   ]);
   return {
     s, a,
