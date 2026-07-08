@@ -28,11 +28,13 @@
 //     }
 //   }
 
-const FIREBASE_CONFIG = {
-  apiKey: "PASTE_YOUR_API_KEY_HERE",
-  authDomain: "PASTE_YOUR_PROJECT.firebaseapp.com",
-  projectId: "PASTE_YOUR_PROJECT_ID",
-  storageBucket: "PASTE_YOUR_PROJECT.appspot.com",
-  messagingSenderId: "PASTE_YOUR_SENDER_ID",
-  appId: "PASTE_YOUR_APP_ID"
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyDITftqa-a3eKq64y-6S8XCjaUArjq4BOc",
+  authDomain: "quran-resource.firebaseapp.com",
+  projectId: "quran-resource",
+  storageBucket: "quran-resource.firebasestorage.app",
+  messagingSenderId: "1051257265785",
+  appId: "1:1051257265785:web:990613fc2e946fc3c7bea8",
+  measurementId: "G-JE4W3EGWRD"
 };
