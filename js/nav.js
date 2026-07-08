@@ -85,10 +85,16 @@ function initMoreDrawer(){
 
   document.getElementById('drawerGoToAyah').onclick = () => {
     close();
-    const ref = prompt('সূরা নম্বর:আয়াত নম্বর লিখুন, যেমন 2:255');
-    if(!ref) return;
-    const [s,a] = ref.split(':').map(n => parseInt(n,10));
-    if(Number.isInteger(s) && s>=1 && s<=114) openSurahAndScrollTo(s, Number.isInteger(a) ? a : 1);
+    showInputBox({
+      title: 'নির্দিষ্ট আয়াতে যান',
+      placeholder: 'যেমন 2:255',
+      confirmLabel: 'যান',
+      onConfirm: (ref) => {
+        const [s,a] = ref.split(':').map(n => parseInt(n,10));
+        if(Number.isInteger(s) && s>=1 && s<=114) openSurahAndScrollTo(s, Number.isInteger(a) ? a : 1);
+        else showToast('সঠিক ফরম্যাটে লিখুন, যেমন 2:255');
+      }
+    });
   };
 
   // Live-backed drawer items (implemented in js/menu.js).
