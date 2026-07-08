@@ -102,14 +102,20 @@ aside{
 .list::-webkit-scrollbar{width:6px;}
 .list::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px;}
 .list-item{
-  display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:10px;cursor:pointer;
-  border:1px solid transparent;margin-bottom:3px;
+  display:flex;align-items:center;gap:12px;padding:13px 6px;cursor:pointer;
+  border-bottom:1px solid var(--line);position:relative;
 }
+.list-item:first-child{border-top:1px solid var(--line);}
 .list-item:hover{background:var(--sage);}
-.list-item.selected{background:var(--gold-soft);border-color:var(--gold);}
+.list-item.selected{background:var(--gold-soft);}
+.list-item:not(.offline-item):not(.note-item)::after{
+  content:'';width:8px;height:8px;flex-shrink:0;margin-left:2px;
+  border-right:1.8px solid var(--ink-soft);border-bottom:1.8px solid var(--ink-soft);
+  transform:rotate(-45deg);opacity:.45;
+}
 .badge-num{
-  width:30px;height:30px;flex-shrink:0;border-radius:50%;background:var(--teal);color:var(--sage);
-  display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;
+  width:42px;height:42px;flex-shrink:0;border-radius:13px;background:var(--teal);color:var(--sage);
+  display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;
 }
 .li-text{flex:1;min-width:0;}
 .li-title{font-family:'Noto Serif Bengali',serif;font-weight:600;font-size:14.5px;}
@@ -456,12 +462,25 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
 .week-min{font-size:10px;color:var(--ink-soft);}
 .streak-range-row{display:flex;justify-content:space-between;align-items:center;}
 .badges-head{display:flex;justify-content:space-between;align-items:center;margin:6px 4px 12px;font-family:'Noto Serif Bengali',serif;font-weight:700;}
-.badges-see-all{font-size:12.5px;color:var(--teal);font-weight:600;cursor:pointer;}
-[data-theme="dark"] .badges-see-all{color:var(--gold);}
-.badges-row{display:flex;gap:18px;justify-content:space-around;flex-wrap:wrap;}
-.badge-item{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:88px;text-align:center;}
-.badge-circle{width:64px;height:64px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--ink-soft);}
-.badge-label{font-size:11.5px;color:var(--ink-soft);}
+.badges-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;}
+.badge-card{
+  display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;
+  border-radius:var(--radius);background:var(--panel);border:1px solid var(--line);text-align:center;
+}
+.badge-card.unlocked{border-color:var(--gold);background:var(--gold-soft);}
+.badge-ic-box{
+  width:48px;height:48px;border-radius:15px;background:var(--sage);color:var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.badge-card.unlocked .badge-ic-box{background:var(--teal);color:var(--gold);}
+.badge-lock-dot{
+  position:absolute;bottom:-4px;right:-4px;width:18px;height:18px;border-radius:50%;
+  background:var(--ink-soft);color:var(--parchment);display:flex;align-items:center;justify-content:center;font-size:9px;
+}
+.badge-name-v2{font-size:11.5px;font-weight:700;line-height:1.3;font-family:'Noto Serif Bengali',serif;}
+.badge-progress-v2{font-size:10.5px;color:var(--ink-soft);}
+.badge-card.unlocked .badge-progress-v2{color:var(--teal);font-weight:600;}
+[data-theme="dark"] .badge-card.unlocked .badge-progress-v2{color:var(--gold);}
 
 /* ---- Bottom navigation ---- */
 .bottom-nav{
@@ -616,6 +635,84 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
   font-family:'Hind Siliguri',sans-serif;z-index:70;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
 }
 .app-toast.visible{opacity:1;transform:translate(-50%,0);}
+
+/* ---- Ayah of the Day (home card) ---- */
+.aod-card{
+  background:linear-gradient(135deg,var(--teal),var(--teal-deep));color:var(--sage);
+  border-radius:18px;padding:18px 18px 16px;margin:2px 2px 16px;cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,.12);position:relative;overflow:hidden;
+}
+.aod-card::before{
+  content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;
+  background:radial-gradient(circle,rgba(212,175,90,.18),transparent 70%);
+}
+.aod-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.aod-badge{font-size:11.5px;font-weight:700;color:var(--gold);letter-spacing:.3px;}
+.aod-arabic{font-family:'Amiri',serif;font-size:21px;line-height:2;text-align:right;direction:rtl;margin-bottom:8px;}
+.aod-bengali{font-family:'Noto Serif Bengali',serif;font-size:13.5px;line-height:1.7;color:rgba(220,230,222,.92);margin-bottom:10px;}
+.aod-ref{font-size:11.5px;color:var(--gold-soft);font-weight:600;}
+.aod-loading{font-size:13px;color:rgba(220,230,222,.8);padding:6px 0;}
+
+/* ---- Per-ayah notes ---- */
+.ayah-actions .note-toggle-btn.has-note{color:var(--gold);border-color:var(--gold);}
+.note-preview-wrap:not(:empty){margin-top:8px;}
+.note-preview{
+  background:var(--gold-soft);border:1px solid var(--gold);border-radius:10px;padding:10px 12px;
+  font-size:13px;color:var(--ink);cursor:pointer;white-space:pre-wrap;
+}
+.note-edit-box{margin-top:8px;display:flex;flex-direction:column;gap:8px;}
+.note-textarea{
+  width:100%;min-height:80px;border-radius:10px;border:1px solid var(--line);background:var(--parchment);
+  color:var(--ink);font-family:'Hind Siliguri',sans-serif;font-size:13.5px;padding:10px 12px;resize:vertical;outline:none;
+}
+.note-textarea:focus{border-color:var(--gold);}
+.note-edit-actions{display:flex;gap:8px;justify-content:flex-end;}
+.note-edit-actions button{
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;
+  padding:6px 12px;font-size:12.5px;cursor:pointer;font-family:'Hind Siliguri',sans-serif;
+}
+.note-save-btn{background:var(--teal);color:var(--sage);border-color:var(--teal);}
+.note-delete-btn{color:#a3342c;border-color:#e3b3ac;margin-right:auto;}
+.note-item-text{
+  font-family:'Hind Siliguri',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block;
+}
+
+/* ---- Ramadan mode: warmer, festive palette layered on top of light/dark ---- */
+[data-ramadan="on"] header{background:linear-gradient(120deg,#3B1F5C,#241239);}
+[data-ramadan="on"] .wordmark .ar{color:#F0C24B;}
+[data-ramadan="on"] .bn-item.active,[data-ramadan="on"] .tabs button.active{background:#3B1F5C;}
+[data-ramadan="on"] .aod-card{background:linear-gradient(135deg,#3B1F5C,#241239);}
+[data-ramadan="on"] .aod-badge{color:#F0C24B;}
+[data-ramadan="on"] .bottom-nav{background:linear-gradient(120deg,#3B1F5C,#241239);}
+
+/* ---- Taraweeh tracker modal ---- */
+.tw-summary{text-align:center;margin-bottom:14px;}
+.tw-summary-big{font-family:'Noto Serif Bengali',serif;font-size:34px;font-weight:700;color:var(--teal);}
+[data-theme="dark"] .tw-summary-big{color:var(--gold);}
+.tw-summary-big span{font-size:18px;color:var(--ink-soft);font-weight:500;}
+.tw-summary-label{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
+.tw-goal-row{
+  display:flex;justify-content:space-between;align-items:center;background:var(--panel);
+  border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13px;
+}
+.tw-goal-controls{display:flex;align-items:center;gap:10px;font-weight:700;}
+.tw-goal-controls button{
+  width:26px;height:26px;border-radius:50%;border:1px solid var(--line);background:var(--parchment);
+  cursor:pointer;font-size:15px;line-height:1;color:var(--ink);
+}
+.tw-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:12px;}
+.tw-day{
+  background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 4px;text-align:center;
+  cursor:pointer;transition:background .15s;
+}
+.tw-day:hover{background:var(--sage);}
+.tw-day.partial{border-color:var(--gold);}
+.tw-day.done{background:var(--teal);border-color:var(--teal);}
+.tw-day-num{font-size:12.5px;font-weight:700;font-family:'Noto Serif Bengali',serif;}
+.tw-day.done .tw-day-num{color:var(--gold);}
+.tw-day-rakat{font-size:9.5px;color:var(--ink-soft);margin-top:2px;}
+.tw-day.done .tw-day-rakat{color:var(--sage);}
+.tw-hint{font-size:11.5px;color:var(--ink-soft);text-align:center;}
 
 @media (max-width:480px){
   .app-shell{padding-left:12px;padding-right:12px;}
