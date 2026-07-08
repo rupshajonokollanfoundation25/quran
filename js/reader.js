@@ -205,6 +205,31 @@ function renderReader({header, showBismillah, ayahs}){
     btn.onclick = () => openNoteEditor(btn.getAttribute('data-note-key'));
   });
   syncPlayingUI();
+  initAyahReadTracking();
+}
+
+// ---------- Marks ayahs as "read" for the লাইফটাইম stats once they've
+// actually stayed on screen for a bit, not just flashed past while scrolling. ----------
+let ayahReadObserver = null;
+function initAyahReadTracking(){
+  if(!('IntersectionObserver' in window)) return;
+  if(ayahReadObserver) ayahReadObserver.disconnect();
+  const dwellTimers = new Map();
+  ayahReadObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      const key = entry.target.getAttribute('data-key');
+      if(!key) return;
+      if(entry.isIntersecting){
+        if(dwellTimers.has(key) || state.ayahsRead[key]) return;
+        const t = setTimeout(() => { markAyahRead(key); dwellTimers.delete(key); }, 1500);
+        dwellTimers.set(key, t);
+      } else {
+        const t = dwellTimers.get(key);
+        if(t){ clearTimeout(t); dwellTimers.delete(key); }
+      }
+    });
+  }, { threshold: 0.6 });
+  document.querySelectorAll('.ayah-card').forEach(el => ayahReadObserver.observe(el));
 }
 
 function escapeHtml(str){
