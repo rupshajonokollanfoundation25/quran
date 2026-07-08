@@ -8,7 +8,7 @@ const PRAYER_API = 'https://api.aladhan.com/v1';
 
 // Bump the version suffix any time app-shell files change so the service
 // worker picks up a fresh copy instead of serving a stale cached version.
-const SW_VERSION = 'v21';
+const SW_VERSION = 'v22';
 const SHELL_CACHE_NAME = `qr-shell-${SW_VERSION}`;
 const API_CACHE_NAME = `qr-api-${SW_VERSION}`;
 const AUDIO_CACHE_NAME = `qr-audio-${SW_VERSION}`;
@@ -80,9 +80,9 @@ const reciters = [
 // TODO(Imran): এই লিংকগুলো আপনার আসল ওয়েবসাইট, ফেসবুক পেজ এবং ইউটিউব চ্যানেলের
 // ঠিকানা দিয়ে পরিবর্তন করে নিন।
 const SOCIAL_LINKS = {
-  website: 'https://example.com',
-  facebook: 'https://facebook.com/yourpage',
-  youtube: 'https://youtube.com/@yourchannel'
+  website: 'https://rupshajf.vercel.app',
+  facebook: 'https://facebook.com/rupshajonokollanfoundation',
+  youtube: 'https://youtube.com/@রূপসা জনকল্যাণফাউন্ডেশন'
 };
 
 // ---------- Prayer time calculation methods (Aladhan API) ----------
