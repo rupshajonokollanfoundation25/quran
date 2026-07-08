@@ -15,7 +15,12 @@ const state = {
   language: 'bn',
   prayerMethod: 1,
   prayerNotify: false,
-  prayerLocation: null
+  prayerLocation: null,
+  notes: {},
+  searchCount: 0,
+  audioSurahsPlayed: [],
+  ramadanMode: false,
+  taraweeh: { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} }
 };
 
 // ---------- localStorage persistence ----------
@@ -33,7 +38,12 @@ const LS_KEYS = {
   language: 'qr_language',
   prayerMethod: 'qr_prayer_method',
   prayerNotify: 'qr_prayer_notify',
-  prayerLocation: 'qr_prayer_location'
+  prayerLocation: 'qr_prayer_location',
+  notes: 'qr_notes',
+  searchCount: 'qr_search_count',
+  audioSurahsPlayed: 'qr_audio_surahs_played',
+  ramadanMode: 'qr_ramadan_mode',
+  taraweeh: 'qr_taraweeh'
 };
 
 // Keep well above the "at least 10" requirement so older items don't get
@@ -90,6 +100,33 @@ function loadPrefs(){
     const raw = localStorage.getItem(LS_KEYS.prayerLocation);
     if(raw) state.prayerLocation = JSON.parse(raw);
   }catch(e){ state.prayerLocation = null; }
+
+  try{
+    const raw = localStorage.getItem(LS_KEYS.notes);
+    state.notes = raw ? JSON.parse(raw) : {};
+  }catch(e){ state.notes = {}; }
+
+  try{
+    const n = parseInt(localStorage.getItem(LS_KEYS.searchCount), 10);
+    state.searchCount = Number.isInteger(n) && n > 0 ? n : 0;
+  }catch(e){ state.searchCount = 0; }
+
+  try{
+    const raw = localStorage.getItem(LS_KEYS.audioSurahsPlayed);
+    state.audioSurahsPlayed = raw ? JSON.parse(raw) : [];
+  }catch(e){ state.audioSurahsPlayed = []; }
+
+  try{
+    state.ramadanMode = localStorage.getItem(LS_KEYS.ramadanMode) === '1';
+  }catch(e){}
+
+  try{
+    const raw = localStorage.getItem(LS_KEYS.taraweeh);
+    state.taraweeh = raw ? JSON.parse(raw) : { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} };
+    if(!state.taraweeh || typeof state.taraweeh !== 'object') state.taraweeh = { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} };
+    if(!state.taraweeh.days) state.taraweeh.days = {};
+    if(!state.taraweeh.goal) state.taraweeh.goal = RAMADAN_DEFAULT_RAKAT_GOAL;
+  }catch(e){ state.taraweeh = { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} }; }
 }
 
 function saveLanguage(){
@@ -103,6 +140,54 @@ function savePrayerNotify(){
 }
 function savePrayerLocation(){
   try{ localStorage.setItem(LS_KEYS.prayerLocation, JSON.stringify(state.prayerLocation)); }catch(e){}
+}
+
+// ---------- Per-ayah notes ----------
+function noteKey(surah, ayah){ return `${surah}:${ayah}`; }
+function getNote(surah, ayah){ return state.notes[noteKey(surah, ayah)] || ''; }
+function saveNote(surah, ayah, text){
+  const key = noteKey(surah, ayah);
+  const trimmed = (text || '').trim();
+  if(trimmed) state.notes[key] = trimmed;
+  else delete state.notes[key];
+  try{ localStorage.setItem(LS_KEYS.notes, JSON.stringify(state.notes)); }catch(e){}
+}
+function deleteNote(surah, ayah){ saveNote(surah, ayah, ''); }
+function allNoteEntries(){
+  return Object.keys(state.notes).map(key => {
+    const [s, a] = key.split(':').map(Number);
+    return { surah: s, ayah: a, text: state.notes[key] };
+  });
+}
+
+// ---------- Search usage counter (used by the "Search Explorer" badge) ----------
+function incrementSearchCount(){
+  state.searchCount = (state.searchCount || 0) + 1;
+  try{ localStorage.setItem(LS_KEYS.searchCount, String(state.searchCount)); }catch(e){}
+}
+
+// ---------- Unique surahs listened to (used by the "Audio Explorer" badge) ----------
+function trackAudioSurahPlayed(surahNum){
+  if(!Number.isInteger(surahNum)) return;
+  if(!state.audioSurahsPlayed.includes(surahNum)){
+    state.audioSurahsPlayed.push(surahNum);
+    try{ localStorage.setItem(LS_KEYS.audioSurahsPlayed, JSON.stringify(state.audioSurahsPlayed)); }catch(e){}
+  }
+}
+
+// ---------- Ramadan mode + Taraweeh tracker ----------
+function saveRamadanMode(){
+  try{ localStorage.setItem(LS_KEYS.ramadanMode, state.ramadanMode ? '1' : '0'); }catch(e){}
+}
+function saveTaraweeh(){
+  try{ localStorage.setItem(LS_KEYS.taraweeh, JSON.stringify(state.taraweeh)); }catch(e){}
+}
+function setTaraweehDay(dayNum, rakats){
+  const goal = state.taraweeh.goal || RAMADAN_DEFAULT_RAKAT_GOAL;
+  const clamped = Math.max(0, Math.min(goal, rakats));
+  if(clamped <= 0) delete state.taraweeh.days[dayNum];
+  else state.taraweeh.days[dayNum] = clamped;
+  saveTaraweeh();
 }
 
 function saveBookmarks(){
