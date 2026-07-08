@@ -18,9 +18,20 @@ const state = {
   prayerLocation: null,
   notes: {},
   searchCount: 0,
-  audioSurahsPlayed: [],
   ramadanMode: false,
-  taraweeh: { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} }
+  taraweeh: { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} },
+  // ---- Account / cloud-sync related (see js/auth.js) ----
+  // NOTE ON PRIVACY OF SYNCED DATA: only aggregate progress numbers ever get
+  // written to Firestore (see buildSyncSnapshot in js/auth.js) — never which
+  // surahs/ayahs were read, bookmarks, notes, or reading history. Those stay
+  // in localStorage on this device only.
+  ayahsRead: {},              // map "surah:ayah" -> 1, LOCAL ONLY (device-side dedup)
+  ayahsReadFloor: 0,          // highest ayahs-read COUNT seen from the cloud, no ayah identities
+  audioSurahsPlayed: [],      // LOCAL ONLY (device-side dedup for the audio badge)
+  audioSurahsPlayedFloor: 0,  // highest unique-surahs-played COUNT seen from the cloud
+  bestStreak: 0,               // longest daily-reading streak ever reached, kept even if the
+                                // current streak later resets to 0
+  user: null                    // set by auth.js on sign-in: { uid, name, email, position }
 };
 
 // ---------- localStorage persistence ----------
@@ -43,7 +54,11 @@ const LS_KEYS = {
   searchCount: 'qr_search_count',
   audioSurahsPlayed: 'qr_audio_surahs_played',
   ramadanMode: 'qr_ramadan_mode',
-  taraweeh: 'qr_taraweeh'
+  taraweeh: 'qr_taraweeh',
+  ayahsRead: 'qr_ayahs_read',
+  ayahsReadFloor: 'qr_ayahs_read_floor',
+  audioSurahsPlayedFloor: 'qr_audio_surahs_played_floor',
+  bestStreak: 'qr_best_streak'
 };
 
 // Keep well above the "at least 10" requirement so older items don't get
@@ -127,6 +142,27 @@ function loadPrefs(){
     if(!state.taraweeh.days) state.taraweeh.days = {};
     if(!state.taraweeh.goal) state.taraweeh.goal = RAMADAN_DEFAULT_RAKAT_GOAL;
   }catch(e){ state.taraweeh = { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} }; }
+
+  try{
+    const raw = localStorage.getItem(LS_KEYS.ayahsRead);
+    state.ayahsRead = raw ? JSON.parse(raw) : {};
+    if(!state.ayahsRead || typeof state.ayahsRead !== 'object') state.ayahsRead = {};
+  }catch(e){ state.ayahsRead = {}; }
+
+  try{
+    const n = parseInt(localStorage.getItem(LS_KEYS.ayahsReadFloor), 10);
+    state.ayahsReadFloor = Number.isInteger(n) && n > 0 ? n : 0;
+  }catch(e){ state.ayahsReadFloor = 0; }
+
+  try{
+    const n = parseInt(localStorage.getItem(LS_KEYS.audioSurahsPlayedFloor), 10);
+    state.audioSurahsPlayedFloor = Number.isInteger(n) && n > 0 ? n : 0;
+  }catch(e){ state.audioSurahsPlayedFloor = 0; }
+
+  try{
+    const n = parseInt(localStorage.getItem(LS_KEYS.bestStreak), 10);
+    state.bestStreak = Number.isInteger(n) && n > 0 ? n : 0;
+  }catch(e){ state.bestStreak = 0; }
 }
 
 function saveLanguage(){
@@ -164,6 +200,7 @@ function allNoteEntries(){
 function incrementSearchCount(){
   state.searchCount = (state.searchCount || 0) + 1;
   try{ localStorage.setItem(LS_KEYS.searchCount, String(state.searchCount)); }catch(e){}
+  queueCloudSync();
 }
 
 // ---------- Unique surahs listened to (used by the "Audio Explorer" badge) ----------
@@ -172,6 +209,7 @@ function trackAudioSurahPlayed(surahNum){
   if(!state.audioSurahsPlayed.includes(surahNum)){
     state.audioSurahsPlayed.push(surahNum);
     try{ localStorage.setItem(LS_KEYS.audioSurahsPlayed, JSON.stringify(state.audioSurahsPlayed)); }catch(e){}
+    queueCloudSync();
   }
 }
 
@@ -181,6 +219,7 @@ function saveRamadanMode(){
 }
 function saveTaraweeh(){
   try{ localStorage.setItem(LS_KEYS.taraweeh, JSON.stringify(state.taraweeh)); }catch(e){}
+  queueCloudSync();
 }
 function setTaraweehDay(dayNum, rakats){
   const goal = state.taraweeh.goal || RAMADAN_DEFAULT_RAKAT_GOAL;
@@ -261,6 +300,34 @@ async function removeSurahOffline(surahNum){
   state.offlineSurahs = state.offlineSurahs.filter(o => o.surah !== surahNum);
   try{ localStorage.setItem(LS_KEYS.offlineSurahs, JSON.stringify(state.offlineSurahs)); }catch(e){}
 }
+
+// ---------- Unique ayahs actually read (used by the "আয়াত পাঠ" lifetime stat) ----------
+// Marked by an on-screen dwell-time check in js/reader.js (see initAyahReadTracking),
+// so opening a surah alone doesn't count every ayah in it as "read".
+function markAyahRead(key){
+  if(!key || state.ayahsRead[key]) return;
+  state.ayahsRead[key] = 1;
+  try{ localStorage.setItem(LS_KEYS.ayahsRead, JSON.stringify(state.ayahsRead)); }catch(e){}
+  queueCloudSync();
+}
+function ayahsReadCount(){
+  return Math.max(Object.keys(state.ayahsRead || {}).length, state.ayahsReadFloor || 0);
+}
+
+// ---------- Best (longest-ever) streak, kept separately so it survives streak resets ----------
+function updateBestStreak(currentStreak){
+  if(currentStreak > (state.bestStreak || 0)){
+    state.bestStreak = currentStreak;
+    try{ localStorage.setItem(LS_KEYS.bestStreak, String(state.bestStreak)); }catch(e){}
+    queueCloudSync();
+  }
+}
+
+// ---------- Cloud sync hook ----------
+// js/auth.js defines the real queueCloudSync() (debounced Firestore write) once a
+// user is signed in. Before that script runs, or while signed out, this is a
+// harmless no-op so every save*()/mark*() call above can call it unconditionally.
+function queueCloudSync(){}
 
 // ---------- Relative time in Bengali, for the history list ----------
 function timeAgoBn(ts){
