@@ -270,7 +270,7 @@ function renderAyahOfDay(){
     card.onclick = () => openSurahAndScrollTo(s, a);
   };
 
-  if(cached){
+  if(cached && cached.edition === state.translationEdition){
     renderCard(cached.arabic, cached.bengali);
     return;
   }
@@ -278,12 +278,12 @@ function renderAyahOfDay(){
   card.innerHTML = `<div class="aod-head"><span class="aod-badge">✦ আজকের আয়াত</span></div><div class="aod-loading">লোড হচ্ছে...</div>`;
   Promise.all([
     fetch(`${API}/ayah/${s}:${a}/quran-uthmani`).then(r => r.json()),
-    fetch(`${API}/ayah/${s}:${a}/bn.bengali`).then(r => r.json())
+    fetch(`${API}/ayah/${s}:${a}/${state.translationEdition}`).then(r => r.json())
   ]).then(([arRes, bnRes]) => {
     const arabic = arRes && arRes.data ? arRes.data.text : '';
     const bengali = bnRes && bnRes.data ? bnRes.data.text : '';
     renderCard(arabic, bengali);
-    try{ localStorage.setItem('qr_aod_cache', JSON.stringify({ date: todayKey, s, a, arabic, bengali })); }catch(e){}
+    try{ localStorage.setItem('qr_aod_cache', JSON.stringify({ date: todayKey, s, a, edition: state.translationEdition, arabic, bengali })); }catch(e){}
   }).catch(() => {
     card.innerHTML = `<div class="aod-head"><span class="aod-badge">✦ আজকের আয়াত</span></div><div class="aod-loading">লোড করা যায়নি, ইন্টারনেট সংযোগ পরীক্ষা করুন।</div>`;
     card.onclick = null;
