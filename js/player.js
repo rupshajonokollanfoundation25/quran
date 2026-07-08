@@ -32,6 +32,7 @@ function playAtIndex(idx, userInitiated){
   state.lastRead = { surah: item.surah, ayah: item.numberInSurah };
   saveLastRead();
   addHistoryEntry({ surah: item.surah, title: item.title, ayah: item.numberInSurah, reciter: state.reciter, ts: Date.now() });
+  trackAudioSurahPlayed(item.surah);
   const libList = document.getElementById('libraryListContainer');
   if(libList && document.getElementById('libTabHistory') && document.getElementById('libTabHistory').classList.contains('active')) renderHistoryList(libList);
   recordActivityToday();
