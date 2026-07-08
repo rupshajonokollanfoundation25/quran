@@ -133,6 +133,36 @@ function renderHistoryList(container){
   });
 }
 
+// Shows every ayah that has a personal note attached.
+function renderNotesList(container){
+  if(!container) return;
+  const entries = allNoteEntries().sort((a,b) => a.surah - b.surah || a.ayah - b.ayah);
+  if(!entries.length){
+    container.innerHTML = `<div class="empty-list-msg">এখনও কোনো নোট লেখা হয়নি।<br>একটি আয়াত পড়ার সময় "🖊 নোট লিখুন" বাটনে চাপুন।</div>`;
+    return;
+  }
+  container.innerHTML = '';
+  entries.forEach(({surah, ayah, text}) => {
+    const s = state.surahList.find(x => x.number === surah);
+    const item = document.createElement('div');
+    item.className = 'list-item note-item';
+    item.innerHTML = `<div class="badge-num">${toBn(surah)}</div>
+      <div class="li-text">
+        <div class="li-title">${(s ? (surahNamesBn[surah-1]||s.englishName) : 'সূরা '+surah)} — আয়াত ${toBn(ayah)}</div>
+        <div class="li-sub note-item-text">${escapeHtml(text)}</div>
+      </div>
+      <button class="offline-remove-btn" title="নোট মুছুন">Delete</button>`;
+    item.querySelector('.li-text').onclick = () => openSurahAndScrollTo(surah, ayah);
+    item.querySelector('.badge-num').onclick = () => openSurahAndScrollTo(surah, ayah);
+    item.querySelector('.offline-remove-btn').onclick = (e) => {
+      e.stopPropagation();
+      deleteNote(surah, ayah);
+      renderNotesList(container);
+    };
+    container.appendChild(item);
+  });
+}
+
 // Shows surahs that have been downloaded for offline listening, so the
 // user can see at a glance what's actually saved on this device (and undo
 // a download to free up space) — separate from the plain surah/juz lists.
@@ -185,6 +215,57 @@ function markSelected(idx, container){
   scope.querySelectorAll('.list-item').forEach((el,i)=>el.classList.toggle('selected', i===idx));
 }
 
+// ---------- Ayah of the Day (home landing card) ----------
+// Picks a deterministic ayah for today (see ayahOfTheDay() in data.js) and
+// caches its fetched text in localStorage for that calendar day only, so
+// re-opening the app the same day shows it instantly with no network call,
+// and it still works fully offline after the first load.
+function renderAyahOfDay(){
+  const card = document.getElementById('ayahOfDayCard');
+  if(!card) return;
+  const {s, a} = ayahOfTheDay();
+  const todayKey = new Date().toDateString();
+  let cached = null;
+  try{
+    const raw = localStorage.getItem('qr_aod_cache');
+    if(raw){
+      const parsed = JSON.parse(raw);
+      if(parsed && parsed.date === todayKey && parsed.s === s && parsed.a === a) cached = parsed;
+    }
+  }catch(e){}
+
+  const renderCard = (arabic, bengali) => {
+    const surahName = surahNamesBn[s-1] || ('সূরা ' + s);
+    card.innerHTML = `
+      <div class="aod-head">
+        <span class="aod-badge">✦ আজকের আয়াত</span>
+      </div>
+      <div class="aod-arabic">${arabic || ''}</div>
+      <div class="aod-bengali">${bengali || ''}</div>
+      <div class="aod-ref">সূরা ${surahName} — আয়াত ${toBn(a)}</div>`;
+    card.onclick = () => openSurahAndScrollTo(s, a);
+  };
+
+  if(cached){
+    renderCard(cached.arabic, cached.bengali);
+    return;
+  }
+
+  card.innerHTML = `<div class="aod-head"><span class="aod-badge">✦ আজকের আয়াত</span></div><div class="aod-loading">লোড হচ্ছে...</div>`;
+  Promise.all([
+    fetch(`${API}/ayah/${s}:${a}/quran-uthmani`).then(r => r.json()),
+    fetch(`${API}/ayah/${s}:${a}/bn.bengali`).then(r => r.json())
+  ]).then(([arRes, bnRes]) => {
+    const arabic = arRes && arRes.data ? arRes.data.text : '';
+    const bengali = bnRes && bnRes.data ? bnRes.data.text : '';
+    renderCard(arabic, bengali);
+    try{ localStorage.setItem('qr_aod_cache', JSON.stringify({ date: todayKey, s, a, arabic, bengali })); }catch(e){}
+  }).catch(() => {
+    card.innerHTML = `<div class="aod-head"><span class="aod-badge">✦ আজকের আয়াত</span></div><div class="aod-loading">লোড করা যায়নি, ইন্টারনেট সংযোগ পরীক্ষা করুন।</div>`;
+    card.onclick = null;
+  });
+}
+
 // ---------- Home tab: last-read chips + quick links ----------
 const QUICK_LINKS = [
   { label: 'আল-মুলক', surah: 67 },
@@ -195,6 +276,7 @@ const QUICK_LINKS = [
 ];
 
 function renderHomeExtras(){
+  renderAyahOfDay();
   const lastChips = document.getElementById('lastReadChips');
   const lastTitle = document.getElementById('lastReadTitle');
   if(lastChips){
