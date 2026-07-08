@@ -13,6 +13,8 @@ const state = {
   history: [],
   offlineSurahs: [],
   language: 'bn',
+  translationEdition: 'bn.bengali', // Qur'an translation edition identifier (see js/reader.js loadTranslationEditions)
+  currentReaderView: null,          // last-opened {type, num}, used to reload in a newly picked translation language
   prayerMethod: 1,
   prayerNotify: false,
   prayerLocation: null,
@@ -47,6 +49,8 @@ const LS_KEYS = {
   offlineSurahs: 'qr_offline_surahs',
   playbackRate: 'qr_playback_rate',
   language: 'qr_language',
+  translationEdition: 'qr_translation_edition',
+  translationEditions: 'qr_translation_editions_cache',
   prayerMethod: 'qr_prayer_method',
   prayerNotify: 'qr_prayer_notify',
   prayerLocation: 'qr_prayer_location',
@@ -99,7 +103,12 @@ function loadPrefs(){
 
   try{
     const l = localStorage.getItem(LS_KEYS.language);
-    if(l === 'bn' || l === 'en') state.language = l;
+    if(l && I18N[l]) state.language = l;
+  }catch(e){}
+
+  try{
+    const t = localStorage.getItem(LS_KEYS.translationEdition);
+    if(t) state.translationEdition = t;
   }catch(e){}
 
   try{
@@ -167,6 +176,9 @@ function loadPrefs(){
 
 function saveLanguage(){
   try{ localStorage.setItem(LS_KEYS.language, state.language); }catch(e){}
+}
+function saveTranslationEdition(){
+  try{ localStorage.setItem(LS_KEYS.translationEdition, state.translationEdition); }catch(e){}
 }
 function savePrayerMethod(){
   try{ localStorage.setItem(LS_KEYS.prayerMethod, String(state.prayerMethod)); }catch(e){}
