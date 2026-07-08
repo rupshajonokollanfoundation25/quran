@@ -136,7 +136,7 @@ function ensureAuthOverlay(){
 function openAuthFlow(screen){
   if(!firebaseReady){
     showToast(typeof isFirebaseConfigured === 'function' && !isFirebaseConfigured()
-      ? 'Firebase এখনও কনফিগার করা হয়নি (js/firebase-config.js)'
+      ? 'এখনো এই ফিউচারটি উপলব্ধ করা হয়নি'
       : 'সাইন ইন এখন লোড করা যায়নি, একটু পর আবার চেষ্টা করুন');
     return;
   }
