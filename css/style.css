@@ -790,12 +790,144 @@ body.theme-dark-accent .dict-term{color:var(--gold);}
 }
 
 /* ---- Ramadan mode: warmer, festive palette layered on top of light/dark ---- */
-[data-ramadan="on"] header{background:linear-gradient(120deg,#3B1F5C,#241239);}
-[data-ramadan="on"] .wordmark .ar{color:#F0C24B;}
+/* =========================================================
+   রমজান মোড — a full festive decoration layer, not just a
+   header recolor: twinkling starfield, shimmering gold sweeps
+   on the header/bottom-nav, a glowing banner on Home, and
+   gold-glow accents on key cards. Everything here only ever
+   applies inside [data-ramadan="on"], so it costs nothing and
+   changes nothing when the mode is off.
+   ========================================================= */
+@keyframes ramadanTwinkleField{
+  0%{background-position:0 0, 0 0, 0 0, 0 0;}
+  100%{background-position:90px 90px, -130px 130px, 110px -110px, -150px -150px;}
+}
+[data-ramadan="on"]{
+  background-image:
+    radial-gradient(1.6px 1.6px at 20% 30%, rgba(255,255,255,.85) 45%, transparent 46%),
+    radial-gradient(1.3px 1.3px at 65% 65%, rgba(255,255,255,.6) 45%, transparent 46%),
+    radial-gradient(1.1px 1.1px at 80% 20%, rgba(255,255,255,.75) 45%, transparent 46%),
+    radial-gradient(1.4px 1.4px at 35% 80%, rgba(255,255,255,.55) 45%, transparent 46%),
+    var(--bg-texture);
+  background-repeat:repeat,repeat,repeat,repeat,no-repeat;
+  background-size:90px 90px,130px 130px,110px 110px,150px 150px,cover;
+  background-attachment:fixed,fixed,fixed,fixed,fixed;
+  animation:ramadanTwinkleField 30s linear infinite;
+}
+
+@keyframes ramadanGoldSweep{
+  0%,100%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+}
+[data-ramadan="on"] header{
+  background:linear-gradient(120deg,#3B1F5C,#6C3FA8,#3B1F5C,#241239);
+  background-size:300% 100%;
+  animation:ramadanGoldSweep 7s ease-in-out infinite;
+}
+[data-ramadan="on"] .wordmark::before{
+  content:'🌙 '; filter:drop-shadow(0 0 4px rgba(240,194,75,.8));
+}
+[data-ramadan="on"] .wordmark .ar{color:#F0C24B;text-shadow:0 0 10px rgba(240,194,75,.55);}
 [data-ramadan="on"] .bn-item.active,[data-ramadan="on"] .tabs button.active{background:#3B1F5C;}
-[data-ramadan="on"] .aod-card{background:linear-gradient(135deg,#3B1F5C,#241239);}
+[data-ramadan="on"] .bottom-nav{
+  background:linear-gradient(120deg,#3B1F5C,#6C3FA8,#3B1F5C,#241239);
+  background-size:300% 100%;
+  animation:ramadanGoldSweep 7s ease-in-out infinite;
+}
+[data-ramadan="on"] #moreDrawer{background:linear-gradient(165deg,var(--panel),#241239 220%);}
+[data-ramadan="on"] .aod-card{
+  background:linear-gradient(135deg,#3B1F5C,#241239);
+  position:relative;overflow:hidden;
+}
 [data-ramadan="on"] .aod-badge{color:#F0C24B;}
-[data-ramadan="on"] .bottom-nav{background:linear-gradient(120deg,#3B1F5C,#241239);}
+[data-ramadan="on"] .aod-card::after{
+  content:'✨';position:absolute;top:8px;right:12px;font-size:16px;
+  animation:ramadanSparklePulse 2.4s ease-in-out infinite;
+}
+
+/* Gold-glow border pulse, reused on a few festive cards below */
+@keyframes ramadanGlowPulse{
+  0%,100%{box-shadow:0 0 0 1px rgba(240,194,75,.35), 0 4px 16px rgba(240,194,75,.10);}
+  50%{box-shadow:0 0 0 1.5px rgba(240,194,75,.75), 0 6px 22px rgba(240,194,75,.28);}
+}
+@keyframes ramadanSparklePulse{
+  0%,100%{opacity:.5;transform:scale(.9);}
+  50%{opacity:1;transform:scale(1.15);}
+}
+[data-ramadan="on"] .badge-card.unlocked,
+[data-ramadan="on"] .planner-card,
+[data-ramadan="on"] .resume-card{
+  animation:ramadanGlowPulse 3.2s ease-in-out infinite;
+}
+
+/* ---- Home banner: "রমজান মুবারক" strip, hidden unless Ramadan mode is on ---- */
+.ramadan-banner{display:none;}
+[data-ramadan="on"] .ramadan-banner{
+  display:flex;align-items:center;gap:12px;margin:2px 2px 16px;padding:28px 16px 14px;
+  border-radius:var(--radius);color:#F5EFFF;position:relative;overflow:hidden;
+  background:linear-gradient(120deg,#3B1F5C,#6C3FA8,#3B1F5C,#241239);
+  background-size:300% 100%;animation:ramadanGoldSweep 7s ease-in-out infinite;
+  box-shadow:0 6px 20px rgba(59,31,92,.35);
+  border:1px solid rgba(240,194,75,.3);
+}
+/* Hanging lantern garland strung along the top inside edge of the banner */
+@keyframes ramadanLanternSwing{
+  0%,100%{transform:rotate(-9deg);}
+  50%{transform:rotate(9deg);}
+}
+.ramadan-banner .rb-lanterns{
+  position:absolute;top:2px;left:6px;right:6px;height:20px;
+  display:flex;justify-content:space-between;pointer-events:none;
+}
+.ramadan-banner .rb-lanterns span{
+  font-size:14px;line-height:1;transform-origin:top center;display:inline-block;
+  animation:ramadanLanternSwing 2.8s ease-in-out infinite;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));
+}
+.ramadan-banner .rb-lanterns span:nth-child(2){animation-delay:.3s;}
+.ramadan-banner .rb-lanterns span:nth-child(3){animation-delay:.6s;}
+.ramadan-banner .rb-lanterns span:nth-child(4){animation-delay:.15s;}
+.ramadan-banner .rb-lanterns span:nth-child(5){animation-delay:.45s;}
+/* Corner sparkle + a faint crescent watermark, both purely decorative */
+.ramadan-banner::after{
+  content:'✨';position:absolute;bottom:6px;left:12px;font-size:11px;opacity:.75;
+  animation:ramadanSparklePulse 2.3s ease-in-out infinite;
+}
+.ramadan-banner::before{
+  content:'🌙';position:absolute;right:-6px;bottom:-14px;font-size:64px;opacity:.08;
+  transform:rotate(-12deg);pointer-events:none;
+}
+.ramadan-banner .rb-icon{
+  flex-shrink:0;width:42px;height:42px;border-radius:50%;background:rgba(240,194,75,.18);
+  display:flex;align-items:center;justify-content:center;color:#F0C24B;font-size:18px;
+  animation:ramadanSparklePulse 2.6s ease-in-out infinite;position:relative;z-index:1;
+}
+.ramadan-banner .rb-text{flex:1;min-width:0;position:relative;z-index:1;}
+.ramadan-banner .rb-title{font-family:'Noto Serif Bengali',serif;font-weight:700;font-size:15.5px;color:#F0C24B;}
+.ramadan-banner .rb-sub{font-size:11.5px;color:#D9C9EE;margin-top:2px;line-height:1.4;}
+.ramadan-banner .rb-btn{
+  flex-shrink:0;border:1px solid rgba(240,194,75,.5);background:rgba(240,194,75,.12);color:#F0C24B;
+  border-radius:999px;padding:8px 14px;font-family:'Hind Siliguri',sans-serif;font-weight:600;
+  font-size:12.5px;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:6px;
+  position:relative;z-index:1;
+}
+.ramadan-banner .rb-btn:active{transform:scale(.96);}
+
+/* ---- Drawer (hamburger menu) lantern garland — normal document flow, so
+   it can never overlap or block any drawer button. ---- */
+.drawer-lanterns{display:none;}
+[data-ramadan="on"] .drawer-lanterns{
+  display:flex;justify-content:space-around;padding:8px 14px 0;
+}
+[data-ramadan="on"] .drawer-lanterns span{
+  font-size:16px;line-height:1;transform-origin:top center;display:inline-block;
+  animation:ramadanLanternSwing 2.8s ease-in-out infinite;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));
+}
+[data-ramadan="on"] .drawer-lanterns span:nth-child(2){animation-delay:.35s;}
+[data-ramadan="on"] .drawer-lanterns span:nth-child(3){animation-delay:.7s;}
+
+
 
 /* ---- Taraweeh tracker modal ---- */
 .tw-summary{text-align:center;margin-bottom:14px;}
