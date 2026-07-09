@@ -19,7 +19,7 @@ function closeModal(id){
 }
 function modalEscHandler(e){
   if(e.key === 'Escape'){
-    ['settingsModal','prayerModal','dictionaryModal','helpModal','taraweehModal'].forEach(id => {
+    ['settingsModal','prayerModal','dictionaryModal','helpModal','taraweehModal','langPickerModal','themePickerModal'].forEach(id => {
       const el = document.getElementById(id);
       if(el && el.style.display === 'flex') closeModal(id);
     });
@@ -93,6 +93,11 @@ function applyLanguage(lang){
   document.documentElement.dir = (meta && meta.dir === 'rtl') ? 'rtl' : 'ltr';
   const labelEl = document.getElementById('settingsLanguageLabel');
   if(labelEl) labelEl.textContent = meta ? meta.label : state.language;
+  if(typeof syncThemeSettingsLabel === 'function') syncThemeSettingsLabel();
+  if(typeof openThemePicker === 'function'){
+    const grid = document.getElementById('themePickerGrid');
+    if(grid && document.getElementById('themePickerModal').style.display === 'flex') openThemePicker();
+  }
 }
 function initLanguage(){
   applyLanguage(state.language);
@@ -245,18 +250,14 @@ function initSettingsModal(){
     }
   };
 
-  // Theme (mirrors the header's own night/day toggle so there's one source of truth)
+  // Theme gallery (mirrors the header's own theme button so there's one source of truth)
   const themeBtn = document.getElementById('settingsThemeBtn');
-  const themeIcon = themeBtn.querySelector('i');
-  const themeLabel = document.getElementById('settingsThemeLabel');
-  const syncThemeLabel = () => {
-    const dark = document.body.getAttribute('data-theme') === 'dark';
-    themeIcon.className = dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-    themeLabel.setAttribute('data-i18n', dark ? 'settings_theme_light' : 'settings_theme_dark');
-    themeLabel.textContent = I18N[state.language][dark ? 'settings_theme_light' : 'settings_theme_dark'];
-  };
-  themeBtn.onclick = () => { document.getElementById('themeBtn').click(); syncThemeLabel(); };
-  syncThemeLabel();
+  if(themeBtn){
+    const themeIcon = themeBtn.querySelector('i');
+    if(themeIcon) themeIcon.className = 'fa-solid fa-palette';
+    syncThemeSettingsLabel();
+    themeBtn.onclick = openThemePicker;
+  }
 
   // Font size (reuses the same state.fontStep as the reader toolbar)
   document.getElementById('settingsIncFont').onclick = () => { document.getElementById('incFont').click(); };
