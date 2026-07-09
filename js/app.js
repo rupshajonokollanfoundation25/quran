@@ -1,11 +1,93 @@
-// ---------- Theme toggle ----------
+// ---------- Theme system ----------
+// Browser-chrome color (address bar / status bar tint) to match each theme,
+// same order as THEMES in js/data.js.
+const THEME_COLORS = {
+  emerald:'#092723', night:'#0A211D', royal:'#120B21',
+  desert:'#7A3B12', ocean:'#0A4A61', amoled:'#000000', rose:'#7E2F4B'
+};
+function themeMeta(id){ return THEMES.find(t => t.id === id) || THEMES[0]; }
+
+// The single place that actually applies a theme: sets the attribute every
+// themed CSS rule keys off, flips the dark-accent class, tints the browser
+// chrome, remembers the choice, and keeps every bit of theme UI in sync —
+// so no matter where a theme gets picked from, the whole app updates together.
+function applyTheme(id, opts){
+  opts = opts || {};
+  const meta = themeMeta(id);
+  state.theme = meta.id;
+  document.body.setAttribute('data-theme', meta.id);
+  document.body.classList.toggle('theme-dark-accent', !!meta.dark);
+  const mc = document.querySelector('meta[name="theme-color"]');
+  if(mc) mc.setAttribute('content', THEME_COLORS[meta.id] || THEME_COLORS.emerald);
+  if(opts.save !== false) saveTheme();
+  syncThemeHeaderIcon();
+  syncThemeSettingsLabel();
+  refreshThemePickerActive();
+}
+
+function syncThemeHeaderIcon(){
+  const btn = document.getElementById('themeBtn');
+  if(!btn) return;
+  const icon = btn.querySelector('i');
+  if(icon) icon.className = themeMeta(state.theme).dark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+}
+function syncThemeSettingsLabel(){
+  const label = document.getElementById('settingsThemeLabel');
+  if(!label) return;
+  const dict = I18N[state.language] || I18N.en;
+  const meta = themeMeta(state.theme);
+  label.textContent = dict[meta.nameKey] || I18N.en[meta.nameKey] || meta.id;
+}
+function refreshThemePickerActive(){
+  const grid = document.getElementById('themePickerGrid');
+  if(!grid) return;
+  grid.querySelectorAll('.theme-picker-card').forEach(card => {
+    card.classList.toggle('active', card.getAttribute('data-theme-id') === state.theme);
+  });
+}
+
+// Builds (once) and opens the visual theme gallery: a grid of cards, each a
+// live color-swatch preview + name/description, reused from Settings and
+// from the quick header button so there's exactly one picker in the app.
+function openThemePicker(){
+  const dict = I18N[state.language] || I18N.en;
+  const t = (k) => dict[k] !== undefined ? dict[k] : I18N.en[k];
+  let modal = document.getElementById('themePickerModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.className = 'app-modal';
+    modal.id = 'themePickerModal';
+    modal.innerHTML = `
+      <div class="app-modal-box">
+        <div class="app-modal-head">
+          <h3 id="themePickerTitle"></h3>
+          <button class="app-modal-close" id="themePickerClose">✕</button>
+        </div>
+        <div class="app-modal-body">
+          <div class="theme-picker-grid" id="themePickerGrid"></div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    wireModalBackdrop('themePickerModal');
+    document.getElementById('themePickerClose').onclick = () => closeModal('themePickerModal');
+  }
+  document.getElementById('themePickerTitle').textContent = t('theme_picker_title');
+  const grid = document.getElementById('themePickerGrid');
+  grid.innerHTML = THEMES.map(theme => `
+    <button class="theme-picker-card${theme.id === state.theme ? ' active' : ''}" data-theme-id="${theme.id}" type="button">
+      <span class="theme-picker-swatch">${theme.swatch.map(c => `<span style="background:${c}"></span>`).join('')}</span>
+      <span class="theme-picker-name">${t(theme.nameKey)}${theme.id === state.theme ? ' <i class="fa-solid fa-circle-check"></i>' : ''}</span>
+      <span class="theme-picker-desc">${t(theme.descKey)}</span>
+    </button>`).join('');
+  grid.querySelectorAll('.theme-picker-card').forEach(card => {
+    card.onclick = () => applyTheme(card.getAttribute('data-theme-id'));
+  });
+  openModal('themePickerModal');
+}
+
 function initTheme(){
-  document.getElementById('themeBtn').onclick = () => {
-    const body = document.body;
-    const dark = body.getAttribute('data-theme') === 'dark';
-    body.setAttribute('data-theme', dark ? 'light' : 'dark');
-    document.getElementById('themeLabel').textContent = dark ? 'night mode' : 'light mode';
-  };
+  applyTheme(state.theme, { save:false }); // paint the theme chosen at load time
+  document.getElementById('themeBtn').onclick = openThemePicker;
 }
 
 // ---------- Font size buttons (reader toolbar) ----------
