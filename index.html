@@ -18,7 +18,21 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
-<body data-theme="light">
+<body data-theme="emerald">
+<script>
+// Apply the saved theme (and its dark-accent flag) before first paint, so
+// there's no flash of the default theme on reload.
+(function(){
+  try{
+    var t = localStorage.getItem('qr_theme');
+    var darkThemes = ['night','royal','amoled'];
+    if(t){
+      document.body.setAttribute('data-theme', t);
+      if(darkThemes.indexOf(t) !== -1) document.body.classList.add('theme-dark-accent');
+    }
+  }catch(e){}
+})();
+</script>
 
 <header>
   <button class="menu-btn" id="menuBtn" aria-label="মেনু খুলুন">☰</button>
@@ -30,7 +44,7 @@
   <div class="header-actions">
     <span class="conn-status" id="connStatus"></span>
     <button class="icon-btn install-btn" id="installBtn" style="display:none;">⬇ install app</button>
-    <button class="icon-btn" id="themeBtn"><span id="themeLabel">night mode</span></button>
+    <button class="icon-btn" id="themeBtn" title="থিম" aria-label="থিম"><i class="fa-solid fa-palette"></i></button>
   </div>
 </header>
 
@@ -173,7 +187,7 @@
       <div class="settings-row">
         <div class="settings-label" data-i18n="settings_theme">থিম</div>
         <div class="settings-control">
-          <button class="settings-btn" id="settingsThemeBtn"><i class="fa-solid fa-moon"></i> <span id="settingsThemeLabel" data-i18n="settings_theme_dark">রাতের মোড</span></button>
+          <button class="settings-btn" id="settingsThemeBtn"><i class="fa-solid fa-palette"></i> <span id="settingsThemeLabel">পান্না</span></button>
         </div>
       </div>
       <div class="settings-row">
