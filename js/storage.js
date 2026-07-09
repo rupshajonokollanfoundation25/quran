@@ -21,6 +21,7 @@ const state = {
   notes: {},
   searchCount: 0,
   ramadanMode: false,
+  theme: 'emerald', // see THEMES in js/app.js for the full list + metadata
   taraweeh: { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} },
   // ---- Account / cloud-sync related (see js/auth.js) ----
   // NOTE ON PRIVACY OF SYNCED DATA: only aggregate progress numbers ever get
@@ -58,6 +59,7 @@ const LS_KEYS = {
   searchCount: 'qr_search_count',
   audioSurahsPlayed: 'qr_audio_surahs_played',
   ramadanMode: 'qr_ramadan_mode',
+  theme: 'qr_theme',
   taraweeh: 'qr_taraweeh',
   ayahsRead: 'qr_ayahs_read',
   ayahsReadFloor: 'qr_ayahs_read_floor',
@@ -145,6 +147,11 @@ function loadPrefs(){
   }catch(e){}
 
   try{
+    const th = localStorage.getItem(LS_KEYS.theme);
+    if(th && THEMES.some(t => t.id === th)) state.theme = th;
+  }catch(e){}
+
+  try{
     const raw = localStorage.getItem(LS_KEYS.taraweeh);
     state.taraweeh = raw ? JSON.parse(raw) : { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} };
     if(!state.taraweeh || typeof state.taraweeh !== 'object') state.taraweeh = { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} };
@@ -176,6 +183,9 @@ function loadPrefs(){
 
 function saveLanguage(){
   try{ localStorage.setItem(LS_KEYS.language, state.language); }catch(e){}
+}
+function saveTheme(){
+  try{ localStorage.setItem(LS_KEYS.theme, state.theme); }catch(e){}
 }
 function saveTranslationEdition(){
   try{ localStorage.setItem(LS_KEYS.translationEdition, state.translationEdition); }catch(e){}
