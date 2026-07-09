@@ -1,4 +1,19 @@
+/* =========================================================
+   THEME SYSTEM — every visual surface in this file is keyed
+   off these custom properties, so switching body[data-theme]
+   re-skins the entire app: colors, corner radius (--radius)
+   and a per-theme background glow (--bg-texture). Themes that
+   sit on a dark base also get the .theme-dark-accent class
+   (set in js/app.js) so a few accent colors flip to gold for
+   contrast, same as the old dark mode did.
+   ========================================================= */
 :root{
+  --radius:14px;
+  --player-h:72px;
+  --bg-texture:none;
+}
+/* ---- থিম ১: পান্না (Emerald) — default, warm parchment/teal/gold ---- */
+body[data-theme="emerald"], :root{
   --parchment:#FBF6EC;
   --panel:#F3ECDC;
   --ink:#1E2A26;
@@ -10,9 +25,10 @@
   --sage:#DCE6DE;
   --line:#D8CDB0;
   --radius:14px;
-  --player-h:72px;
+  --bg-texture:none;
 }
-[data-theme="dark"]{
+/* ---- থিম ২: রাত্রি (Night) — the original dark mode ---- */
+body[data-theme="night"]{
   --parchment:#0F1F1B;
   --panel:#152B25;
   --ink:#EDE6D3;
@@ -23,15 +39,94 @@
   --gold-soft:#3A3220;
   --sage:#1B342C;
   --line:#2B4238;
+  --radius:14px;
+  --bg-texture:none;
+}
+/* ---- থিম ৩: রাজকীয় (Royal) — deep purple + gold, extra plush corners ---- */
+body[data-theme="royal"]{
+  --parchment:#170F26;
+  --panel:#241A3D;
+  --ink:#F1E7FF;
+  --ink-soft:#B8A8D9;
+  --teal:#3D2470;
+  --teal-deep:#120B21;
+  --gold:#E3B854;
+  --gold-soft:#4A3568;
+  --sage:#2E2049;
+  --line:#3A2A54;
+  --radius:20px;
+  --bg-texture:radial-gradient(circle at 12% -8%, rgba(227,184,84,.14), transparent 55%), radial-gradient(circle at 108% 112%, rgba(122,74,199,.30), transparent 50%);
+}
+/* ---- থিম ৪: মরুভূমি (Desert) — warm terracotta/sand, crisp geometric corners ---- */
+body[data-theme="desert"]{
+  --parchment:#FBF1E4;
+  --panel:#F3E3CB;
+  --ink:#3B2A1E;
+  --ink-soft:#7A6650;
+  --teal:#B5581F;
+  --teal-deep:#7A3B12;
+  --gold:#C9932F;
+  --gold-soft:#EAD2A0;
+  --sage:#E8D9BE;
+  --line:#DEC9A0;
+  --radius:8px;
+  --bg-texture:radial-gradient(circle at 100% 0%, rgba(181,88,31,.10), transparent 45%);
+}
+/* ---- থিম ৫: সাগর (Ocean) — calm blue/teal, soft glassy corners ---- */
+body[data-theme="ocean"]{
+  --parchment:#EEF6F8;
+  --panel:#DCEEF3;
+  --ink:#123047;
+  --ink-soft:#4C6B7F;
+  --teal:#116E8C;
+  --teal-deep:#0A4A61;
+  --gold:#E0A94B;
+  --gold-soft:#CDE6EE;
+  --sage:#C8E4EA;
+  --line:#BEDCE4;
+  --radius:22px;
+  --bg-texture:radial-gradient(circle at 15% 0%, rgba(17,110,140,.14), transparent 50%), radial-gradient(circle at 100% 100%, rgba(224,169,75,.10), transparent 45%);
+}
+/* ---- থিম ৬: মিডনাইট (AMOLED) — true black, neon gold accents ---- */
+body[data-theme="amoled"]{
+  --parchment:#000000;
+  --panel:#0D0D0D;
+  --ink:#EDEDED;
+  --ink-soft:#9A9A9A;
+  --teal:#101010;
+  --teal-deep:#000000;
+  --gold:#E6B94D;
+  --gold-soft:#241D0C;
+  --sage:#151515;
+  --line:#262626;
+  --radius:10px;
+  --bg-texture:radial-gradient(circle at 50% -10%, rgba(230,185,77,.08), transparent 45%);
+}
+/* ---- থিম ৭: গোলাপবাগ (Rose) — soft blush pink, dreamy rounded corners ---- */
+body[data-theme="rose"]{
+  --parchment:#FDF3F5;
+  --panel:#FBE6EA;
+  --ink:#3A2530;
+  --ink-soft:#8A6572;
+  --teal:#B5476B;
+  --teal-deep:#7E2F4B;
+  --gold:#CDA15A;
+  --gold-soft:#F4D9DE;
+  --sage:#F6DCE1;
+  --line:#EFC9D2;
+  --radius:18px;
+  --bg-texture:radial-gradient(circle at 100% 0%, rgba(181,71,107,.10), transparent 50%);
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;overflow-x:hidden;width:100%;}
 body{
-  background:var(--parchment);
+  background-color:var(--parchment);
+  background-image:var(--bg-texture);
+  background-attachment:fixed;
   color:var(--ink);
   font-family:'Hind Siliguri',sans-serif;
   min-height:100vh;
-  transition:background .3s ease,color .3s ease;
+  transition:background-color .35s ease,color .35s ease,background-image .35s ease;
 }
 ::selection{background:var(--gold-soft);}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
@@ -372,7 +467,7 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
   border-radius:999px;padding:8px 16px;font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:13px;cursor:pointer;
   white-space:nowrap;
 }
-[data-theme="dark"] .chip{color:var(--gold);}
+body.theme-dark-accent .chip{color:var(--gold);}
 .chip:hover{background:var(--sage);}
 
 .home-subtabs{display:flex;background:var(--sage);border-radius:10px;padding:4px;margin:14px 4px;overflow-x:auto;gap:2px;}
@@ -381,7 +476,7 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
   font-family:'Hind Siliguri',sans-serif;font-weight:600;font-size:13px;color:var(--ink-soft);white-space:nowrap;
 }
 .home-subtabs button.active{background:var(--parchment);color:var(--teal);box-shadow:0 1px 3px rgba(0,0,0,.12);}
-[data-theme="dark"] .home-subtabs button.active{color:var(--gold);}
+body.theme-dark-accent .home-subtabs button.active{color:var(--gold);}
 
 #homeListContainer, #plannerListContainer, #topicsListContainer, #libraryListContainer{padding:2px 2px 10px;}
 
@@ -389,7 +484,7 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
   background:none;border:none;color:var(--teal);font-family:'Hind Siliguri',sans-serif;font-weight:600;
   font-size:14px;cursor:pointer;padding:8px 4px;margin-bottom:6px;
 }
-[data-theme="dark"] .back-btn{color:var(--gold);}
+body.theme-dark-accent .back-btn{color:var(--gold);}
 
 /* ---- Planner ---- */
 .planner-card{
@@ -429,7 +524,7 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
   width:46px;height:46px;flex-shrink:0;border-radius:14px;background:var(--panel);
   display:flex;align-items:center;justify-content:center;color:var(--ink-soft);
 }
-[data-theme="dark"] .topic-icon-box{color:var(--gold);}
+body.theme-dark-accent .topic-icon-box{color:var(--gold);}
 .topic-item .li-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
 .topic-item .li-title{font-size:15.5px;font-weight:600;}
 .topic-sub-en{font-family:'Hind Siliguri',sans-serif;font-size:12px;color:var(--ink-soft);opacity:.85;}
@@ -461,7 +556,7 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
 .week-bar-fill{width:100%;background:var(--teal);border-radius:9px 9px 0 0;min-height:2px;}
 .week-day{font-size:11.5px;color:var(--ink-soft);}
 .week-day.today{color:var(--teal);font-weight:700;}
-[data-theme="dark"] .week-day.today{color:var(--gold);}
+body.theme-dark-accent .week-day.today{color:var(--gold);}
 .week-min{font-size:10px;color:var(--ink-soft);}
 .streak-range-row{display:flex;justify-content:space-between;align-items:center;}
 .badges-head{display:flex;justify-content:space-between;align-items:center;margin:6px 4px 12px;font-family:'Noto Serif Bengali',serif;font-weight:700;}
@@ -483,7 +578,7 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
 .badge-name-v2{font-size:11.5px;font-weight:700;line-height:1.3;font-family:'Noto Serif Bengali',serif;}
 .badge-progress-v2{font-size:10.5px;color:var(--ink-soft);}
 .badge-card.unlocked .badge-progress-v2{color:var(--teal);font-weight:600;}
-[data-theme="dark"] .badge-card.unlocked .badge-progress-v2{color:var(--gold);}
+body.theme-dark-accent .badge-card.unlocked .badge-progress-v2{color:var(--gold);}
 
 /* ---- Bottom navigation ---- */
 .bottom-nav{
@@ -622,7 +717,7 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
 .dict-item{padding:12px 4px;border-bottom:1px solid var(--line);}
 .dict-item:last-child{border-bottom:none;}
 .dict-term{font-family:'Noto Serif Bengali',serif;font-size:15px;color:var(--gold);margin-bottom:3px;}
-[data-theme="dark"] .dict-term{color:var(--gold);}
+body.theme-dark-accent .dict-term{color:var(--gold);}
 .dict-meaning{font-size:13.5px;color:var(--ink);line-height:1.5;}
 .dict-empty{text-align:center;color:var(--ink-soft);padding:24px;font-size:13.5px;}
 
@@ -705,7 +800,7 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
 /* ---- Taraweeh tracker modal ---- */
 .tw-summary{text-align:center;margin-bottom:14px;}
 .tw-summary-big{font-family:'Noto Serif Bengali',serif;font-size:34px;font-weight:700;color:var(--teal);}
-[data-theme="dark"] .tw-summary-big{color:var(--gold);}
+body.theme-dark-accent .tw-summary-big{color:var(--gold);}
 .tw-summary-big span{font-size:18px;color:var(--ink-soft);font-weight:500;}
 .tw-summary-label{font-size:12.5px;color:var(--ink-soft);margin-top:2px;}
 .tw-goal-row{
@@ -746,7 +841,7 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
 }
 .tw-step-btn:hover{background:var(--sage);}
 .tw-edit-value{font-family:'Noto Serif Bengali',serif;font-size:26px;font-weight:700;min-width:40px;text-align:center;color:var(--teal);}
-[data-theme="dark"] .tw-edit-value{color:var(--gold);}
+body.theme-dark-accent .tw-edit-value{color:var(--gold);}
 .tw-edit-quick{display:flex;gap:8px;justify-content:center;margin-bottom:14px;}
 .tw-quick-btn{
   border:1px solid var(--line);background:var(--parchment);border-radius:999px;padding:5px 14px;
@@ -852,3 +947,23 @@ main{flex:1;min-width:0;padding:22px 28px calc(40px + var(--player-h));width:100
   .bn-item span{font-size:9.5px;}
   .stats-big{font-size:20px;}
 }
+
+/* ---- Theme picker (Settings → থিম) ---- */
+.theme-picker-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+}
+.theme-picker-card{
+  position:relative;text-align:left;cursor:pointer;border:2px solid var(--line);
+  border-radius:16px;padding:12px;background:var(--panel);
+  font-family:'Hind Siliguri',sans-serif;transition:transform .15s ease,border-color .15s ease;
+}
+.theme-picker-card:active{transform:scale(.97);}
+.theme-picker-card.active{border-color:var(--gold);}
+.theme-picker-swatch{
+  display:flex;height:44px;border-radius:10px;overflow:hidden;margin-bottom:9px;
+  border:1px solid rgba(0,0,0,.08);
+}
+.theme-picker-swatch span{flex:1;}
+.theme-picker-name{font-weight:700;font-size:13.5px;color:var(--ink);display:flex;align-items:center;gap:6px;}
+.theme-picker-card.active .theme-picker-name i{color:var(--gold);}
+.theme-picker-desc{font-size:11px;color:var(--ink-soft);margin-top:2px;line-height:1.4;}
