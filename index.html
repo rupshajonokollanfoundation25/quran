@@ -52,6 +52,15 @@
 
   <!-- ================= HOME ================= -->
   <section class="view active" id="view-home">
+    <div class="ramadan-banner" id="ramadanBanner">
+      <div class="rb-lanterns" aria-hidden="true"><span>🏮</span><span>🏮</span><span>🏮</span><span>🏮</span><span>🏮</span></div>
+      <div class="rb-icon"><i class="fa-solid fa-mosque"></i></div>
+      <div class="rb-text">
+        <div class="rb-title">রমজান মুবারক 🌙</div>
+        <div class="rb-sub">পবিত্র এই মাসে তেলাওয়াত ও তারাবীহ ট্র্যাক করুন</div>
+      </div>
+      <button class="rb-btn" id="ramadanBannerBtn">তারাবীহ <i class="fa-solid fa-chevron-left"></i></button>
+    </div>
     <div id="homeLanding">
       <div id="ayahOfDayCard" class="aod-card"></div>
       <div class="section-title" id="lastReadTitle" style="display:none;">সর্বশেষ পড়েছিলেন</div>
@@ -141,6 +150,7 @@
 <!-- Hamburger "more" drawer -->
 <div class="scrim" id="scrim" style="display:none;"></div>
 <aside id="moreDrawer">
+  <div class="drawer-lanterns" aria-hidden="true"><span>🏮</span><span>🏮</span><span>🏮</span></div>
   <div class="drawer-search">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input type="text" id="drawerSearchInput" data-i18n-ph="menu_search_ph" placeholder="মেনুতে খুঁজুন...">
