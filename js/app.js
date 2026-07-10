@@ -162,6 +162,7 @@ function initHeaderOffset(){
 
 // ---------- App init ----------
 (async function init(){
+  if(typeof IDBKV !== 'undefined') await IDBKV.init();
   loadPrefs();
   if(typeof initAuth === 'function') initAuth();
   initTheme();
