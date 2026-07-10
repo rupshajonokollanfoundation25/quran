@@ -399,14 +399,14 @@ async function fetchPrayerTimesByCity(city, country){
 }
 function cachePrayerData(data, loc){
   try{
-    localStorage.setItem('qr_prayer_cache', JSON.stringify({
+    IDBKV.set('qr_prayer_cache', JSON.stringify({
       data, label: loc.label || null, date: new Date().toDateString()
     }));
   }catch(e){}
 }
 function readPrayerCache(){
   try{
-    const raw = localStorage.getItem('qr_prayer_cache');
+    const raw = IDBKV.get('qr_prayer_cache');
     return raw ? JSON.parse(raw) : null;
   }catch(e){ return null; }
 }
