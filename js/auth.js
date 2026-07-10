@@ -330,21 +330,21 @@ function mergeCloudIntoLocal(cloud){
 
   if(typeof cloud.searchCount === 'number'){
     state.searchCount = Math.max(state.searchCount || 0, cloud.searchCount);
-    try{ localStorage.setItem(LS_KEYS.searchCount, String(state.searchCount)); }catch(e){}
+    try{ IDBKV.set(LS_KEYS.searchCount, String(state.searchCount)); }catch(e){}
   }
   if(typeof cloud.bestStreak === 'number'){
     state.bestStreak = Math.max(state.bestStreak || 0, cloud.bestStreak);
-    try{ localStorage.setItem(LS_KEYS.bestStreak, String(state.bestStreak)); }catch(e){}
+    try{ IDBKV.set(LS_KEYS.bestStreak, String(state.bestStreak)); }catch(e){}
   }
   // Aggregate counts only — the actual sets of which ayahs/surahs stay local
   // on each device and are never uploaded.
   if(typeof cloud.ayahsReadCount === 'number'){
     state.ayahsReadFloor = Math.max(state.ayahsReadFloor || 0, cloud.ayahsReadCount);
-    try{ localStorage.setItem(LS_KEYS.ayahsReadFloor, String(state.ayahsReadFloor)); }catch(e){}
+    try{ IDBKV.set(LS_KEYS.ayahsReadFloor, String(state.ayahsReadFloor)); }catch(e){}
   }
   if(typeof cloud.audioSurahsPlayedCount === 'number'){
     state.audioSurahsPlayedFloor = Math.max(state.audioSurahsPlayedFloor || 0, cloud.audioSurahsPlayedCount);
-    try{ localStorage.setItem(LS_KEYS.audioSurahsPlayedFloor, String(state.audioSurahsPlayedFloor)); }catch(e){}
+    try{ IDBKV.set(LS_KEYS.audioSurahsPlayedFloor, String(state.audioSurahsPlayedFloor)); }catch(e){}
   }
   // Taraweeh tracker: per-Ramadan-day rakat counts. Not surah-related, so
   // it's treated as progress and merged (cloud as base, local wins on conflict).
