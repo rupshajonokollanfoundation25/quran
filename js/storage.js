@@ -73,86 +73,86 @@ const HISTORY_MAX = 25;
 
 function loadPrefs(){
   try{
-    const raw = localStorage.getItem(LS_KEYS.bookmarks);
+    const raw = IDBKV.get(LS_KEYS.bookmarks);
     if(raw) state.bookmarks = JSON.parse(raw);
   }catch(e){ state.bookmarks = {}; }
 
   try{
-    const r = localStorage.getItem(LS_KEYS.reciter);
+    const r = IDBKV.get(LS_KEYS.reciter);
     if(r) state.reciter = r;
   }catch(e){}
 
   try{
-    const raw = localStorage.getItem(LS_KEYS.lastRead);
+    const raw = IDBKV.get(LS_KEYS.lastRead);
     if(raw) state.lastRead = JSON.parse(raw);
   }catch(e){ state.lastRead = null; }
 
   try{
-    const raw = localStorage.getItem(LS_KEYS.history);
+    const raw = IDBKV.get(LS_KEYS.history);
     state.history = raw ? JSON.parse(raw) : [];
   }catch(e){ state.history = []; }
 
   try{
-    const raw = localStorage.getItem(LS_KEYS.offlineSurahs);
+    const raw = IDBKV.get(LS_KEYS.offlineSurahs);
     state.offlineSurahs = raw ? JSON.parse(raw) : [];
     migrateOfflineSurahs();
   }catch(e){ state.offlineSurahs = []; }
 
   try{
-    const r = parseFloat(localStorage.getItem(LS_KEYS.playbackRate));
+    const r = parseFloat(IDBKV.get(LS_KEYS.playbackRate));
     if(r && r > 0) state.playbackRate = r;
   }catch(e){}
 
   try{
-    const l = localStorage.getItem(LS_KEYS.language);
+    const l = IDBKV.get(LS_KEYS.language);
     if(l && I18N[l]) state.language = l;
   }catch(e){}
 
   try{
-    const t = localStorage.getItem(LS_KEYS.translationEdition);
+    const t = IDBKV.get(LS_KEYS.translationEdition);
     if(t) state.translationEdition = t;
   }catch(e){}
 
   try{
-    const m = parseInt(localStorage.getItem(LS_KEYS.prayerMethod), 10);
+    const m = parseInt(IDBKV.get(LS_KEYS.prayerMethod), 10);
     if(Number.isInteger(m)) state.prayerMethod = m;
   }catch(e){}
 
   try{
-    state.prayerNotify = localStorage.getItem(LS_KEYS.prayerNotify) === '1';
+    state.prayerNotify = IDBKV.get(LS_KEYS.prayerNotify) === '1';
   }catch(e){}
 
   try{
-    const raw = localStorage.getItem(LS_KEYS.prayerLocation);
+    const raw = IDBKV.get(LS_KEYS.prayerLocation);
     if(raw) state.prayerLocation = JSON.parse(raw);
   }catch(e){ state.prayerLocation = null; }
 
   try{
-    const raw = localStorage.getItem(LS_KEYS.notes);
+    const raw = IDBKV.get(LS_KEYS.notes);
     state.notes = raw ? JSON.parse(raw) : {};
   }catch(e){ state.notes = {}; }
 
   try{
-    const n = parseInt(localStorage.getItem(LS_KEYS.searchCount), 10);
+    const n = parseInt(IDBKV.get(LS_KEYS.searchCount), 10);
     state.searchCount = Number.isInteger(n) && n > 0 ? n : 0;
   }catch(e){ state.searchCount = 0; }
 
   try{
-    const raw = localStorage.getItem(LS_KEYS.audioSurahsPlayed);
+    const raw = IDBKV.get(LS_KEYS.audioSurahsPlayed);
     state.audioSurahsPlayed = raw ? JSON.parse(raw) : [];
   }catch(e){ state.audioSurahsPlayed = []; }
 
   try{
-    state.ramadanMode = localStorage.getItem(LS_KEYS.ramadanMode) === '1';
+    state.ramadanMode = IDBKV.get(LS_KEYS.ramadanMode) === '1';
   }catch(e){}
 
   try{
-    const th = localStorage.getItem(LS_KEYS.theme);
+    const th = IDBKV.get(LS_KEYS.theme);
     if(th && THEMES.some(t => t.id === th)) state.theme = th;
   }catch(e){}
 
   try{
-    const raw = localStorage.getItem(LS_KEYS.taraweeh);
+    const raw = IDBKV.get(LS_KEYS.taraweeh);
     state.taraweeh = raw ? JSON.parse(raw) : { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} };
     if(!state.taraweeh || typeof state.taraweeh !== 'object') state.taraweeh = { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} };
     if(!state.taraweeh.days) state.taraweeh.days = {};
@@ -160,44 +160,44 @@ function loadPrefs(){
   }catch(e){ state.taraweeh = { goal: RAMADAN_DEFAULT_RAKAT_GOAL, days: {} }; }
 
   try{
-    const raw = localStorage.getItem(LS_KEYS.ayahsRead);
+    const raw = IDBKV.get(LS_KEYS.ayahsRead);
     state.ayahsRead = raw ? JSON.parse(raw) : {};
     if(!state.ayahsRead || typeof state.ayahsRead !== 'object') state.ayahsRead = {};
   }catch(e){ state.ayahsRead = {}; }
 
   try{
-    const n = parseInt(localStorage.getItem(LS_KEYS.ayahsReadFloor), 10);
+    const n = parseInt(IDBKV.get(LS_KEYS.ayahsReadFloor), 10);
     state.ayahsReadFloor = Number.isInteger(n) && n > 0 ? n : 0;
   }catch(e){ state.ayahsReadFloor = 0; }
 
   try{
-    const n = parseInt(localStorage.getItem(LS_KEYS.audioSurahsPlayedFloor), 10);
+    const n = parseInt(IDBKV.get(LS_KEYS.audioSurahsPlayedFloor), 10);
     state.audioSurahsPlayedFloor = Number.isInteger(n) && n > 0 ? n : 0;
   }catch(e){ state.audioSurahsPlayedFloor = 0; }
 
   try{
-    const n = parseInt(localStorage.getItem(LS_KEYS.bestStreak), 10);
+    const n = parseInt(IDBKV.get(LS_KEYS.bestStreak), 10);
     state.bestStreak = Number.isInteger(n) && n > 0 ? n : 0;
   }catch(e){ state.bestStreak = 0; }
 }
 
 function saveLanguage(){
-  try{ localStorage.setItem(LS_KEYS.language, state.language); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.language, state.language); }catch(e){}
 }
 function saveTheme(){
-  try{ localStorage.setItem(LS_KEYS.theme, state.theme); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.theme, state.theme); }catch(e){}
 }
 function saveTranslationEdition(){
-  try{ localStorage.setItem(LS_KEYS.translationEdition, state.translationEdition); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.translationEdition, state.translationEdition); }catch(e){}
 }
 function savePrayerMethod(){
-  try{ localStorage.setItem(LS_KEYS.prayerMethod, String(state.prayerMethod)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.prayerMethod, String(state.prayerMethod)); }catch(e){}
 }
 function savePrayerNotify(){
-  try{ localStorage.setItem(LS_KEYS.prayerNotify, state.prayerNotify ? '1' : '0'); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.prayerNotify, state.prayerNotify ? '1' : '0'); }catch(e){}
 }
 function savePrayerLocation(){
-  try{ localStorage.setItem(LS_KEYS.prayerLocation, JSON.stringify(state.prayerLocation)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.prayerLocation, JSON.stringify(state.prayerLocation)); }catch(e){}
 }
 
 // ---------- Per-ayah notes ----------
@@ -208,7 +208,7 @@ function saveNote(surah, ayah, text){
   const trimmed = (text || '').trim();
   if(trimmed) state.notes[key] = trimmed;
   else delete state.notes[key];
-  try{ localStorage.setItem(LS_KEYS.notes, JSON.stringify(state.notes)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.notes, JSON.stringify(state.notes)); }catch(e){}
 }
 function deleteNote(surah, ayah){ saveNote(surah, ayah, ''); }
 function allNoteEntries(){
@@ -221,7 +221,7 @@ function allNoteEntries(){
 // ---------- Search usage counter (used by the "Search Explorer" badge) ----------
 function incrementSearchCount(){
   state.searchCount = (state.searchCount || 0) + 1;
-  try{ localStorage.setItem(LS_KEYS.searchCount, String(state.searchCount)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.searchCount, String(state.searchCount)); }catch(e){}
   queueCloudSync();
 }
 
@@ -230,17 +230,17 @@ function trackAudioSurahPlayed(surahNum){
   if(!Number.isInteger(surahNum)) return;
   if(!state.audioSurahsPlayed.includes(surahNum)){
     state.audioSurahsPlayed.push(surahNum);
-    try{ localStorage.setItem(LS_KEYS.audioSurahsPlayed, JSON.stringify(state.audioSurahsPlayed)); }catch(e){}
+    try{ IDBKV.set(LS_KEYS.audioSurahsPlayed, JSON.stringify(state.audioSurahsPlayed)); }catch(e){}
     queueCloudSync();
   }
 }
 
 // ---------- Ramadan mode + Taraweeh tracker ----------
 function saveRamadanMode(){
-  try{ localStorage.setItem(LS_KEYS.ramadanMode, state.ramadanMode ? '1' : '0'); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.ramadanMode, state.ramadanMode ? '1' : '0'); }catch(e){}
 }
 function saveTaraweeh(){
-  try{ localStorage.setItem(LS_KEYS.taraweeh, JSON.stringify(state.taraweeh)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.taraweeh, JSON.stringify(state.taraweeh)); }catch(e){}
   queueCloudSync();
 }
 function setTaraweehDay(dayNum, rakats){
@@ -252,16 +252,16 @@ function setTaraweehDay(dayNum, rakats){
 }
 
 function saveBookmarks(){
-  try{ localStorage.setItem(LS_KEYS.bookmarks, JSON.stringify(state.bookmarks)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.bookmarks, JSON.stringify(state.bookmarks)); }catch(e){}
 }
 function saveReciter(){
-  try{ localStorage.setItem(LS_KEYS.reciter, state.reciter); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.reciter, state.reciter); }catch(e){}
 }
 function saveLastRead(){
-  try{ localStorage.setItem(LS_KEYS.lastRead, JSON.stringify(state.lastRead)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.lastRead, JSON.stringify(state.lastRead)); }catch(e){}
 }
 function savePlaybackRate(){
-  try{ localStorage.setItem(LS_KEYS.playbackRate, String(state.playbackRate)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.playbackRate, String(state.playbackRate)); }catch(e){}
 }
 
 // ---------- Listening history ----------
@@ -272,7 +272,7 @@ function addHistoryEntry(entry){
   state.history = state.history.filter(h => h.surah !== entry.surah);
   state.history.unshift(entry);
   if(state.history.length > HISTORY_MAX) state.history = state.history.slice(0, HISTORY_MAX);
-  try{ localStorage.setItem(LS_KEYS.history, JSON.stringify(state.history)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.history, JSON.stringify(state.history)); }catch(e){}
 }
 
 // ---------- Offline-downloaded surah tracking ----------
@@ -297,7 +297,7 @@ function migrateOfflineSurahs(){
   // Persist the sanitized shape immediately so this cleanup only has to run
   // once — any leftover/broken entries from earlier testing won't keep
   // reappearing on every load.
-  try{ localStorage.setItem(LS_KEYS.offlineSurahs, JSON.stringify(state.offlineSurahs)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.offlineSurahs, JSON.stringify(state.offlineSurahs)); }catch(e){}
 }
 function findOfflineEntry(surahNum){
   return state.offlineSurahs.find(o => o.surah === surahNum);
@@ -306,7 +306,7 @@ function markSurahOffline(surahNum, reciter, urls, ayahCount){
   if(!Number.isInteger(surahNum) || surahNum < 1 || surahNum > 114) return;
   state.offlineSurahs = state.offlineSurahs.filter(o => o.surah !== surahNum);
   state.offlineSurahs.push({ surah: surahNum, reciter: reciter || null, urls: urls || [], ayahCount: ayahCount || null, ts: Date.now() });
-  try{ localStorage.setItem(LS_KEYS.offlineSurahs, JSON.stringify(state.offlineSurahs)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.offlineSurahs, JSON.stringify(state.offlineSurahs)); }catch(e){}
 }
 function isSurahOffline(surahNum){
   return state.offlineSurahs.some(o => o.surah === surahNum);
@@ -320,7 +320,7 @@ async function removeSurahOffline(surahNum){
     }catch(e){ /* cache may already be gone; tracking entry is removed regardless */ }
   }
   state.offlineSurahs = state.offlineSurahs.filter(o => o.surah !== surahNum);
-  try{ localStorage.setItem(LS_KEYS.offlineSurahs, JSON.stringify(state.offlineSurahs)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.offlineSurahs, JSON.stringify(state.offlineSurahs)); }catch(e){}
 }
 
 // ---------- Unique ayahs actually read (used by the "আয়াত পাঠ" lifetime stat) ----------
@@ -329,7 +329,7 @@ async function removeSurahOffline(surahNum){
 function markAyahRead(key){
   if(!key || state.ayahsRead[key]) return;
   state.ayahsRead[key] = 1;
-  try{ localStorage.setItem(LS_KEYS.ayahsRead, JSON.stringify(state.ayahsRead)); }catch(e){}
+  try{ IDBKV.set(LS_KEYS.ayahsRead, JSON.stringify(state.ayahsRead)); }catch(e){}
   queueCloudSync();
 }
 function ayahsReadCount(){
@@ -340,7 +340,7 @@ function ayahsReadCount(){
 function updateBestStreak(currentStreak){
   if(currentStreak > (state.bestStreak || 0)){
     state.bestStreak = currentStreak;
-    try{ localStorage.setItem(LS_KEYS.bestStreak, String(state.bestStreak)); }catch(e){}
+    try{ IDBKV.set(LS_KEYS.bestStreak, String(state.bestStreak)); }catch(e){}
     queueCloudSync();
   }
 }
