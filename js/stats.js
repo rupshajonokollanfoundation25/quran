@@ -9,12 +9,12 @@ const WEEKDAY_LABELS_BN = ['S','M','Tu','W','Th','F','S'];
 
 function loadActivity(){
   try{
-    const raw = localStorage.getItem(STATS_LS_KEY);
+    const raw = IDBKV.get(STATS_LS_KEY);
     return raw ? JSON.parse(raw) : {};
   }catch(e){ return {}; }
 }
 function saveActivity(a){
-  try{ localStorage.setItem(STATS_LS_KEY, JSON.stringify(a)); }catch(e){}
+  try{ IDBKV.set(STATS_LS_KEY, JSON.stringify(a)); }catch(e){}
   queueCloudSync();
 }
 
