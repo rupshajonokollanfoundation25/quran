@@ -13,7 +13,7 @@ const PLANNER_SUGGESTIONS = [
 
 function loadPlanners(){
   try{
-    const raw = localStorage.getItem(PLANNER_LS_KEY);
+    const raw = IDBKV.get(PLANNER_LS_KEY);
     if(raw) return JSON.parse(raw);
   }catch(e){}
   // Seed with one starter plan so the tab isn't empty on first visit.
@@ -22,7 +22,7 @@ function loadPlanners(){
   return seeded;
 }
 function savePlanners(list){
-  try{ localStorage.setItem(PLANNER_LS_KEY, JSON.stringify(list)); }catch(e){}
+  try{ IDBKV.set(PLANNER_LS_KEY, JSON.stringify(list)); }catch(e){}
 }
 
 let plannerState = { list: null, activePlanTab: 'mine' };
