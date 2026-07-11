@@ -16,6 +16,7 @@ const state = {
   translationEdition: 'bn.bengali', // Qur'an translation edition identifier (see js/reader.js loadTranslationEditions)
   translationEditions: [],          // up to 3 edition identifiers to show side-by-side (compare mode); empty = just translationEdition
   tajweedMode: false,               // approximate rule-based tajweed color highlighting (see js/tajweed.js)
+  hafezMode: false,                 // হাফেজ মোড: শুধু আরবি, মুসহাফ-স্টাইল একটানা টেক্সট (see js/reader.js)
   currentReaderView: null,          // last-opened {type, num}, used to reload in a newly picked translation language
   prayerMethod: 1,
   prayerNotify: false,
@@ -56,6 +57,7 @@ const LS_KEYS = {
   translationEditions: 'qr_translation_editions_cache',
   translationEditionsSelected: 'qr_translation_editions_selected',
   tajweedMode: 'qr_tajweed_mode',
+  hafezMode: 'qr_hafez_mode',
   prayerMethod: 'qr_prayer_method',
   prayerNotify: 'qr_prayer_notify',
   prayerLocation: 'qr_prayer_location',
@@ -126,6 +128,10 @@ function loadPrefs(){
   try{
     state.tajweedMode = IDBKV.get(LS_KEYS.tajweedMode) === '1';
   }catch(e){ state.tajweedMode = false; }
+
+  try{
+    state.hafezMode = IDBKV.get(LS_KEYS.hafezMode) === '1';
+  }catch(e){ state.hafezMode = false; }
 
   try{
     const m = parseInt(IDBKV.get(LS_KEYS.prayerMethod), 10);
@@ -209,6 +215,9 @@ function saveTranslationEditionsSelected(){
 }
 function saveTajweedMode(){
   try{ IDBKV.set(LS_KEYS.tajweedMode, state.tajweedMode ? '1' : '0'); }catch(e){}
+}
+function saveHafezMode(){
+  try{ IDBKV.set(LS_KEYS.hafezMode, state.hafezMode ? '1' : '0'); }catch(e){}
 }
 function savePrayerMethod(){
   try{ IDBKV.set(LS_KEYS.prayerMethod, String(state.prayerMethod)); }catch(e){}
