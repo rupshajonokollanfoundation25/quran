@@ -59,7 +59,13 @@ function ensureAuthOverlay(){
         <span>সাইন আপ / লগইন করুন</span>
       </div>
       <div class="auth-body">
-        <div class="auth-illustration"><i class="fa-solid fa-book-open"></i></div>
+        <div class="auth-scene auth-scene-choice">
+          <div class="auth-icon-box"><i class="fa-solid fa-book-open"></i></div>
+          <div class="auth-medal"><i class="fa-solid fa-star"></i></div>
+          <i class="fa-solid fa-sparkles auth-spark s1"></i>
+          <i class="fa-solid fa-sparkles auth-spark s2"></i>
+          <span class="auth-dot" style="top:8px;left:6px;"></span>
+        </div>
         <h2 class="auth-title">অ্যাকাউন্ট তৈরি করুন</h2>
         <p class="auth-sub">আপনার অর্জন ও পড়ার অগ্রগতি সুরক্ষিত রাখুন। আপনার সম্পূর্ণ পরিসংখ্যান এক জায়গায় দেখুন।</p>
         <button class="auth-cta-btn" id="authGoSignup">ইমেইল দিয়ে সাইন আপ করুন</button>
@@ -74,15 +80,23 @@ function ensureAuthOverlay(){
         <span>সাইন আপ</span>
       </div>
       <div class="auth-body">
-        <h2 class="auth-title">অ্যাকাউন্ট তৈরি করুন</h2>
-        <p class="auth-sub">আমাদের অ্যাপে এই অ্যাকাউন্ট দিয়ে লগইন এবং সিঙ্ক করুন।</p>
+        <div class="auth-scene auth-scene-signup">
+          <div class="auth-card-tile"></div>
+          <div class="auth-plus-mock">
+            <div class="auth-plus-circle"><i class="fa-solid fa-plus"></i></div>
+            <div class="auth-plus-row"><span class="dot"></span><span class="bar"></span></div>
+            <div class="auth-plus-row"><span class="dot"></span><span class="bar short"></span></div>
+          </div>
+        </div>
+        <h2 class="auth-title">কুরআন বাংলা অ্যাকাউন্ট তৈরি করুন</h2>
+        <p class="auth-sub">আমাদের যেকোনো অ্যাপে এই অ্যাকাউন্ট দিয়ে লগইন এবং সিঙ্ক করুন।</p>
         <input class="auth-field" id="suName" type="text" placeholder="নাম">
         <input class="auth-field" id="suPosition" type="text" placeholder="পদবি (ঐচ্ছিক)">
         <input class="auth-field" id="suEmail" type="email" placeholder="ইমেইল">
         <input class="auth-field" id="suPassword" type="password" placeholder="পাসওয়ার্ড">
         <input class="auth-field" id="suPasswordConfirm" type="password" placeholder="পাসওয়ার্ড নিশ্চিত করুন">
         <div class="auth-error" id="suError"></div>
-        <button class="auth-cta-btn" id="suSubmit">সাইন আপ</button>
+        <button class="auth-cta-btn has-icon" id="suSubmit"><span>সাইন আপ</span><span class="cta-icon-dot"><i class="fa-solid fa-plus"></i></span></button>
       </div>
     </div>
 
@@ -92,6 +106,12 @@ function ensureAuthOverlay(){
         <span>লগইন করুন</span>
       </div>
       <div class="auth-body">
+        <div class="auth-scene auth-scene-login">
+          <div class="auth-icon-box"><i class="fa-solid fa-right-to-bracket"></i></div>
+          <span class="auth-leaf l1"></span>
+          <span class="auth-leaf l2"></span>
+          <i class="fa-solid fa-sparkles auth-spark s3"></i>
+        </div>
         <h2 class="auth-title">বিদ্যমান অ্যাকাউন্টে লগইন করুন</h2>
         <input class="auth-field" id="liEmail" type="email" placeholder="ইমেইল">
         <input class="auth-field" id="liPassword" type="password" placeholder="পাসওয়ার্ড">
@@ -188,6 +208,7 @@ async function handleEmailSignup(){
   if(pass !== pass2){ errBox.textContent = 'পাসওয়ার্ড দুটি মিলছে না।'; return; }
 
   const btn = document.getElementById('suSubmit');
+  const btnOriginal = btn.innerHTML;
   btn.disabled = true; btn.textContent = 'অপেক্ষা করুন...';
   try{
     const cred = await fbAuth.createUserWithEmailAndPassword(email, pass);
@@ -199,7 +220,7 @@ async function handleEmailSignup(){
   }catch(e){
     errBox.textContent = authErrorMessageBn(e);
   }finally{
-    btn.disabled = false; btn.textContent = 'সাইন আপ';
+    btn.disabled = false; btn.innerHTML = btnOriginal;
   }
 }
 
