@@ -63,6 +63,30 @@
   font-weight:700;box-decoration-break:clone;-webkit-box-decoration-break:clone;
 }
 
+/* ---- সূরার ফজিলত/ব্যবহার ও রোগমুক্তি-সুরক্ষার প্রচলিত আমল — শানে নুযুলের ঠিক নিচে ---- */
+.sit-benefit-block{
+  margin-top:16px;padding:14px 16px;border-radius:var(--radius);
+  background:var(--panel);border:1px solid var(--gold-soft);
+}
+.sit-benefit-block + .sit-benefit-block{margin-top:12px;}
+.sit-benefit-title{
+  display:flex;align-items:center;gap:8px;font-family:'Hind Siliguri',sans-serif;font-weight:700;
+  font-size:13.5px;color:var(--teal);margin-bottom:8px;letter-spacing:.2px;
+}
+.sit-benefit-title i{color:var(--gold-deep,var(--gold));font-size:13px;}
+.sit-benefit-text{
+  font-family:'Noto Serif Bengali',serif;font-size:14.5px;line-height:1.95;color:var(--ink-soft);
+}
+.sit-benefit-text .sit-hl{
+  background:var(--gold-soft);color:var(--teal-deep);border-radius:4px;padding:1px 4px;
+  font-weight:700;box-decoration-break:clone;-webkit-box-decoration-break:clone;
+}
+.sit-benefit-ailment{background:var(--sage);}
+.sit-benefit-note{
+  margin-top:8px;font-family:'Hind Siliguri',sans-serif;font-size:12px;color:var(--ink-soft);
+  opacity:.75;font-style:italic;line-height:1.6;
+}
+
 .ayah-card{
   display:flex;gap:16px;padding:20px 4px;border-bottom:1px dashed var(--line);align-items:flex-start;
   border-radius:10px;transition:background .25s;
