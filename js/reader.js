@@ -51,11 +51,45 @@ function findTranslationEdition(identifier){
 // Best-effort direction detection for the currently-selected translation
 // edition, so ayah translation text renders RTL for languages like Urdu,
 // Persian, or Sindhi even without a full UI dictionary entry for them.
-function translationDirection(){
-  const edition = findTranslationEdition(state.translationEdition);
+function translationDirection(identifier){
+  const id = identifier || state.translationEdition;
+  const edition = findTranslationEdition(id);
   if(edition && edition.direction) return edition.direction;
-  const langCode = (state.translationEdition || '').split('.')[0];
+  const langCode = (id || '').split('.')[0];
   return RTL_LANG_CODES.includes(langCode) ? 'rtl' : 'ltr';
+}
+
+// ---------- Compare mode: up to 3 translation editions side-by-side ----------
+// state.translationEditions is the list picked in Settings > "তুলনামূলক অনুবাদ".
+// When empty, the reader falls back to the single primary translationEdition
+// exactly like before, so this feature is fully opt-in.
+function activeTranslationEditions(){
+  return (state.translationEditions && state.translationEditions.length) ? state.translationEditions : [state.translationEdition];
+}
+
+// Fetches the Arabic (quran-uthmani) text plus every active translation
+// edition in parallel for a given API path (e.g. "surah/2", "juz/5"), and
+// maps them into one ayahs[] array shared by openSurah/openJuz/openPage/etc.
+async function fetchAyahsWithTranslations(pathBase, surahOf){
+  const editions = activeTranslationEditions();
+  const urls = [`${API}/${pathBase}/quran-uthmani`, ...editions.map(ed => `${API}/${pathBase}/${ed}`)];
+  const responses = await Promise.all(urls.map(u => fetch(u)));
+  const jsons = await Promise.all(responses.map(r => r.json()));
+  const arData = jsons[0].data;
+  const trDatas = jsons.slice(1).map(j => j.data);
+  const ayahs = arData.ayahs.map((a,i) => ({
+    number: a.number,
+    numberInSurah: a.numberInSurah,
+    surah: surahOf ? surahOf(a) : a.surah,
+    arabic: a.text,
+    translations: editions.map((ed, ei) => ({
+      identifier: ed,
+      label: translationEditionLabel(ed),
+      dir: translationDirection(ed),
+      text: (trDatas[ei] && trDatas[ei].ayahs[i]) ? trDatas[ei].ayahs[i].text : ''
+    }))
+  }));
+  return { arData, ayahs };
 }
 
 // Remembers which reader view (surah/juz/page/hizb/ruku + number) is
@@ -91,13 +125,7 @@ async function openSurah(num){
   showLoader();
   state.currentReaderView = { type: 'surah', num };
   try{
-    const [arRes, trRes] = await Promise.all([
-      fetch(`${API}/surah/${num}/quran-uthmani`),
-      fetch(`${API}/surah/${num}/${state.translationEdition}`)
-    ]);
-    const arData = (await arRes.json()).data;
-    const trData = (await trRes.json()).data;
-    const ayahs = arData.ayahs.map((a,i)=>({ number:a.number, numberInSurah:a.numberInSurah, surah:num, arabic:a.text, translation:(trData.ayahs[i]||{}).text || '' }));
+    const { arData, ayahs } = await fetchAyahsWithTranslations(`surah/${num}`, () => num);
     renderReader({
       header: { arName: arData.name, bnName: surahNamesBn[num-1] || arData.englishName, meta: `${arData.revelationType === 'Meccan' ? 'মাক্কী' : 'মাদানী'} · ${toBn(arData.numberOfAyahs)} আয়াত`, playLabel: `সম্পূর্ণ সূরা শুনুন` },
       showBismillah: num !== 1 && num !== 9,
@@ -122,13 +150,7 @@ async function openJuz(num){
   showLoader();
   state.currentReaderView = { type: 'juz', num };
   try{
-    const [arRes, trRes] = await Promise.all([
-      fetch(`${API}/juz/${num}/quran-uthmani`),
-      fetch(`${API}/juz/${num}/${state.translationEdition}`)
-    ]);
-    const arData = (await arRes.json()).data;
-    const trData = (await trRes.json()).data;
-    const ayahs = arData.ayahs.map((a,i)=>({ number:a.number, numberInSurah:a.numberInSurah, surah:a.surah.number, arabic:a.text, translation:(trData.ayahs[i]||{}).text || '' }));
+    const { arData, ayahs } = await fetchAyahsWithTranslations(`juz/${num}`, a => a.surah.number);
     renderReader({
       header: { arName: `الجزء ${num}`, bnName: `পারা ${toBn(num)}`, meta: `${toBn(arData.ayahs.length)} আয়াত`, playLabel: `সম্পূর্ণ পারা শুনুন` },
       showBismillah: false,
@@ -144,13 +166,7 @@ async function openPage(num){
   showLoader();
   state.currentReaderView = { type: 'page', num };
   try{
-    const [arRes, trRes] = await Promise.all([
-      fetch(`${API}/page/${num}/quran-uthmani`),
-      fetch(`${API}/page/${num}/${state.translationEdition}`)
-    ]);
-    const arData = (await arRes.json()).data;
-    const trData = (await trRes.json()).data;
-    const ayahs = arData.ayahs.map((a,i)=>({ number:a.number, numberInSurah:a.numberInSurah, surah:a.surah.number, arabic:a.text, translation:(trData.ayahs[i]||{}).text || '' }));
+    const { arData, ayahs } = await fetchAyahsWithTranslations(`page/${num}`, a => a.surah.number);
     renderReader({
       header: { arName: `صفحة ${num}`, bnName: `পৃষ্ঠা ${toBn(num)}`, meta: `${toBn(arData.ayahs.length)} আয়াত`, playLabel: `সম্পূর্ণ পৃষ্ঠা শুনুন` },
       showBismillah: false,
@@ -166,13 +182,7 @@ async function openHizb(num){
   showLoader();
   state.currentReaderView = { type: 'hizb', num };
   try{
-    const [arRes, trRes] = await Promise.all([
-      fetch(`${API}/hizbQuarter/${num}/quran-uthmani`),
-      fetch(`${API}/hizbQuarter/${num}/${state.translationEdition}`)
-    ]);
-    const arData = (await arRes.json()).data;
-    const trData = (await trRes.json()).data;
-    const ayahs = arData.ayahs.map((a,i)=>({ number:a.number, numberInSurah:a.numberInSurah, surah:a.surah.number, arabic:a.text, translation:(trData.ayahs[i]||{}).text || '' }));
+    const { arData, ayahs } = await fetchAyahsWithTranslations(`hizbQuarter/${num}`, a => a.surah.number);
     renderReader({
       header: { arName: `حزب ${num}`, bnName: `হিজব ${toBn(num)}`, meta: `${toBn(arData.ayahs.length)} আয়াত`, playLabel: `সম্পূর্ণ হিজব শুনুন` },
       showBismillah: false,
@@ -188,13 +198,7 @@ async function openRuku(num){
   showLoader();
   state.currentReaderView = { type: 'ruku', num };
   try{
-    const [arRes, trRes] = await Promise.all([
-      fetch(`${API}/ruku/${num}/quran-uthmani`),
-      fetch(`${API}/ruku/${num}/${state.translationEdition}`)
-    ]);
-    const arData = (await arRes.json()).data;
-    const trData = (await trRes.json()).data;
-    const ayahs = arData.ayahs.map((a,i)=>({ number:a.number, numberInSurah:a.numberInSurah, surah:a.surah.number, arabic:a.text, translation:(trData.ayahs[i]||{}).text || '' }));
+    const { arData, ayahs } = await fetchAyahsWithTranslations(`ruku/${num}`, a => a.surah.number);
     renderReader({
       header: { arName: `ركوع ${num}`, bnName: `রুকু ${toBn(num)}`, meta: `${toBn(arData.ayahs.length)} আয়াত`, playLabel: `সম্পূর্ণ রুকু শুনুন` },
       showBismillah: false,
@@ -222,20 +226,25 @@ function renderReader({header, showBismillah, ayahs}){
     </div>
   </div>`;
   if(showBismillah) html += `<div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>`;
-  const trDir = translationDirection();
-  const trStyle = trDir === 'rtl' ? ' style="direction:rtl;text-align:right;"' : '';
+  const compareMode = ayahs.length && ayahs[0].translations && ayahs[0].translations.length > 1;
   ayahs.forEach(a => {
     const key = `${a.surah}:${a.numberInSurah}`;
     const isBookmarked = !!state.bookmarks[key];
     const noteText = getNote(a.surah, a.numberInSurah);
+    const translationsHtml = (a.translations && a.translations.length ? a.translations : [{text:'', dir:'ltr', label:''}])
+      .map(t => {
+        const style = t.dir === 'rtl' ? ' style="direction:rtl;text-align:right;"' : '';
+        const labelHtml = compareMode ? `<div class="tr-edition-label">${t.label}</div>` : '';
+        return `<div class="bn-text${compareMode ? ' bn-text-compare' : ''}"${style}>${labelHtml}${t.text}</div>`;
+      }).join('');
     html += `<div class="ayah-card" id="ayah-${key.replace(':','-')}" data-key="${key}">
       <div class="medallion">
         ${starSvg()}
         <span>${toBn(a.numberInSurah)}</span>
       </div>
       <div class="ayah-body">
-        <div class="ar-text">${a.arabic}</div>
-        <div class="bn-text"${trStyle}>${a.translation}</div>
+        <div class="ar-text">${tajweedHighlight(a.arabic)}</div>
+        ${translationsHtml}
         <div class="ayah-actions">
           <button class="play-toggle" data-key="${key}">▶ Listen.</button>
           <button class="${isBookmarked?'bookmarked':''}" onclick="toggleBookmark('${key}', this)">${isBookmarked?'★ Reserved':'☆ Save'}</button>
