@@ -15,6 +15,7 @@ function applyTheme(id, opts){
   opts = opts || {};
   const meta = themeMeta(id);
   state.theme = meta.id;
+  trackThemeTried(meta.id);
   document.body.setAttribute('data-theme', meta.id);
   document.body.classList.toggle('theme-dark-accent', !!meta.dark);
   const mc = document.querySelector('meta[name="theme-color"]');
