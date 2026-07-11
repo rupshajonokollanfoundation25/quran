@@ -16,10 +16,11 @@ function closeModal(id){
   el.style.display = 'none';
   document.removeEventListener('keydown', modalEscHandler);
   if(id === 'prayerModal') stopPrayerTicker();
+  if(id === 'qiblaModal' && typeof stopQiblaCompass === 'function') stopQiblaCompass();
 }
 function modalEscHandler(e){
   if(e.key === 'Escape'){
-    ['settingsModal','prayerModal','dictionaryModal','helpModal','taraweehModal','langPickerModal','themePickerModal'].forEach(id => {
+    ['settingsModal','prayerModal','qiblaModal','dictionaryModal','helpModal','taraweehModal','langPickerModal','themePickerModal','compareTrModal'].forEach(id => {
       const el = document.getElementById(id);
       if(el && el.style.display === 'flex') closeModal(id);
     });
@@ -296,8 +297,102 @@ function initSettingsModal(){
     state.prayerNotify = notifyChk.checked;
     savePrayerNotify();
   };
+
+  // Compare-translations picker (up to 3 side-by-side)
+  const cmpBtn = document.getElementById('settingsCompareTrBtn');
+  if(cmpBtn){
+    syncCompareTrLabel();
+    cmpBtn.onclick = openTranslationsComparePicker;
+  }
+
+  // Approximate tajweed color highlighting
+  const twChk = document.getElementById('settingsTajweedMode');
+  if(twChk){
+    twChk.checked = !!state.tajweedMode;
+    twChk.onchange = () => {
+      state.tajweedMode = twChk.checked;
+      saveTajweedMode();
+      reopenCurrentReaderView();
+    };
+  }
 }
 function openSettingsModal(){ openModal('settingsModal'); }
+
+// ================= Compare translations (up to 3 side-by-side) =================
+function syncCompareTrLabel(){
+  const label = document.getElementById('settingsCompareTrLabel');
+  if(!label) return;
+  label.textContent = state.translationEditions.length ? `${toBn(state.translationEditions.length)}টি নির্বাচিত` : 'বন্ধ';
+}
+
+async function openTranslationsComparePicker(){
+  const editions = await loadTranslationEditions();
+  let modal = document.getElementById('compareTrModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.className = 'app-modal';
+    modal.id = 'compareTrModal';
+    modal.innerHTML = `
+      <div class="app-modal-box">
+        <div class="app-modal-head">
+          <h3><i class="fa-solid fa-layer-group"></i> <span>তুলনামূলক অনুবাদ</span></h3>
+          <button class="app-modal-close" id="compareTrClose">✕</button>
+        </div>
+        <div class="app-modal-body">
+          <input type="text" id="compareTrSearch" class="input-box-field" placeholder="ভাষা বা অনুবাদক খুঁজুন..." style="margin-bottom:10px;">
+          <div class="compare-tr-hint" id="compareTrHint"></div>
+          <div id="compareTrList" class="lang-picker-list compare-tr-list"></div>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    wireModalBackdrop('compareTrModal');
+    document.getElementById('compareTrClose').onclick = () => closeModal('compareTrModal');
+  }
+  const listEl = document.getElementById('compareTrList');
+  const hintEl = document.getElementById('compareTrHint');
+  const defaultHint = 'সর্বোচ্চ ৩টি অনুবাদ একসাথে বেছে নিন — পাশাপাশি দেখাবে। কোনোটি না বাছলে প্রধান অনুবাদই দেখাবে।';
+  const updateHint = () => {
+    hintEl.textContent = state.translationEditions.length
+      ? `${toBn(state.translationEditions.length)}/৩ নির্বাচিত — পরিবর্তন সাথে সাথে প্রয়োগ হবে`
+      : defaultHint;
+  };
+  const render = (filter) => {
+    const q = (filter || '').trim().toLowerCase();
+    const items = editions
+      .map(e => ({ id: e.identifier, label: e.language ? `${e.name || e.englishName} — ${languageDisplayName(e.language)}` : (e.name || e.englishName) }))
+      .filter(it => !q || it.label.toLowerCase().includes(q))
+      .sort((a,b) => a.label.localeCompare(b.label));
+    listEl.innerHTML = items.length ? items.map(it => `
+      <label class="compare-tr-item${state.translationEditions.includes(it.id) ? ' active' : ''}">
+        <input type="checkbox" data-id="${it.id}" ${state.translationEditions.includes(it.id) ? 'checked' : ''}>
+        <span class="lp-label">${it.label}</span>
+      </label>`).join('') : `<div class="lang-picker-empty">—</div>`;
+    listEl.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.onchange = () => {
+        const id = cb.getAttribute('data-id');
+        if(cb.checked){
+          if(state.translationEditions.length >= 3){
+            cb.checked = false;
+            showToast('সর্বোচ্চ ৩টি অনুবাদ বেছে নেওয়া যাবে');
+            return;
+          }
+          state.translationEditions = state.translationEditions.concat([id]);
+        } else {
+          state.translationEditions = state.translationEditions.filter(s => s !== id);
+        }
+        cb.closest('.compare-tr-item').classList.toggle('active', cb.checked);
+        saveTranslationEditionsSelected();
+        syncCompareTrLabel();
+        updateHint();
+        reopenCurrentReaderView();
+      };
+    });
+  };
+  updateHint();
+  render('');
+  document.getElementById('compareTrSearch').oninput = (e) => render(e.target.value);
+  openModal('compareTrModal');
+}
 
 // ================= Prayer times modal =================
 const PRAYER_ORDER = [
@@ -588,6 +683,7 @@ function initMenu(){
   initLanguage();
   initSettingsModal();
   initPrayerModal();
+  initQiblaModal();
   initDictionaryModal();
   initHelpModal();
   initSocialLinks();
