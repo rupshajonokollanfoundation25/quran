@@ -38,6 +38,18 @@ aside{
 .li-sub{font-family:'Amiri',serif;font-size:13px;color:var(--ink-soft);}
 .li-meta{font-size:11px;color:var(--ink-soft);flex-shrink:0;}
 .empty-list-msg{padding:26px 10px;text-align:center;color:var(--ink-soft);font-size:13.5px;}
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  padding:40px 24px 34px;animation:emptyStateFade .35s ease;
+}
+@keyframes emptyStateFade{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.empty-state-illus{margin-bottom:16px;opacity:.9;}
+.empty-state-title{
+  font-family:'Noto Serif Bengali',serif;font-weight:700;font-size:14.5px;color:var(--ink);margin-bottom:6px;
+}
+.empty-state-sub{
+  font-family:'Hind Siliguri',sans-serif;font-size:12.5px;color:var(--ink-soft);line-height:1.7;max-width:260px;
+}
 .offline-dot{color:var(--gold);font-size:11px;font-weight:700;}
 .history-item .li-meta{text-align:right;}
 .offline-item{cursor:default;}
