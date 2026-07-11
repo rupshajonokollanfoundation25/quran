@@ -5,7 +5,7 @@
 // too, without touching the existing ayahsRead dedup map used for badges.
 
 const AYAH_DAILY_LS_KEY = 'qr_ayah_daily';
-const BN_MONTHS = ['জানুয়ারি','ফেব্রুয়ারি','মার্চ','এপ্রিল','মে','জুন','জুলাই','আগস্ট','সেপ্টেম্বর','অক্টোবর','নভেম্বর','ডিসেম্বর'];
+const BN_MONTHS = ['January','February','March','April','May','Jun','July','August','September','October','November','December'];
 
 function loadAyahDaily(){
   try{
@@ -84,7 +84,7 @@ function renderTrendCompareCard(activity){
   const icon = up ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down';
   const tone = up ? 'trend-up' : 'trend-down';
   let msg;
-  if(lastWeek === 0 && thisWeek === 0) msg = 'এই সপ্তাহে শুরু করুন — গত সপ্তাহের সাথে তুলনা এখানে দেখা যাবে।';
+  if(lastWeek === 0 && thisWeek === 0) msg = 'এখনই শুরু করুন আপনার পথচলা —';
   else if(up) msg = `গত সপ্তাহের চেয়ে ${toBn(Math.abs(pct))}% বেশি পড়েছেন, চালিয়ে যান!`;
   else msg = `গত সপ্তাহের চেয়ে ${toBn(Math.abs(pct))}% কম — আজ কিছুক্ষণ পড়ে পুষিয়ে নিন।`;
 
@@ -92,12 +92,12 @@ function renderTrendCompareCard(activity){
     <div class="stats-card trend-compare-card">
       <div class="trend-compare-row">
         <div class="trend-compare-col">
-          <div class="stats-label">গত সপ্তাহ</div>
+          <div class="stats-label">Last week</div>
           <div class="stats-big-sm">${toBn(lastWeek)} min</div>
         </div>
         <div class="trend-compare-arrow ${tone}"><i class="fa-solid ${icon}"></i></div>
         <div class="trend-compare-col" style="text-align:right;">
-          <div class="stats-label">এই সপ্তাহ</div>
+          <div class="stats-label">This week</div>
           <div class="stats-big-sm">${toBn(thisWeek)} min</div>
         </div>
       </div>
@@ -108,10 +108,10 @@ function renderTrendCompareCard(activity){
 function renderTrendMiniChart(activity){
   const weeks = [3,2,1,0].map(w => weekMinutesTotal(activity, w));
   const max = Math.max(1, ...weeks);
-  const labels = ['৩ সপ্তাহ আগে','২ সপ্তাহ আগে','গত সপ্তাহ','এই সপ্তাহ'];
+  const labels = ['3 weeks ago','2 weeks ago','Last week','This week'];
   return `
     <div class="stats-card">
-      <div class="stats-label" style="margin-bottom:10px;">গত ৪ সপ্তাহের প্রবণতা</div>
+      <div class="stats-label" style="margin-bottom:10px;">Trends in the last 4 weeks</div>
       <div class="trend-mini-chart">
         ${weeks.map((m,i) => `
           <div class="trend-mini-col">
@@ -169,7 +169,7 @@ function renderTrendsSection(){
   const activity = loadActivity();
   const ayahDaily = loadAyahDaily();
   return `
-    <div class="section-title-sm">তুলনামূলক / ট্রেন্ড</div>
+    <div class="section-title-sm">তুলনামূলক</div>
     ${renderTrendCompareCard(activity)}
     ${renderTrendMiniChart(activity)}
     ${renderMonthlySummaryCard(activity, ayahDaily)}
