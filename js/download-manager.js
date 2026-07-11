@@ -8,11 +8,21 @@
 // message already used by the single "Save offline" button in the reader
 // (js/player.js) — this just generalizes that flow to any surah number,
 // whether or not it has ever been opened.
+//
+// The modal frames itself as a small "archive": a hero gauge shows how much
+// of the 114 surahs are preserved offline, filter chips let the user jump
+// straight to what's saved or what's left, and rows use a calmer card style
+// with a smoothly animating progress ring while a download is in flight.
 
 // Very rough size estimate only (128kbps audio, ~8s average ayah) — shown
 // with an "আনুমানিক" (approximate) label everywhere so it's never presented
 // as an exact figure.
 const DLM_AVG_MB_PER_AYAH = 0.15;
+const DLM_TOTAL_SURAHS = 114;
+const DLM_GAUGE_R = 30; // matches the SVG circle radius below
+const DLM_GAUGE_C = 2 * Math.PI * DLM_GAUGE_R;
+
+let dlmFilterMode = 'all'; // 'all' | 'saved' | 'unsaved'
 
 function dlmEstimateMB(ayahCount){
   return (ayahCount || 0) * DLM_AVG_MB_PER_AYAH;
@@ -45,43 +55,79 @@ async function dlmStorageEstimate(){
 function dlmBytesToMB(bytes){ return bytes / (1024*1024); }
 
 async function dlmRenderSummary(){
-  const box = document.getElementById('dlmSummary');
+  const box = document.getElementById('dlmHero');
   if(!box) return;
   const count = (state.offlineSurahs||[]).length;
   const estimatedMB = (state.offlineSurahs||[]).reduce((sum, o) => sum + dlmEstimateMB(o.ayahCount || 0), 0);
+  const pct = Math.min(100, Math.round((count / DLM_TOTAL_SURAHS) * 100));
+  const dash = (pct/100) * DLM_GAUGE_C;
+
   let deviceLine = '';
   const est = await dlmStorageEstimate();
   if(est && est.quota){
     const usedMB = dlmBytesToMB(est.usage||0);
     const quotaMB = dlmBytesToMB(est.quota||1);
-    const pct = Math.min(100, Math.round((usedMB/quotaMB)*100));
-    deviceLine = `<div class="dlm-summary-bar">
-      <div class="planner-progress-row">
-        <div class="planner-progress-bar"><div class="planner-progress-fill" style="width:${pct}%"></div></div>
-        <span>${dlmFormatMB(usedMB)} / ${dlmFormatMB(quotaMB)}</span>
-      </div>
-    </div>`;
+    const devicePct = Math.min(100, Math.round((usedMB/quotaMB)*100));
+    deviceLine = `<div class="dlm-hero-bar">
+        <div class="dlm-hero-bar-track"><div class="dlm-hero-bar-fill" style="width:${devicePct}%"></div></div>
+        <span class="dlm-hero-bar-text">${dlmFormatMB(usedMB)} / ${dlmFormatMB(quotaMB)}</span>
+      </div>`;
   }
+
   box.innerHTML = `
-    <div class="dlm-summary-icon"><i class="fa-solid fa-cloud-arrow-down"></i></div>
-    <div class="dlm-summary-text">
-      <div class="dlm-summary-title">${toBn(count)} টি সূরা অফলাইনে সংরক্ষিত</div>
-      <div class="dlm-summary-sub">আনুমানিক ${dlmFormatMB(estimatedMB)} · এই ডিভাইসেই সংরক্ষিত থাকে</div>
+    <div class="dlm-gauge">
+      <svg viewBox="0 0 72 72">
+        <circle class="dlm-gauge-track" cx="36" cy="36" r="${DLM_GAUGE_R}"></circle>
+        <circle class="dlm-gauge-fill" cx="36" cy="36" r="${DLM_GAUGE_R}"
+          stroke-dasharray="${dash.toFixed(1)} ${DLM_GAUGE_C.toFixed(1)}"></circle>
+      </svg>
+      <div class="dlm-gauge-label"><b>${toBn(pct)}%</b><span>সংরক্ষিত</span></div>
+    </div>
+    <div class="dlm-hero-body">
+      <div class="dlm-hero-title">${toBn(count)} / ${toBn(DLM_TOTAL_SURAHS)} সূরা অফলাইনে</div>
+      <div class="dlm-hero-sub">আনুমানিক ${dlmFormatMB(estimatedMB)} · এই ডিভাইসেই সংরক্ষিত থাকে</div>
       ${deviceLine}
     </div>
-    <button class="dlm-clear-btn" id="dlmClearAll" ${count ? '' : 'disabled style="opacity:.4"'}>সব মুছুন</button>`;
+    <button class="dlm-clear-btn" id="dlmClearAll" ${count ? '' : 'disabled'}>
+      <i class="fa-solid fa-trash-can"></i> সব মুছুন
+    </button>`;
   const clearBtn = document.getElementById('dlmClearAll');
   if(clearBtn) clearBtn.onclick = dlmClearAll;
+
+  dlmRenderFilterChips();
+}
+
+function dlmRenderFilterChips(){
+  const row = document.getElementById('dlmFilterRow');
+  if(!row) return;
+  const saved = (state.offlineSurahs||[]).length;
+  const total = (state.surahList||[]).length || DLM_TOTAL_SURAHS;
+  const chips = [
+    { key:'all', label:'সব সূরা', count: total },
+    { key:'saved', label:'সংরক্ষিত', count: saved },
+    { key:'unsaved', label:'বাকি আছে', count: Math.max(0, total - saved) },
+  ];
+  row.innerHTML = chips.map(c => `
+    <button class="dlm-chip${dlmFilterMode===c.key ? ' active' : ''}" data-filter="${c.key}">
+      ${c.label} <span class="dlm-chip-count">${toBn(c.count)}</span>
+    </button>`).join('');
+  row.querySelectorAll('.dlm-chip').forEach(btn => {
+    btn.onclick = () => {
+      dlmFilterMode = btn.dataset.filter;
+      dlmRenderFilterChips();
+      dlmRenderList(document.getElementById('dlmSearchInput')?.value);
+    };
+  });
 }
 
 async function dlmClearAll(){
   const entries = [...(state.offlineSurahs||[])];
   if(!entries.length) return;
   const btn = document.getElementById('dlmClearAll');
-  if(btn){ btn.disabled = true; btn.textContent = 'মুছে ফেলা হচ্ছে...'; }
+  if(btn){ btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> মুছে ফেলা হচ্ছে...'; }
   for(const entry of entries){ await removeSurahOffline(entry.surah); }
   await dlmRenderSummary();
-  dlmRenderList();
+  dlmRenderList(document.getElementById('dlmSearchInput')?.value);
   showToast('সব অফলাইন ডাউনলোড মুছে ফেলা হয়েছে');
 }
 
@@ -102,6 +148,7 @@ async function dlmStartDownload(surahNum, rowEl){
   const finish = () => {
     markSurahOffline(surahNum, reciter, urls, urls.length);
     dlmRenderRowAction(actionSlot, surahNum);
+    rowEl.classList.add('is-saved');
     dlmRenderSummary();
   };
   const setProgress = (done, total) => {
@@ -145,17 +192,26 @@ async function dlmRemoveDownload(surahNum, rowEl){
   const btn = actionSlot.querySelector('.dlm-btn');
   if(btn){ btn.disabled = true; btn.classList.add('deleting'); }
   await removeSurahOffline(surahNum);
+  rowEl.classList.remove('is-saved');
   dlmRenderRowAction(actionSlot, surahNum);
   dlmRenderSummary();
+  // If the current filter is "saved" or "unsaved", this row may no longer
+  // belong in the visible list — refresh so the list stays accurate.
+  if(dlmFilterMode !== 'all') dlmRenderList(document.getElementById('dlmSearchInput')?.value);
 }
 
 function dlmRenderRowAction(actionSlot, surahNum){
   const downloaded = isSurahOffline(surahNum);
   actionSlot.innerHTML = `<button class="dlm-btn${downloaded ? ' saved' : ''}" title="${downloaded ? 'মুছে ফেলুন' : 'ডাউনলোড করুন'}">
-    <i class="fa-solid ${downloaded ? 'fa-trash' : 'fa-arrow-down'}"></i>
+    <i class="fa-solid ${downloaded ? 'fa-check' : 'fa-arrow-down'}"></i>
   </button>`;
   const btn = actionSlot.querySelector('.dlm-btn');
   const row = actionSlot.closest('.dlm-row');
+  // On the saved state, hovering/tapping reveals the delete intent via CSS
+  // (icon + color shift to red) rather than always showing a trash can —
+  // calmer at rest, still one tap to remove.
+  btn.onmouseenter = () => { if(downloaded) btn.innerHTML = '<i class="fa-solid fa-trash"></i>'; };
+  btn.onmouseleave = () => { if(downloaded) btn.innerHTML = '<i class="fa-solid fa-check"></i>'; };
   btn.onclick = () => downloaded ? dlmRemoveDownload(surahNum, row) : dlmStartDownload(surahNum, row);
 }
 
@@ -165,24 +221,32 @@ function dlmRenderList(filterText){
   if(!container) return;
   const q = (filterText||'').trim().toLowerCase();
   const list = (state.surahList||[]).filter(s => {
+    if(dlmFilterMode === 'saved' && !isSurahOffline(s.number)) return false;
+    if(dlmFilterMode === 'unsaved' && isSurahOffline(s.number)) return false;
     if(!q) return true;
     const bnName = surahNamesBn[s.number-1] || '';
     return bnName.toLowerCase().includes(q) || s.englishName.toLowerCase().includes(q) || String(s.number) === q;
   });
   if(!list.length){
-    container.innerHTML = `<div class="dlm-empty-hint">${state.surahList.length ? 'কোনো সূরা পাওয়া যায়নি' : 'সূরার তালিকা লোড হচ্ছে...'}</div>`;
+    const msg = !state.surahList.length ? 'সূরার তালিকা লোড হচ্ছে...'
+      : dlmFilterMode === 'saved' ? 'এখনও কোনো সূরা সংরক্ষিত হয়নি'
+      : dlmFilterMode === 'unsaved' ? 'সব সূরাই সংরক্ষিত হয়ে গেছে 🎉'
+      : 'কোনো সূরা পাওয়া যায়নি';
+    const icon = dlmFilterMode === 'unsaved' && state.surahList.length ? 'fa-circle-check' : 'fa-box-open';
+    container.innerHTML = `<div class="dlm-empty-hint"><i class="fa-solid ${icon}"></i>${msg}</div>`;
     return;
   }
   container.innerHTML = '';
   list.forEach(s => {
     const row = document.createElement('div');
-    row.className = 'dlm-row';
+    const downloaded = isSurahOffline(s.number);
+    row.className = `dlm-row${downloaded ? ' is-saved' : ''}`;
     const sizeMB = dlmEstimateMB(s.numberOfAyahs);
     row.innerHTML = `
       <div class="badge-num">${toBn(s.number)}</div>
       <div class="dlm-row-text">
         <div class="dlm-row-title">${surahNamesBn[s.number-1] || s.englishName}</div>
-        <div class="dlm-row-sub">${toBn(s.numberOfAyahs)} আয়াত · আনুমানিক ${dlmFormatMB(sizeMB)}</div>
+        <div class="dlm-row-sub">${toBn(s.numberOfAyahs)} আয়াত · আনুমানিক ${dlmFormatMB(sizeMB)}${downloaded ? ' · <span class="dlm-saved-tag"><i class="fa-solid fa-check"></i> সংরক্ষিত</span>' : ''}</div>
       </div>
       <div class="dlm-row-action"></div>`;
     container.appendChild(row);
@@ -198,13 +262,14 @@ function openDownloadManager(){
     modal.className = 'app-modal';
     modal.id = 'downloadManagerModal';
     modal.innerHTML = `
-      <div class="app-modal-box">
+      <div class="app-modal-box dlm-modal-box">
         <div class="app-modal-head">
-          <h3><i class="fa-solid fa-cloud-arrow-down"></i> ডাউনলোড ম্যানেজার</h3>
+          <h3><i class="fa-solid fa-box-archive"></i> ডাউনলোড ম্যানেজার</h3>
           <button class="app-modal-close" id="dlmClose">✕</button>
         </div>
         <div class="app-modal-body">
-          <div class="dlm-summary" id="dlmSummary"></div>
+          <div class="dlm-hero" id="dlmHero"></div>
+          <div class="dlm-filter-row" id="dlmFilterRow"></div>
           <div class="dlm-controls">
             <div class="dlm-search">
               <i class="fa-solid fa-magnifying-glass"></i>
@@ -220,9 +285,10 @@ function openDownloadManager(){
     document.getElementById('dlmClose').onclick = () => closeModal('downloadManagerModal');
     document.getElementById('dlmSearchInput').oninput = (e) => dlmRenderList(e.target.value);
     const reciterSelect = document.getElementById('dlmReciterSelect');
-    reciterSelect.innerHTML = reciters.map(r => `<option value="${r.id}">${r.bn || r.name}</option>`).join('');
+    reciterSelect.innerHTML = reciters.map(r => `<option value="${r.id}">${r.flag ? r.flag + ' ' : ''}${r.bn || r.name}</option>`).join('');
     reciterSelect.value = state.reciter;
   }
+  dlmFilterMode = 'all';
   dlmRenderSummary();
   dlmRenderList(document.getElementById('dlmSearchInput').value);
   openModal('downloadManagerModal');
