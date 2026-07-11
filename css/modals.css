@@ -1,0 +1,115 @@
+/* ==== modals.css — generic app modal shell, settings rows, language picker, toast, reusable input box, theme picker ==== */
+
+/* ---- Generic full-screen modal (Settings / Prayer times / Dictionary / Help) ---- */
+.app-modal{
+  position:fixed;inset:0;background:rgba(10,20,17,.55);z-index:65;display:flex;
+  justify-content:center;align-items:flex-start;padding:70px 16px 16px;
+}
+.app-modal-box{
+  background:var(--parchment);width:100%;max-width:640px;border-radius:var(--radius);
+  max-height:80vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.3);
+}
+.app-modal-head{
+  padding:14px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;
+}
+.app-modal-head h3{margin:0;font-family:'Noto Serif Bengali',serif;font-size:16px;display:flex;align-items:center;gap:9px;color:var(--ink);}
+.app-modal-head h3 i{color:var(--gold);font-size:15px;}
+.app-modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink-soft);}
+.app-modal-body{overflow-y:auto;padding:14px 18px 20px;}
+.app-modal-search{
+  display:flex;align-items:center;gap:8px;background:var(--panel);border-radius:999px;
+  padding:9px 14px;margin:12px 18px 0;color:var(--ink-soft);flex-shrink:0;
+}
+.app-modal-search input{border:none;background:none;outline:none;font-family:'Hind Siliguri',sans-serif;font-size:13.5px;color:var(--ink);flex:1;}
+
+/* ---- Settings rows ---- */
+.settings-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 2px;
+  border-bottom:1px solid var(--line);
+}
+.settings-row:last-child{border-bottom:none;}
+.settings-label{font-size:14px;color:var(--ink);}
+.settings-control{display:flex;align-items:center;gap:8px;}
+.settings-control select{
+  background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:8px;
+  padding:7px 10px;font-family:'Hind Siliguri',sans-serif;font-size:13px;max-width:160px;
+}
+.settings-btn{
+  display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--line);
+  color:var(--ink);border-radius:8px;padding:7px 12px;font-family:'Hind Siliguri',sans-serif;font-size:13px;cursor:pointer;
+}
+.lang-toggle{display:flex;background:var(--sage);border-radius:999px;padding:3px;}
+.lang-toggle button{
+  border:none;background:none;padding:6px 14px;border-radius:999px;font-family:'Hind Siliguri',sans-serif;
+  font-size:12.5px;font-weight:600;color:var(--ink-soft);cursor:pointer;
+}
+.lang-toggle button.active{background:var(--teal);color:var(--sage);}
+.settings-btn span{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ---- Language / translation picker modal (js/menu.js openLangPickerModal) ---- */
+.lang-picker-list{display:flex;flex-direction:column;gap:4px;}
+.lang-picker-item{
+  display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--panel);
+  border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer;
+  font-family:'Hind Siliguri',sans-serif;color:var(--ink);
+}
+.lang-picker-item.active{border-color:var(--gold);background:var(--sage);}
+.lang-picker-item .lp-label{font-size:14px;flex:1;}
+.lang-picker-item .lp-sub{font-size:11.5px;color:var(--ink-soft);}
+.lang-picker-item i{color:var(--gold);}
+.lang-picker-empty{padding:20px;text-align:center;color:var(--ink-soft);font-size:13px;}
+.switch{position:relative;display:inline-block;width:42px;height:24px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;}
+.switch-slider{
+  position:absolute;cursor:pointer;inset:0;background:var(--line);border-radius:999px;transition:.2s;
+}
+.switch-slider::before{
+  content:"";position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.2s;
+}
+.switch input:checked + .switch-slider{background:var(--teal);}
+.switch input:checked + .switch-slider::before{transform:translateX(18px);}
+
+
+/* ---- Toast ---- */
+.app-toast{
+  position:fixed;left:50%;bottom:calc(var(--bottomnav-h) + 16px);transform:translate(-50%,10px);
+  background:var(--teal-deep);color:var(--sage);padding:10px 18px;border-radius:999px;font-size:13px;
+  font-family:'Hind Siliguri',sans-serif;z-index:70;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;
+}
+.app-toast.visible{opacity:1;transform:translate(-50%,0);}
+
+
+/* ---- Reusable dynamic input box (replaces window.prompt everywhere) ---- */
+.input-box-modal{max-width:360px;}
+.input-box-field{
+  width:100%;border-radius:10px;border:1px solid var(--line);background:var(--parchment);
+  color:var(--ink);font-family:'Hind Siliguri',sans-serif;font-size:15px;padding:12px 14px;outline:none;margin-bottom:14px;
+}
+.input-box-field:focus{border-color:var(--gold);}
+.input-box-actions{display:flex;gap:8px;justify-content:flex-end;}
+
+
+/* ---- Theme picker (Settings → থিম) ---- */
+.theme-picker-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:12px;
+}
+.theme-picker-card{
+  position:relative;text-align:left;cursor:pointer;border:2px solid var(--line);
+  border-radius:16px;padding:12px;background:var(--panel);
+  font-family:'Hind Siliguri',sans-serif;transition:transform .15s ease,border-color .15s ease;
+}
+.theme-picker-card:active{transform:scale(.97);}
+.theme-picker-card.active{border-color:var(--gold);}
+.theme-picker-swatch{
+  display:flex;height:44px;border-radius:10px;overflow:hidden;margin-bottom:9px;
+  border:1px solid rgba(0,0,0,.08);
+}
+.theme-picker-swatch span{flex:1;}
+.theme-picker-name{font-weight:700;font-size:13.5px;color:var(--ink);display:flex;align-items:center;gap:6px;}
+.theme-picker-card.active .theme-picker-name i{color:var(--gold);}
+.theme-picker-desc{font-size:11px;color:var(--ink-soft);margin-top:2px;line-height:1.4;}
+
+/* ---- Settings: small explanatory sub-note under a label ---- */
+.settings-subnote{display:block;font-size:11px;color:var(--ink-soft);font-weight:400;margin-top:2px;}
+
