@@ -219,6 +219,7 @@ async function openSurah(num){
       header: { arName: arData.name, bnName: surahNamesBn[num-1] || arData.englishName, meta: `${arData.revelationType === 'Meccan' ? 'মাক্কী' : 'মাদানী'} · ${toBn(arData.numberOfAyahs)} আয়াত`, playLabel: `সম্পূর্ণ সূরা শুনুন` },
       showBismillah: num !== 1 && num !== 9,
       surahInfo: surahInfoBn[num],
+      surahBenefits: surahBenefitsBn[num],
       ayahs
     });
     state.lastRead = { surah: num, ayah: ayahs[0] ? ayahs[0].numberInSurah : 1 };
@@ -309,7 +310,7 @@ function wrapArabicWords(arabicText){
   return arabicText.trim().split(/\s+/).map((w, i) => `<span class="qw" data-widx="${i}">${w}</span>`).join(' ');
 }
 
-function renderReader({header, showBismillah, surahInfo, ayahs}){
+function renderReader({header, showBismillah, surahInfo, surahBenefits, ayahs}){
   showReaderArea();
   readerToolbar.style.display='flex';
   state.playlist = ayahs.map(a => ({ key:`${a.surah}:${a.numberInSurah}`, globalNumber:a.number, surah:a.surah, numberInSurah:a.numberInSurah, title:(surahNamesBn[a.surah-1]||('সূরা '+a.surah)) }));
@@ -371,7 +372,7 @@ function renderReader({header, showBismillah, surahInfo, ayahs}){
 
   const surahInfoTrigger = document.getElementById('surahInfoTrigger');
   if(surahInfoTrigger){
-    surahInfoTrigger.onclick = () => openSurahInfoModal(header, surahInfo);
+    surahInfoTrigger.onclick = () => openSurahInfoModal(header, surahInfo, surahBenefits);
   }
   document.getElementById('playAllBtn').onclick = () => playAtIndex(0, true);
   const offlineBtn = document.getElementById('offlineBtn');
@@ -435,7 +436,7 @@ function highlightSurahInfoText(text){
   return working;
 }
 
-function openSurahInfoModal(header, surahInfo){
+function openSurahInfoModal(header, surahInfo, surahBenefits){
   let modal = document.getElementById('surahInfoModal');
   if(!modal){
     modal = document.createElement('div');
@@ -450,6 +451,7 @@ function openSurahInfoModal(header, surahInfo){
         <div class="app-modal-body">
           <div class="sit-modal-head" id="sitModalHead"></div>
           <div class="sit-modal-text" id="sitModalText"></div>
+          <div id="sitModalBenefits"></div>
         </div>
       </div>`;
     document.body.appendChild(modal);
@@ -459,7 +461,31 @@ function openSurahInfoModal(header, surahInfo){
   document.getElementById('sitModalHead').innerHTML =
     `<span class="sit-modal-ar">${header.arName}</span><span class="sit-modal-bn">${header.bnName}</span>`;
   document.getElementById('sitModalText').innerHTML = highlightSurahInfoText(surahInfo);
+  document.getElementById('sitModalBenefits').innerHTML = renderSurahBenefitsHtml(surahBenefits);
   openModal('surahInfoModal');
+}
+
+// ---------- সূরার ফজিলত, ব্যবহার ও প্রতিকার — শানে নুযুলের ঠিক নিচে দেখানো হয় ----------
+// js/surah-benefits.js এর surahBenefitsBn ডেটা থেকে দুটি অংশ রেন্ডার করে: কোথায়/কখন
+// পড়লে বেশি সওয়াব-উপকার (usage) এবং হাদীস/প্রচলিত রেওয়ায়েত অনুযায়ী রোগমুক্তি বা
+// সুরক্ষার সাথে সম্পর্কিত অংশ (ailment, যদি প্রযোজ্য হয়)।
+function renderSurahBenefitsHtml(benefits){
+  if(!benefits || (!benefits.usage && !benefits.ailment)) return '';
+  let html = '';
+  if(benefits.usage){
+    html += `<div class="sit-benefit-block sit-benefit-usage">
+      <div class="sit-benefit-title"><i class="fa-solid fa-hands-praying"></i> কোন কাজে ও কখন পড়া উত্তম</div>
+      <div class="sit-benefit-text">${highlightSurahInfoText(benefits.usage)}</div>
+    </div>`;
+  }
+  if(benefits.ailment){
+    html += `<div class="sit-benefit-block sit-benefit-ailment">
+      <div class="sit-benefit-title"><i class="fa-solid fa-mortar-pestle"></i> রোগমুক্তি ও সুরক্ষার জন্য প্রচলিত আমল</div>
+      <div class="sit-benefit-text">${highlightSurahInfoText(benefits.ailment)}</div>
+      <div class="sit-benefit-note">এটি ইসলামি ঐতিহ্যে বর্ণিত আধ্যাত্মিক ফজিলতের পরিচিতি মাত্র — চিকিৎসকের পরামর্শ ও প্রয়োজনীয় চিকিৎসার বিকল্প নয়।</div>
+    </div>`;
+  }
+  return html;
 }
 
 // ---------- Marks ayahs as "read" for the লাইফটাইম stats once they've
