@@ -17,6 +17,93 @@ function initReaderBack(){
   document.getElementById('readerBackBtn').onclick = showHomeLanding;
 }
 
+// ---------- হাফেজ মোড (Hafez / memorization mode) ----------
+// state.hafezMode চালু থাকলে readerArea তে .hafez-mode ক্লাস বসে, যেটা
+// CSS দিয়েই অনুবাদ/নোট লুকিয়ে ও আয়াতগুলোকে মুসহাফের মতো একটানা টেক্সটে
+// দেখায় (দেখুন css/reader.css) — তাই টগল করলে রি-রেন্ডারের দরকার হয় না।
+// state.hafezTestMode (মুখস্থ যাচাই) সেশন-ভিত্তিক, সংরক্ষিত হয় না — অ্যাপ
+// প্রতিবার নতুন করে খুললে বন্ধ অবস্থাতেই শুরু হয়।
+let hafezTestMode = false;
+let lastRenderedAyahs = null;
+
+function applyHafezModeUI(){
+  readerArea.classList.toggle('hafez-mode', !!state.hafezMode);
+  const btn = document.getElementById('hafezModeBtn');
+  if(btn) btn.classList.toggle('active', !!state.hafezMode);
+  const testBtn = document.getElementById('hafezTestBtn');
+  if(testBtn) testBtn.style.display = state.hafezMode ? 'inline-flex' : 'none';
+  if(!state.hafezMode){ hafezTestMode = false; applyHafezTestUI(); }
+  renderHafezPageHint(lastRenderedAyahs);
+}
+
+function applyHafezTestUI(){
+  readerArea.classList.toggle('hafez-test', hafezTestMode);
+  const testBtn = document.getElementById('hafezTestBtn');
+  if(testBtn) testBtn.classList.toggle('active', hafezTestMode);
+  document.querySelectorAll('.ayah-card.revealed').forEach(c => c.classList.remove('revealed'));
+}
+
+function initHafezToolbar(){
+  const hafezBtn = document.getElementById('hafezModeBtn');
+  if(hafezBtn){
+    hafezBtn.onclick = () => {
+      state.hafezMode = !state.hafezMode;
+      saveHafezMode();
+      applyHafezModeUI();
+    };
+  }
+  const testBtn = document.getElementById('hafezTestBtn');
+  if(testBtn){
+    testBtn.onclick = () => { hafezTestMode = !hafezTestMode; applyHafezTestUI(); };
+  }
+  applyHafezModeUI();
+  // ট্যাপ করলে শুধু সেই আয়াতটি সাময়িকভাবে স্পষ্ট হয় (মুখস্থ যাচাইয়ের জন্য) —
+  // mainContent প্রতিবার নতুন করে রেন্ডার হয়, তাই স্থায়ী readerArea-তে
+  // ইভেন্ট-ডেলিগেশন ব্যবহার করা হয়েছে।
+  readerArea.addEventListener('click', (e) => {
+    if(!hafezTestMode) return;
+    const card = e.target.closest('.ayah-card');
+    if(!card) return;
+    if(e.target.closest('.play-toggle, .note-toggle-btn, button')) return;
+    card.classList.toggle('revealed');
+  });
+}
+
+// ---------- হাফেজ মোডে থাকলে বর্তমান অংশটি প্রকৃত মুসহাফের কোন পৃষ্ঠায়
+// আছে তা দেখিয়ে পৃষ্ঠা-মোডে (আসল ৬০৪ পৃষ্ঠার হাফিজি লে-আউট) দ্রুত যাওয়ার
+// শর্টকাট দেয়, আর পৃষ্ঠা-মোডে থাকলে সরাসরি আগের/পরের পৃষ্ঠায় পাতা ওল্টানোর
+// বাটন দেখায় — এটাই হাফিজি পড়ার স্বাভাবিক পদ্ধতি। ----------
+function renderHafezPageHint(ayahs){
+  const hintEl = document.getElementById('hafezPageHint');
+  if(!hintEl) return;
+  if(!state.hafezMode || !ayahs || !ayahs.length){
+    hintEl.style.display = 'none'; hintEl.innerHTML = '';
+    return;
+  }
+  const view = state.currentReaderView;
+  if(view && view.type === 'page'){
+    const num = view.num;
+    hintEl.style.display = 'block';
+    hintEl.innerHTML = `<div class="hafez-page-nav">
+      <button id="hafezPrevPage"${num<=1?' disabled':''}><i class="fa-solid fa-arrow-right"></i> পূর্ববর্তী পৃষ্ঠা</button>
+      <button id="hafezNextPage"${num>=604?' disabled':''}>পরবর্তী পৃষ্ঠা <i class="fa-solid fa-arrow-left"></i></button>
+    </div>`;
+    const prevBtn = document.getElementById('hafezPrevPage');
+    const nextBtn = document.getElementById('hafezNextPage');
+    if(prevBtn) prevBtn.onclick = () => openPage(num - 1);
+    if(nextBtn) nextBtn.onclick = () => openPage(num + 1);
+  } else if(ayahs[0] && ayahs[0].page){
+    const pageNum = ayahs[0].page;
+    hintEl.style.display = 'flex';
+    hintEl.innerHTML = `<span>📖 এই অংশ মুসহাফের পৃষ্ঠা ${toBn(pageNum)}-এ আছে।</span>
+      <button id="hafezGoPage">পৃষ্ঠা মোডে পড়ুন</button>`;
+    const goBtn = document.getElementById('hafezGoPage');
+    if(goBtn) goBtn.onclick = () => openPage(pageNum);
+  } else {
+    hintEl.style.display = 'none'; hintEl.innerHTML = '';
+  }
+}
+
 // ---------- Qur'an translation editions (all languages the API offers) ----------
 // The Al Quran Cloud API lists 50+ translation editions across dozens of
 // languages. We fetch that list once, cache it (both in memory and
@@ -81,6 +168,7 @@ async function fetchAyahsWithTranslations(pathBase, surahOf){
     number: a.number,
     numberInSurah: a.numberInSurah,
     surah: surahOf ? surahOf(a) : a.surah,
+    page: a.page,
     arabic: a.text,
     translations: editions.map((ed, ei) => ({
       identifier: ed,
@@ -275,6 +363,10 @@ function renderReader({header, showBismillah, surahInfo, ayahs}){
   });
   mainContent.innerHTML = html;
   applyFontSize();
+  lastRenderedAyahs = ayahs;
+  hafezTestMode = false;
+  applyHafezTestUI();
+  renderHafezPageHint(ayahs);
 
   const surahInfoTrigger = document.getElementById('surahInfoTrigger');
   if(surahInfoTrigger){
