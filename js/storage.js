@@ -37,7 +37,22 @@ const state = {
   audioSurahsPlayedFloor: 0,  // highest unique-surahs-played COUNT seen from the cloud
   bestStreak: 0,               // longest daily-reading streak ever reached, kept even if the
                                 // current streak later resets to 0
-  user: null                    // set by auth.js on sign-in: { uid, name, email, position }
+  user: null,                   // set by auth.js on sign-in: { uid, name, email, position }
+
+  // ---- Extra badge-tracking fields (aggregate-only, see js/stats.js BADGES) ----
+  topicsExplored: [],          // LOCAL ONLY: unique topic ids opened, for "বিষয় অনুসন্ধানী"
+  topicsExploredFloor: 0,      // highest unique-topics-explored COUNT seen from the cloud
+  themesTried: [],             // unique theme ids ever applied
+  languagesUsed: [],           // unique interface language codes ever selected
+  qiblaUsed: false,            // ever opened + resolved the Qibla compass
+  tajweedModeUsed: false,      // ever turned tajweed color-highlighting on
+  hafezModeUsed: false,        // ever turned হাফেজ মোড on
+  translationCompareUsed: false, // ever compared 2+ translations side-by-side
+  ramadanModeUsed: false,      // ever turned রমজান মোড on
+  prayerNotifyEverEnabled: false, // ever successfully enabled prayer-time notifications
+  nightOwlDone: false,         // ever recorded activity between 00:00–03:59
+  earlyBirdDone: false,        // ever recorded activity between 04:00–06:59
+  shareCount: 0                // number of times the "আজকের আয়াত" share button was used
 };
 
 // ---------- localStorage persistence ----------
@@ -70,7 +85,20 @@ const LS_KEYS = {
   ayahsRead: 'qr_ayahs_read',
   ayahsReadFloor: 'qr_ayahs_read_floor',
   audioSurahsPlayedFloor: 'qr_audio_surahs_played_floor',
-  bestStreak: 'qr_best_streak'
+  bestStreak: 'qr_best_streak',
+  topicsExplored: 'qr_topics_explored',
+  topicsExploredFloor: 'qr_topics_explored_floor',
+  themesTried: 'qr_themes_tried',
+  languagesUsed: 'qr_languages_used',
+  qiblaUsed: 'qr_qibla_used',
+  tajweedModeUsed: 'qr_tajweed_used_ever',
+  hafezModeUsed: 'qr_hafez_used_ever',
+  translationCompareUsed: 'qr_compare_used_ever',
+  ramadanModeUsed: 'qr_ramadan_used_ever',
+  prayerNotifyEverEnabled: 'qr_prayer_notify_ever',
+  nightOwlDone: 'qr_night_owl_done',
+  earlyBirdDone: 'qr_early_bird_done',
+  shareCount: 'qr_share_count'
 };
 
 // Keep well above the "at least 10" requirement so older items don't get
@@ -199,6 +227,40 @@ function loadPrefs(){
     const n = parseInt(IDBKV.get(LS_KEYS.bestStreak), 10);
     state.bestStreak = Number.isInteger(n) && n > 0 ? n : 0;
   }catch(e){ state.bestStreak = 0; }
+
+  try{
+    const raw = IDBKV.get(LS_KEYS.topicsExplored);
+    state.topicsExplored = raw ? JSON.parse(raw) : [];
+  }catch(e){ state.topicsExplored = []; }
+
+  try{
+    const n = parseInt(IDBKV.get(LS_KEYS.topicsExploredFloor), 10);
+    state.topicsExploredFloor = Number.isInteger(n) && n > 0 ? n : 0;
+  }catch(e){ state.topicsExploredFloor = 0; }
+
+  try{
+    const raw = IDBKV.get(LS_KEYS.themesTried);
+    state.themesTried = raw ? JSON.parse(raw) : [];
+  }catch(e){ state.themesTried = []; }
+
+  try{
+    const raw = IDBKV.get(LS_KEYS.languagesUsed);
+    state.languagesUsed = raw ? JSON.parse(raw) : [];
+  }catch(e){ state.languagesUsed = []; }
+
+  try{ state.qiblaUsed = IDBKV.get(LS_KEYS.qiblaUsed) === '1'; }catch(e){ state.qiblaUsed = false; }
+  try{ state.tajweedModeUsed = IDBKV.get(LS_KEYS.tajweedModeUsed) === '1'; }catch(e){ state.tajweedModeUsed = false; }
+  try{ state.hafezModeUsed = IDBKV.get(LS_KEYS.hafezModeUsed) === '1'; }catch(e){ state.hafezModeUsed = false; }
+  try{ state.translationCompareUsed = IDBKV.get(LS_KEYS.translationCompareUsed) === '1'; }catch(e){ state.translationCompareUsed = false; }
+  try{ state.ramadanModeUsed = IDBKV.get(LS_KEYS.ramadanModeUsed) === '1'; }catch(e){ state.ramadanModeUsed = false; }
+  try{ state.prayerNotifyEverEnabled = IDBKV.get(LS_KEYS.prayerNotifyEverEnabled) === '1'; }catch(e){ state.prayerNotifyEverEnabled = false; }
+  try{ state.nightOwlDone = IDBKV.get(LS_KEYS.nightOwlDone) === '1'; }catch(e){ state.nightOwlDone = false; }
+  try{ state.earlyBirdDone = IDBKV.get(LS_KEYS.earlyBirdDone) === '1'; }catch(e){ state.earlyBirdDone = false; }
+
+  try{
+    const n = parseInt(IDBKV.get(LS_KEYS.shareCount), 10);
+    state.shareCount = Number.isInteger(n) && n > 0 ? n : 0;
+  }catch(e){ state.shareCount = 0; }
 }
 
 function saveLanguage(){
@@ -262,6 +324,107 @@ function trackAudioSurahPlayed(surahNum){
     try{ IDBKV.set(LS_KEYS.audioSurahsPlayed, JSON.stringify(state.audioSurahsPlayed)); }catch(e){}
     queueCloudSync();
   }
+}
+
+// ---------- Unique topics explored (used by the "বিষয় অনুসন্ধানী" badge) ----------
+function trackTopicExplored(topicId){
+  if(!topicId) return;
+  if(!state.topicsExplored.includes(topicId)){
+    state.topicsExplored.push(topicId);
+    try{ IDBKV.set(LS_KEYS.topicsExplored, JSON.stringify(state.topicsExplored)); }catch(e){}
+    queueCloudSync();
+  }
+}
+function topicsExploredEffectiveCount(){
+  return Math.max((state.topicsExplored||[]).length, state.topicsExploredFloor || 0);
+}
+
+// ---------- Unique themes / languages ever used (personalization badges) ----------
+function trackThemeTried(themeId){
+  if(!themeId) return;
+  if(!state.themesTried.includes(themeId)){
+    state.themesTried.push(themeId);
+    try{ IDBKV.set(LS_KEYS.themesTried, JSON.stringify(state.themesTried)); }catch(e){}
+    queueCloudSync();
+  }
+}
+function trackLanguageUsed(lang){
+  if(!lang) return;
+  if(!state.languagesUsed.includes(lang)){
+    state.languagesUsed.push(lang);
+    try{ IDBKV.set(LS_KEYS.languagesUsed, JSON.stringify(state.languagesUsed)); }catch(e){}
+    queueCloudSync();
+  }
+}
+
+// ---------- Simple one-off "ever did this" flags (explorer badges) ----------
+function markQiblaUsed(){
+  if(state.qiblaUsed) return;
+  state.qiblaUsed = true;
+  try{ IDBKV.set(LS_KEYS.qiblaUsed, '1'); }catch(e){}
+  queueCloudSync();
+}
+function markTajweedUsed(){
+  if(state.tajweedModeUsed) return;
+  state.tajweedModeUsed = true;
+  try{ IDBKV.set(LS_KEYS.tajweedModeUsed, '1'); }catch(e){}
+  queueCloudSync();
+}
+function markHafezUsed(){
+  if(state.hafezModeUsed) return;
+  state.hafezModeUsed = true;
+  try{ IDBKV.set(LS_KEYS.hafezModeUsed, '1'); }catch(e){}
+  queueCloudSync();
+}
+function markCompareUsed(){
+  if(state.translationCompareUsed) return;
+  state.translationCompareUsed = true;
+  try{ IDBKV.set(LS_KEYS.translationCompareUsed, '1'); }catch(e){}
+  queueCloudSync();
+}
+function markRamadanModeUsed(){
+  if(state.ramadanModeUsed) return;
+  state.ramadanModeUsed = true;
+  try{ IDBKV.set(LS_KEYS.ramadanModeUsed, '1'); }catch(e){}
+  queueCloudSync();
+}
+function markPrayerNotifyEverEnabled(){
+  if(state.prayerNotifyEverEnabled) return;
+  state.prayerNotifyEverEnabled = true;
+  try{ IDBKV.set(LS_KEYS.prayerNotifyEverEnabled, '1'); }catch(e){}
+  queueCloudSync();
+}
+
+// ---------- Time-of-day badges: checked whenever activity is recorded ----------
+function checkTimeOfDayBadges(){
+  const hr = new Date().getHours();
+  if(!state.nightOwlDone && hr >= 0 && hr < 4){
+    state.nightOwlDone = true;
+    try{ IDBKV.set(LS_KEYS.nightOwlDone, '1'); }catch(e){}
+    queueCloudSync();
+  }
+  if(!state.earlyBirdDone && hr >= 4 && hr < 7){
+    state.earlyBirdDone = true;
+    try{ IDBKV.set(LS_KEYS.earlyBirdDone, '1'); }catch(e){}
+    queueCloudSync();
+  }
+}
+
+// ---------- "আজকের আয়াত" share counter (used by the "শেয়ারকারী" badge) ----------
+function incrementShareCount(){
+  state.shareCount = (state.shareCount || 0) + 1;
+  try{ IDBKV.set(LS_KEYS.shareCount, String(state.shareCount)); }catch(e){}
+  queueCloudSync();
+}
+
+// ---------- Distinct surahs actually read (dwell-tracked), for reading badges ----------
+function surahsActuallyReadCount(){
+  const set = new Set();
+  Object.keys(state.ayahsRead || {}).forEach(k => {
+    const s = parseInt(k.split(':')[0], 10);
+    if(Number.isInteger(s)) set.add(s);
+  });
+  return set.size;
 }
 
 // ---------- Ramadan mode + Taraweeh tracker ----------
