@@ -146,4 +146,5 @@ function initNav(){
   initLibraryTabs();
   initMoreDrawer();
   initReaderBack();
+  if(typeof initHafezToolbar === 'function') initHafezToolbar();
 }
