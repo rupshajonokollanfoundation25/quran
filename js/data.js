@@ -27,7 +27,7 @@ const THEMES = [
 
 // Bump the version suffix any time app-shell files change so the service
 // worker picks up a fresh copy instead of serving a stale cached version.
-const SW_VERSION = 'v38';
+const SW_VERSION = 'v39';
 const SHELL_CACHE_NAME = `qr-shell-${SW_VERSION}`;
 const API_CACHE_NAME = `qr-api-${SW_VERSION}`;
 const AUDIO_CACHE_NAME = `qr-audio-${SW_VERSION}`;
@@ -59,6 +59,8 @@ const APP_SHELL_FILES = [
   './css/auth.css',
   './css/tajweed.css',
   './css/qibla.css',
+  './css/download-manager.css',
+  './css/theme-builder.css',
   './js/data.js',
   './js/surah-info.js',
   './js/i18n/bn.js',
@@ -90,6 +92,8 @@ const APP_SHELL_FILES = [
   './js/qibla.js',
   './js/nav.js',
   './js/menu.js',
+  './js/download-manager.js',
+  './js/theme-builder.js',
   './js/app.js',
   './icons/icon-192.png',
   './icons/icon-512.png'
