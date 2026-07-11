@@ -85,11 +85,33 @@ function renderRukuList(container){
   }
 }
 
+// ---------- সুন্দর, আঁকা illustration সহ empty-state (আগে শুধু প্লেইন টেক্সট
+// ছিল)। একটাই ছোট inline SVG সেট ব্যবহার করে reserved/notes/history/offline —
+// চারটা লিস্টের জন্য চারটা ভিন্ন থিমেটিক আইকন, অ্যাপের গোল্ড/টিল রঙেই আঁকা, তাই
+// কোনো এক্সটার্নাল ইমেজ ছাড়াই অফলাইনেও পুরোপুরি কাজ করবে। ----------
+const EMPTY_STATE_ICONS = {
+  bookmark: `<path d="M28 14h40a4 4 0 0 1 4 4v54l-24-15-24 15V18a4 4 0 0 1 4-4z"/>`,
+  note: `<rect x="17" y="13" width="50" height="58" rx="5"/><path d="M27 29h30M27 40h30M27 51h18"/><path d="M58 56l11-11 6 6-11 11-8 2 2-8z" fill="var(--gold-soft)"/>`,
+  history: `<circle cx="44" cy="45" r="28"/><path d="M44 29v16l11 7"/><path d="M18 22a34 34 0 1 0 6-9"/><path d="M12 8v13h13"/>`,
+  offline: `<path d="M26 54a13 13 0 0 1 2-25.8A17 17 0 0 1 61 30a11 11 0 0 1-2 24H26z"/><path d="M44 42v21M37 55l7 7 7-7"/>`
+};
+function emptyStateHtml({icon, title, subtitle}){
+  return `<div class="empty-state">
+    <svg class="empty-state-illus" viewBox="0 0 84 84" width="84" height="84" fill="none" stroke="var(--gold)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">${EMPTY_STATE_ICONS[icon]||''}</svg>
+    <div class="empty-state-title">${title}</div>
+    <div class="empty-state-sub">${subtitle}</div>
+  </div>`;
+}
+
 function renderBookmarksList(container){
   if(!container) return;
   const keys = Object.keys(state.bookmarks);
   if(keys.length === 0){
-    container.innerHTML = `<div class="empty-list-msg">এখনও কোনো আয়াত সংরক্ষণ করা হয়নি।<br>একটি আয়াত পড়ার সময় "☆ সংরক্ষণ করুন" বাটনে চাপুন।</div>`;
+    container.innerHTML = emptyStateHtml({
+      icon: 'bookmark',
+      title: 'এখনও কোনো আয়াত সংরক্ষণ করা হয়নি',
+      subtitle: 'একটি আয়াত পড়ার সময় "☆ সংরক্ষণ করুন" বাটনে চাপুন।'
+    });
     return;
   }
   container.innerHTML = '';
@@ -114,7 +136,11 @@ function renderBookmarksList(container){
 function renderHistoryList(container){
   if(!container) return;
   if(!state.history.length){
-    container.innerHTML = `<div class="empty-list-msg">এখনও কোনো তিলাওয়াত শোনা হয়নি।<br>একটি আয়াত বা সূরা চালু করলে এখানে দেখা যাবে, পরে দ্রুত আবার শোনার জন্য।</div>`;
+    container.innerHTML = emptyStateHtml({
+      icon: 'history',
+      title: 'এখনও কোনো তিলাওয়াত শোনা হয়নি',
+      subtitle: 'একটি আয়াত বা সূরা চালু করলে এখানে দেখা যাবে, পরে দ্রুত আবার শোনার জন্য।'
+    });
     return;
   }
   container.innerHTML = '';
@@ -138,7 +164,11 @@ function renderNotesList(container){
   if(!container) return;
   const entries = allNoteEntries().sort((a,b) => a.surah - b.surah || a.ayah - b.ayah);
   if(!entries.length){
-    container.innerHTML = `<div class="empty-list-msg">এখনও কোনো নোট লেখা হয়নি।<br>একটি আয়াত পড়ার সময় "🖊 নোট লিখুন" বাটনে চাপুন।</div>`;
+    container.innerHTML = emptyStateHtml({
+      icon: 'note',
+      title: 'এখনও কোনো নোট লেখা হয়নি',
+      subtitle: 'একটি আয়াত পড়ার সময় "🖊 নোট লিখুন" বাটনে চাপুন।'
+    });
     return;
   }
   container.innerHTML = '';
@@ -194,7 +224,11 @@ function renderOfflineList(container){
   if(!container) return;
   const validEntries = state.offlineSurahs.filter(o => Number.isInteger(o.surah) && o.surah >= 1 && o.surah <= 114);
   if(!validEntries.length){
-    container.innerHTML = `<div class="empty-list-msg">এখনও কোনো সূরা অফলাইনে সংরক্ষণ করা হয়নি।<br>একটি সূরা খুলে "⬇ অফলাইনে সংরক্ষণ করুন" বাটনে চাপুন।</div>`;
+    container.innerHTML = emptyStateHtml({
+      icon: 'offline',
+      title: 'এখনও কোনো সূরা অফলাইনে সংরক্ষণ করা হয়নি',
+      subtitle: 'একটি সূরা খুলে "⬇ অফলাইনে সংরক্ষণ করুন" বাটনে চাপুন।'
+    });
     return;
   }
   const sorted = [...validEntries].sort((a,b) => b.ts - a.ts);
@@ -290,6 +324,44 @@ function renderAyahOfDay(){
   });
 }
 
+// ---------- হোম পেজের "Reading streak" প্রোগ্রেস রিং ----------
+// js/stats.js এর loadActivity()/computeStreak()/nextMilestone() ও
+// DAILY_GOAL_MIN রিইউজ করে — স্ট্যাটস পেজের মতোই একই ডেটা, শুধু হোমে একটা
+// ছোট, দ্রুত-দৃশ্যমান SVG রিং আকারে। রিং = বর্তমান স্ট্রিক / পরবর্তী মাইলফলক;
+// আজকে ইতিমধ্যে পড়া/শোনা হয়ে থাকলে রিং সোনালি (active), না হলে হালকা রঙে
+// থাকে — যাতে বোঝা যায় আজ স্ট্রিক বজায় রাখা এখনও বাকি।
+function renderHomeStreakRing(){
+  const box = document.getElementById('homeStreakRing');
+  if(!box) return;
+  const activity = loadActivity();
+  const todaySec = activity[todayStr()] || 0;
+  const todayDone = todaySec > 0;
+  const streak = computeStreak(activity);
+  const milestone = nextMilestone(streak);
+  const r = 26, circumference = 2 * Math.PI * r;
+  const frac = milestone > 0 ? Math.min(1, streak / milestone) : 0;
+  const dashoffset = circumference * (1 - frac);
+  box.innerHTML = `
+    <div class="streak-ring-card${todayDone ? ' active' : ''}" id="streakRingCard">
+      <svg class="streak-ring-svg" width="64" height="64" viewBox="0 0 64 64">
+        <circle class="srs-track" cx="32" cy="32" r="${r}" fill="none" stroke-width="6"/>
+        <circle class="srs-fill" cx="32" cy="32" r="${r}" fill="none" stroke-width="6"
+          stroke-dasharray="${circumference}" stroke-dashoffset="${dashoffset}" stroke-linecap="round"/>
+      </svg>
+      <div class="streak-ring-center">
+        <i class="fa-solid fa-fire"></i>
+        <span>${toBn(streak)}</span>
+      </div>
+      <div class="streak-ring-text">
+        <div class="streak-ring-title">${streak > 0 ? 'বর্তমান স্ট্রিক' : 'আজই শুরু করুন'}</div>
+        <div class="streak-ring-sub">${todayDone
+          ? `পরবর্তী লক্ষ্য ${toBn(milestone)} দিন — চালিয়ে যান!`
+          : 'আজ একটি আয়াত পড়ে/শুনে স্ট্রিক বজায় রাখুন'}</div>
+      </div>
+    </div>`;
+  document.getElementById('streakRingCard').onclick = () => goToView('stats');
+}
+
 // ---------- Home tab: last-read chips + quick links ----------
 const QUICK_LINKS = [
   { label: 'আল-মুলক', surah: 67 },
@@ -301,6 +373,7 @@ const QUICK_LINKS = [
 
 function renderHomeExtras(){
   renderAyahOfDay();
+  renderHomeStreakRing();
   const lastChips = document.getElementById('lastReadChips');
   const lastTitle = document.getElementById('lastReadTitle');
   if(lastChips){
