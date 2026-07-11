@@ -211,6 +211,15 @@ async function openRuku(num){
   }
 }
 
+// ---------- তিলাওয়াতের সময় শব্দ-অনুযায়ী (word-by-word) হাইলাইটের জন্য প্রতিটি
+// আরবি শব্দকে আলাদা <span> এ মুড়ে দেওয়া হয়। এরপর tajweedHighlight() এই
+// span-wrapped টেক্সটের উপরেই চলে (তাজভীদ শুধু ভেতরের অক্ষর-প্যাটার্ন
+// রেগেক্স-ম্যাচ করে, তাই span ট্যাগে কোনো প্রভাব পড়ে না)। ----------
+function wrapArabicWords(arabicText){
+  if(!arabicText) return arabicText;
+  return arabicText.trim().split(/\s+/).map((w, i) => `<span class="qw" data-widx="${i}">${w}</span>`).join(' ');
+}
+
 function renderReader({header, showBismillah, surahInfo, ayahs}){
   showReaderArea();
   readerToolbar.style.display='flex';
@@ -251,7 +260,7 @@ function renderReader({header, showBismillah, surahInfo, ayahs}){
         <span>${toBn(a.numberInSurah)}</span>
       </div>
       <div class="ayah-body">
-        <div class="ar-text">${tajweedHighlight(a.arabic)}</div>
+        <div class="ar-text">${tajweedHighlight(wrapArabicWords(a.arabic))}</div>
         ${translationsHtml}
         <div class="ayah-actions">
           <button class="play-toggle" data-key="${key}">▶ Listen.</button>
