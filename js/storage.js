@@ -52,7 +52,10 @@ const state = {
   prayerNotifyEverEnabled: false, // ever successfully enabled prayer-time notifications
   nightOwlDone: false,         // ever recorded activity between 00:00–03:59
   earlyBirdDone: false,        // ever recorded activity between 04:00–06:59
-  shareCount: 0                // number of times the "আজকের আয়াত" share button was used
+  shareCount: 0,                // number of times the "আজকের আয়াত" share button was used
+
+  // ---- Audio listening time (অডিও-সংক্রান্ত stats, see js/audio-stats.js) ----
+  audioListenSeconds: {}        // map reciterId -> total seconds actually listened, LOCAL ONLY
 };
 
 // ---------- localStorage persistence ----------
@@ -98,7 +101,8 @@ const LS_KEYS = {
   prayerNotifyEverEnabled: 'qr_prayer_notify_ever',
   nightOwlDone: 'qr_night_owl_done',
   earlyBirdDone: 'qr_early_bird_done',
-  shareCount: 'qr_share_count'
+  shareCount: 'qr_share_count',
+  audioListenSeconds: 'qr_audio_listen_seconds'
 };
 
 // Keep well above the "at least 10" requirement so older items don't get
@@ -261,6 +265,12 @@ function loadPrefs(){
     const n = parseInt(IDBKV.get(LS_KEYS.shareCount), 10);
     state.shareCount = Number.isInteger(n) && n > 0 ? n : 0;
   }catch(e){ state.shareCount = 0; }
+
+  try{
+    const raw = IDBKV.get(LS_KEYS.audioListenSeconds);
+    state.audioListenSeconds = raw ? JSON.parse(raw) : {};
+    if(!state.audioListenSeconds || typeof state.audioListenSeconds !== 'object') state.audioListenSeconds = {};
+  }catch(e){ state.audioListenSeconds = {}; }
 }
 
 function saveLanguage(){
@@ -523,9 +533,29 @@ function markAyahRead(key){
   state.ayahsRead[key] = 1;
   try{ IDBKV.set(LS_KEYS.ayahsRead, JSON.stringify(state.ayahsRead)); }catch(e){}
   queueCloudSync();
+  // Per-day breakdown for trend/monthly stats lives in js/stats-trends.js,
+  // loaded later — guarded so this file never hard-depends on it.
+  if(typeof recordAyahReadToday === 'function') recordAyahReadToday();
 }
 function ayahsReadCount(){
   return Math.max(Object.keys(state.ayahsRead || {}).length, state.ayahsReadFloor || 0);
+}
+
+// ---------- Per-reciter audio listening time (used by js/audio-stats.js) ----------
+// Accumulated in small real-time deltas while audio is actually playing (not
+// just "opened") — see initAudioListenTracking(). Persisted in a throttled
+// way from that file; this is just the read side + the raw save helper.
+function saveAudioListenSeconds(){
+  try{ IDBKV.set(LS_KEYS.audioListenSeconds, JSON.stringify(state.audioListenSeconds)); }catch(e){}
+}
+function audioListenSecondsTotal(){
+  return Object.values(state.audioListenSeconds || {}).reduce((s,v) => s + (v || 0), 0);
+}
+function topReciterByListenTime(){
+  const entries = Object.entries(state.audioListenSeconds || {}).filter(([,v]) => v > 0);
+  if(!entries.length) return null;
+  entries.sort((a,b) => b[1] - a[1]);
+  return entries.map(([id, seconds]) => ({ id, seconds }));
 }
 
 // ---------- Best (longest-ever) streak, kept separately so it survives streak resets ----------
