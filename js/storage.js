@@ -14,6 +14,8 @@ const state = {
   offlineSurahs: [],
   language: 'bn',
   translationEdition: 'bn.bengali', // Qur'an translation edition identifier (see js/reader.js loadTranslationEditions)
+  translationEditions: [],          // up to 3 edition identifiers to show side-by-side (compare mode); empty = just translationEdition
+  tajweedMode: false,               // approximate rule-based tajweed color highlighting (see js/tajweed.js)
   currentReaderView: null,          // last-opened {type, num}, used to reload in a newly picked translation language
   prayerMethod: 1,
   prayerNotify: false,
@@ -52,6 +54,8 @@ const LS_KEYS = {
   language: 'qr_language',
   translationEdition: 'qr_translation_edition',
   translationEditions: 'qr_translation_editions_cache',
+  translationEditionsSelected: 'qr_translation_editions_selected',
+  tajweedMode: 'qr_tajweed_mode',
   prayerMethod: 'qr_prayer_method',
   prayerNotify: 'qr_prayer_notify',
   prayerLocation: 'qr_prayer_location',
@@ -112,6 +116,16 @@ function loadPrefs(){
     const t = IDBKV.get(LS_KEYS.translationEdition);
     if(t) state.translationEdition = t;
   }catch(e){}
+
+  try{
+    const raw = IDBKV.get(LS_KEYS.translationEditionsSelected);
+    const parsed = raw ? JSON.parse(raw) : [];
+    state.translationEditions = Array.isArray(parsed) ? parsed.slice(0,3) : [];
+  }catch(e){ state.translationEditions = []; }
+
+  try{
+    state.tajweedMode = IDBKV.get(LS_KEYS.tajweedMode) === '1';
+  }catch(e){ state.tajweedMode = false; }
 
   try{
     const m = parseInt(IDBKV.get(LS_KEYS.prayerMethod), 10);
@@ -189,6 +203,12 @@ function saveTheme(){
 }
 function saveTranslationEdition(){
   try{ IDBKV.set(LS_KEYS.translationEdition, state.translationEdition); }catch(e){}
+}
+function saveTranslationEditionsSelected(){
+  try{ IDBKV.set(LS_KEYS.translationEditionsSelected, JSON.stringify(state.translationEditions)); }catch(e){}
+}
+function saveTajweedMode(){
+  try{ IDBKV.set(LS_KEYS.tajweedMode, state.tajweedMode ? '1' : '0'); }catch(e){}
 }
 function savePrayerMethod(){
   try{ IDBKV.set(LS_KEYS.prayerMethod, String(state.prayerMethod)); }catch(e){}
