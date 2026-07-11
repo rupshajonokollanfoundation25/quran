@@ -74,7 +74,7 @@ function openThemePicker(){
   }
   document.getElementById('themePickerTitle').textContent = t('theme_picker_title');
   const grid = document.getElementById('themePickerGrid');
-  grid.innerHTML = THEMES.map(theme => `
+  grid.innerHTML = THEMES.filter(theme => theme.id !== 'custom').map(theme => `
     <button class="theme-picker-card${theme.id === state.theme ? ' active' : ''}" data-theme-id="${theme.id}" type="button">
       <span class="theme-picker-swatch">${theme.swatch.map(c => `<span style="background:${c}"></span>`).join('')}</span>
       <span class="theme-picker-name">${t(theme.nameKey)}${theme.id === state.theme ? ' <i class="fa-solid fa-circle-check"></i>' : ''}</span>
@@ -83,6 +83,7 @@ function openThemePicker(){
   grid.querySelectorAll('.theme-picker-card').forEach(card => {
     card.onclick = () => applyTheme(card.getAttribute('data-theme-id'));
   });
+  if(typeof appendCustomThemeCard === 'function') appendCustomThemeCard(grid, t);
   openModal('themePickerModal');
 }
 
@@ -166,6 +167,7 @@ function initHeaderOffset(){
   if(typeof IDBKV !== 'undefined') await IDBKV.init();
   loadPrefs();
   if(typeof initAuth === 'function') initAuth();
+  if(typeof loadCustomTheme === 'function') loadCustomTheme();
   initTheme();
   initFontControls();
   initHeaderOffset();
