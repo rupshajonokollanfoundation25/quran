@@ -97,7 +97,7 @@ function renderSearchResultsPage(){
     const btn = document.createElement('button');
     btn.id = 'searchLoadMoreBtn';
     btn.className = 'search-load-more-btn';
-    btn.textContent = `আরও দেখুন (${toBn(allSearchMatches.length - searchRenderedCount)} বাকি)`;
+    btn.textContent = `see more (${toBn(allSearchMatches.length - searchRenderedCount)} The rest)`;
     btn.onclick = renderSearchResultsPage;
     searchResults.appendChild(btn);
   }
