@@ -8,6 +8,49 @@ audioEl.setAttribute('playsinline', '');
 
 const SPEED_STEPS = [0.75, 1, 1.25, 1.5, 2];
 
+// ---------- শব্দ-অনুযায়ী (word-by-word) অডিও হাইলাইট ----------
+// প্রতিটি আয়াতের অডিও ফাইল সম্পূর্ণ আয়াতের একটি একক mp3 (কোনো word-level
+// টাইমস্ট্যাম্প মেটাডেটা এখানে নেই)। তাই যথাযথ karaoke-style সিঙ্ক সম্ভব নয়,
+// কিন্তু একটা smart approximation করা যায়: প্রতিটি শব্দের অক্ষরসংখ্যাকে তার
+// আনুমানিক উচ্চারণ-সময়ের ওজন (weight) হিসেবে ধরে, audio এর currentTime/duration
+// অনুপাত অনুযায়ী কোন শব্দটি এখন "চলছে" তা হিসাব করে হাইলাইট করা হয়। ছোট শব্দ কম
+// সময়ে, বড় শব্দ বেশি সময়ে হাইলাইট হবে — ফলে বাস্তব তিলাওয়াতের সাথে মোটামুটি
+// স্বাভাবিকভাবেই মিলে যায়, যদিও এটি প্রকৃত timestamp-ভিত্তিক নয়।
+let wordHighlightData = null; // { spans, cumFractions }
+
+function clearWordHighlight(){
+  if(wordHighlightData){
+    wordHighlightData.spans.forEach(s => s.classList.remove('qw-active'));
+  }
+  wordHighlightData = null;
+}
+
+function prepareWordHighlight(item){
+  clearWordHighlight();
+  const card = document.getElementById(`ayah-${item.key.replace(':','-')}`);
+  if(!card) return;
+  const arText = card.querySelector('.ar-text');
+  if(!arText) return;
+  const spans = arText.querySelectorAll('.qw');
+  if(!spans.length) return;
+  const weights = Array.from(spans).map(s => Math.max(1, s.textContent.trim().length));
+  const total = weights.reduce((a,b) => a+b, 0);
+  let acc = 0;
+  const cumFractions = weights.map(w => { acc += w; return acc/total; });
+  wordHighlightData = { spans, cumFractions };
+}
+
+function updateWordHighlight(){
+  if(!wordHighlightData || !state.isPlaying) return;
+  const dur = audioEl.duration;
+  if(!isFinite(dur) || dur <= 0) return;
+  const frac = audioEl.currentTime / dur;
+  const { spans, cumFractions } = wordHighlightData;
+  let idx = cumFractions.findIndex(c => frac <= c);
+  if(idx === -1) idx = spans.length - 1;
+  spans.forEach((s, i) => s.classList.toggle('qw-active', i === idx));
+}
+
 function fmtTime(sec){
   if(!isFinite(sec) || sec < 0) sec = 0;
   const m = Math.floor(sec/60), s = Math.floor(sec%60);
@@ -39,6 +82,7 @@ function playAtIndex(idx, userInitiated){
   const card = document.getElementById(`ayah-${item.key.replace(':','-')}`);
   if(card && userInitiated) card.scrollIntoView({behavior:'smooth', block:'center'});
   updateMediaSessionMetadata(item);
+  prepareWordHighlight(item);
 }
 
 // Called whenever the current track fails to load/play (404 from the CDN,
@@ -49,6 +93,7 @@ let playbackRetryCount = 0;
 function handlePlaybackFailure(idx){
   playerBar.classList.remove('buffering');
   state.isPlaying = false;
+  clearWordHighlight();
   syncPlayingUI();
   const autoplayChk = document.getElementById('autoplayChk');
   // If we're auto-advancing through a surah, skip the broken ayah instead of
@@ -254,6 +299,7 @@ function initPlayer(){
     audioEl.pause(); audioEl.removeAttribute('src');
     state.isPlaying=false; state.playIndex=-1;
     playerBar.classList.remove('visible');
+    clearWordHighlight();
     syncPlayingUI();
   };
   const speedBtn = document.getElementById('speedBtn');
@@ -265,6 +311,7 @@ function initPlayer(){
       playAtIndex(state.playIndex + 1, false);
     } else {
       state.isPlaying = false;
+      clearWordHighlight();
       syncPlayingUI();
     }
   });
@@ -275,6 +322,7 @@ function initPlayer(){
       document.getElementById('durTime').textContent = fmtTime(audioEl.duration);
     }
     updatePositionState();
+    updateWordHighlight();
   });
   audioEl.addEventListener('pause', () => { if(state.isPlaying){ state.isPlaying=false; syncPlayingUI(); } });
   audioEl.addEventListener('play', () => { if(!state.isPlaying){ state.isPlaying=true; syncPlayingUI(); } });
