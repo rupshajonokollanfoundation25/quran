@@ -282,15 +282,9 @@ async function downloadCurrentAudioForOffline(btn){
 
 let stallTimer = null;
 function initPlayer(){
-  const reciterSelect = document.getElementById('reciterSelect');
-  reciterSelect.innerHTML = reciters.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-  reciterSelect.value = state.reciter;
-
-  reciterSelect.addEventListener('change', () => {
-    state.reciter = reciterSelect.value;
-    saveReciter();
-    if(state.playIndex >= 0 && state.isPlaying){ playAtIndex(state.playIndex, true); }
-  });
+  updateReciterLabels();
+  const reciterFieldBtn = document.getElementById('reciterFieldBtn');
+  if(reciterFieldBtn) reciterFieldBtn.onclick = openReciterPicker;
 
   document.getElementById('playPauseBtn').onclick = () => { state.isPlaying ? pausePlayback() : resumePlayback(); };
   document.getElementById('prevBtn').onclick = () => { if(state.playIndex > 0) playAtIndex(state.playIndex - 1, true); };
