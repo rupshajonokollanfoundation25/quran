@@ -131,6 +131,79 @@
 .compare-tr-item.active{border-color:var(--gold);background:var(--sage);}
 .compare-tr-item input[type="checkbox"]{width:17px;height:17px;accent-color:var(--gold);flex-shrink:0;}
 
+/* ==== হাফেজ মোড (Hafez / memorization mode) ====
+   js/reader.js initHafezToolbar() টগল দুটি চালায়; state.hafezMode
+   readerArea-তে .hafez-mode ক্লাস যোগ করে (CSS-only রূপান্তর — DOM নতুন
+   করে রেন্ডার করার দরকার হয় না), state.hafezTestMode একইভাবে .hafez-test
+   ক্লাস যোগ করে। ==== */
+#readerToolbar{flex-wrap:wrap;justify-content:flex-start;}
+#readerToolbar .hafez-toggle-btn,#readerToolbar .hafez-test-btn{margin-right:auto;}
+#readerToolbar .hafez-test-btn{margin-right:0;}
+.icon-btn.hafez-toggle-btn.active,.icon-btn.hafez-test-btn.active{
+  background:var(--gold);color:var(--teal-deep);border-color:var(--gold);
+}
+
+/* ---- হাফেজ মোড চালু থাকলে: অনুবাদ/নোট/অ্যাকশন লুকানো, মুসহাফের মতো একটানা
+   (continuous flow) আরবি টেক্সট — আয়াতের সীমানা রেখার বদলে ছোট্ট গোল
+   নম্বর-ব্যাজ, বড় ও আরাম-আরবি ফন্ট, উষ্ণ parchment ব্যাকগ্রাউন্ড ---- */
+.hafez-mode .surah-info-trigger,
+.hafez-mode .header-btn-row .offline-btn{display:none;}
+.hafez-mode .bn-text,
+.hafez-mode .ayah-actions,
+.hafez-mode .note-preview-wrap{display:none !important;}
+.hafez-mode .ayah-card{
+  display:inline;padding:0;border:none;border-radius:4px;background:none;
+}
+.hafez-mode .ayah-card.playing{background:var(--gold-soft);}
+.hafez-mode .ayah-body{display:inline;}
+.hafez-mode .ar-text{
+  display:inline;font-size:var(--ar-size,26px);line-height:2.6;margin:0;
+}
+.hafez-mode .medallion{
+  display:inline-flex;width:30px;height:30px;vertical-align:middle;margin:0 4px;position:relative;
+}
+.hafez-mode .medallion svg{width:30px;height:30px;}
+.hafez-mode #mainContent{
+  background:var(--parchment);border:1px solid var(--gold-soft);border-radius:var(--radius);
+  padding:22px 20px;box-shadow:inset 0 0 0 1px rgba(192,151,58,.08);
+  direction:rtl;text-align:justify;
+}
+.hafez-mode .surah-header,.hafez-mode .bismillah{direction:ltr;text-align:center;}
+.hafez-mode .surah-header{margin-bottom:16px;}
+
+/* ---- মুখস্থ যাচাই (tap-to-reveal memorization test): সব আয়াত ঝাপসা করে
+   রাখা হয়, ট্যাপ করলেই শুধু সেই আয়াতটি সাময়িকভাবে স্পষ্ট হয় ---- */
+.hafez-test .ar-text{
+  filter:blur(7px);cursor:pointer;user-select:none;transition:filter .25s ease;
+}
+.hafez-test .ayah-card.revealed .ar-text{filter:none;}
+.hafez-mode.hafez-test #mainContent::before{
+  content:'আয়াত স্পষ্ট করে দেখতে তাতে ট্যাপ করুন';
+  display:block;text-align:center;font-family:'Hind Siliguri',sans-serif;font-size:12.5px;
+  color:var(--ink-soft);margin-bottom:14px;background:var(--sage);border-radius:8px;padding:6px 10px;
+}
+
+/* ---- মুসহাফ পৃষ্ঠা মোডে যাওয়ার স্মার্ট চিপ (হাফেজ মোডে সূরা/জুয মোডে থাকলে) ---- */
+.hafez-page-hint{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--sage);border:1px solid var(--gold-soft);border-radius:10px;
+  padding:10px 14px;margin:-4px 0 14px;font-family:'Hind Siliguri',sans-serif;font-size:12.5px;color:var(--ink);
+}
+.hafez-page-hint button{
+  background:var(--gold);color:var(--teal-deep);border:none;border-radius:999px;
+  padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;
+  font-family:'Hind Siliguri',sans-serif;
+}
+.hafez-page-nav{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 4px;
+}
+.hafez-page-nav button{
+  flex:1;display:flex;align-items:center;justify-content:center;gap:6px;
+  background:var(--teal);color:var(--sage);border:none;border-radius:10px;padding:11px;
+  font-family:'Hind Siliguri',sans-serif;font-weight:700;font-size:13.5px;cursor:pointer;
+}
+.hafez-page-nav button:disabled{opacity:.4;cursor:default;}
+
 /* ---- Side-by-side translations in the reader (compare mode) ---- */
 .bn-text-compare{
   border-left:2.5px solid var(--gold-soft);padding-left:10px;margin-top:10px;
