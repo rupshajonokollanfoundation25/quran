@@ -126,7 +126,7 @@ function renderTrendMiniChart(activity){
 function renderMonthlySummaryCard(activity, ayahDaily){
   const s = monthlySummary(activity, ayahDaily);
   return `
-    <div class="section-title-sm">মাসিক সারাংশ — ${s.monthName}</div>
+    <div class="section-title-sm">Monthly summary — ${s.monthName}</div>
     <div class="lifetime-grid">
       <div class="lifetime-box">
         <i class="fa-solid fa-bolt"></i>
