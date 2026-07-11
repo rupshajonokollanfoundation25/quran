@@ -99,6 +99,7 @@ function initMoreDrawer(){
 
   // Live-backed drawer items (implemented in js/menu.js).
   document.getElementById('drawerPrayerTimes').onclick = () => { close(); openPrayerModal(); };
+  document.getElementById('drawerQibla').onclick = () => { close(); openQiblaModal(); };
   document.getElementById('drawerTaraweeh').onclick = () => { close(); openTaraweehModal(); };
   document.getElementById('drawerDictionary').onclick = () => { close(); openDictionaryModal(); };
   document.getElementById('drawerSettings').onclick = () => { close(); openSettingsModal(); };
