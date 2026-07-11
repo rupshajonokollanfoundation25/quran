@@ -43,6 +43,7 @@ function openQiblaModal(){
 
 function setupQibla(loc){
   qiblaBearing = computeQiblaBearing(loc.lat, loc.lon);
+  markQiblaUsed();
   const body = document.getElementById('qiblaBody');
   body.innerHTML = `
     <div class="qibla-wrap">
