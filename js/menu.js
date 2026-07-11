@@ -20,7 +20,7 @@ function closeModal(id){
 }
 function modalEscHandler(e){
   if(e.key === 'Escape'){
-    ['settingsModal','prayerModal','qiblaModal','dictionaryModal','helpModal','taraweehModal','langPickerModal','themePickerModal','compareTrModal'].forEach(id => {
+    ['settingsModal','prayerModal','qiblaModal','dictionaryModal','helpModal','taraweehModal','langPickerModal','themePickerModal','compareTrModal','surahInfoModal'].forEach(id => {
       const el = document.getElementById(id);
       if(el && el.style.display === 'flex') closeModal(id);
     });
