@@ -9,6 +9,8 @@ const state = {
   playlist: [],
   playIndex: -1,
   isPlaying: false,
+  fullSurahMode: false, // হাফেজ মোডে "সম্পূর্ণ সূরা একটানা" প্লে হচ্ছে কিনা — সত্য হলে playIndex কোনো নির্দিষ্ট আয়াতের সাথে বাঁধা থাকে না
+  fullSurahNumber: null,
   playbackRate: 1,
   history: [],
   offlineSurahs: [],
