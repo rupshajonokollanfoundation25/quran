@@ -27,7 +27,7 @@ const THEMES = [
 
 // Bump the version suffix any time app-shell files change so the service
 // worker picks up a fresh copy instead of serving a stale cached version.
-const SW_VERSION = 'v43';
+const SW_VERSION = 'v44';
 const SHELL_CACHE_NAME = `qr-shell-${SW_VERSION}`;
 const API_CACHE_NAME = `qr-api-${SW_VERSION}`;
 const AUDIO_CACHE_NAME = `qr-audio-${SW_VERSION}`;
@@ -102,6 +102,10 @@ const APP_SHELL_FILES = [
 
 const bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
 function toBn(n){ return String(n).split('').map(d => /[0-9]/.test(d) ? bnDigits[+d] : d).join(''); }
+// English-digit formatter (with thousands separators) — used wherever a
+// count/duration/goal should stay in English numerals, e.g. badge captions
+// and the Stats page's English-labelled cards.
+function toEn(n){ return Number(n).toLocaleString('en-US'); }
 
 // A curated pool used for the "Ayah of the Day" home card — one is picked
 // deterministically per calendar day so it stays the same all day and
