@@ -76,7 +76,7 @@ function renderAudioStatsSection(){
           <div class="reciter-rank-name">${escapeHtml(name)}</div>
           <div class="reciter-rank-bar-track"><div class="reciter-rank-bar-fill" style="width:${pct}%"></div></div>
         </div>
-        <div class="reciter-rank-time">${formatDurationEn(r.seconds)}</div>
+        <div class="reciter-rank-time">${formatDurationBn(r.seconds)}</div>
       </div>`;
   }).join('');
 
@@ -86,7 +86,7 @@ function renderAudioStatsSection(){
       <div class="audio-hero-ic"><i class="fa-solid fa-headphones-simple"></i></div>
       <div class="audio-hero-mid">
         <div class="stats-label">Total listening time</div>
-        <div class="stats-big">${formatDurationEn(totalSec)}</div>
+        <div class="stats-big">${formatDurationBn(totalSec)}</div>
       </div>
     </div>
     <div class="stats-card audio-top-card">
@@ -95,7 +95,7 @@ function renderAudioStatsSection(){
         <div class="stats-label">Most listened to reciter</div>
         <div class="audio-top-name">${escapeHtml(topName)}</div>
       </div>
-      <div class="audio-top-pct">${toEn(Math.round((top.seconds/totalSec)*100))}%</div>
+      <div class="audio-top-pct">${toBn(Math.round((top.seconds/totalSec)*100))}%</div>
     </div>
     <div class="stats-card">
       <div class="stats-label" style="margin-bottom:12px;">Listening time according to the reciter</div>
