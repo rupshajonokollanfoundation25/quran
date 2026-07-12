@@ -31,7 +31,7 @@ function formatDateBn(key){
   const parts = key.split('-').map(Number);
   const m = parts[1], d = parts[2];
   if(!m || !d) return key;
-  return `${toBn(d)} ${BN_MONTHS[m-1]}`;
+  return `${toEn(d)} ${BN_MONTHS[m-1]}`;
 }
 
 // Total minutes for the 7-day week (Sun..Sat) that is `weeksAgo` weeks before
@@ -85,20 +85,20 @@ function renderTrendCompareCard(activity){
   const tone = up ? 'trend-up' : 'trend-down';
   let msg;
   if(lastWeek === 0 && thisWeek === 0) msg = 'এখনই শুরু করুন আপনার পথচলা —';
-  else if(up) msg = `গত সপ্তাহের চেয়ে ${toBn(Math.abs(pct))}% বেশি পড়েছেন, চালিয়ে যান!`;
-  else msg = `গত সপ্তাহের চেয়ে ${toBn(Math.abs(pct))}% কম — আজ কিছুক্ষণ পড়ে পুষিয়ে নিন।`;
+  else if(up) msg = `গত সপ্তাহের চেয়ে ${toEn(Math.abs(pct))}% বেশি পড়েছেন, চালিয়ে যান!`;
+  else msg = `গত সপ্তাহের চেয়ে ${toEn(Math.abs(pct))}% কম — আজ কিছুক্ষণ পড়ে পুষিয়ে নিন।`;
 
   return `
     <div class="stats-card trend-compare-card">
       <div class="trend-compare-row">
         <div class="trend-compare-col">
           <div class="stats-label">Last week</div>
-          <div class="stats-big-sm">${toBn(lastWeek)} min</div>
+          <div class="stats-big-sm">${toEn(lastWeek)} min</div>
         </div>
         <div class="trend-compare-arrow ${tone}"><i class="fa-solid ${icon}"></i></div>
         <div class="trend-compare-col" style="text-align:right;">
           <div class="stats-label">This week</div>
-          <div class="stats-big-sm">${toBn(thisWeek)} min</div>
+          <div class="stats-big-sm">${toEn(thisWeek)} min</div>
         </div>
       </div>
       <div class="trend-compare-msg ${tone}">${msg}</div>
@@ -116,7 +116,7 @@ function renderTrendMiniChart(activity){
         ${weeks.map((m,i) => `
           <div class="trend-mini-col">
             <div class="trend-mini-track"><div class="trend-mini-fill" style="height:${Math.round((m/max)*60)}px"></div></div>
-            <div class="trend-mini-val">${toBn(m)}m</div>
+            <div class="trend-mini-val">${toEn(m)}m</div>
           </div>`).join('')}
       </div>
       <div class="trend-mini-labels">${labels.map(l => `<span>${l}</span>`).join('')}</div>
@@ -130,17 +130,17 @@ function renderMonthlySummaryCard(activity, ayahDaily){
     <div class="lifetime-grid">
       <div class="lifetime-box">
         <i class="fa-solid fa-bolt"></i>
-        <div class="lifetime-val">${toBn(s.ayahCount)}</div>
+        <div class="lifetime-val">${toEn(s.ayahCount)}</div>
         <div class="lifetime-label">আয়াত পাঠ</div>
       </div>
       <div class="lifetime-box">
         <i class="fa-regular fa-clock"></i>
-        <div class="lifetime-val">${toBn(s.minutes)}m</div>
+        <div class="lifetime-val">${toEn(s.minutes)}m</div>
         <div class="lifetime-label">মোট সময়</div>
       </div>
       <div class="lifetime-box">
         <i class="fa-solid fa-calendar-check"></i>
-        <div class="lifetime-val">${toBn(s.activeDays)}</div>
+        <div class="lifetime-val">${toEn(s.activeDays)}</div>
         <div class="lifetime-label">সক্রিয় দিন</div>
       </div>
     </div>`;
@@ -154,11 +154,11 @@ function renderPersonalRecordsCard(activity, ayahDaily){
       <div class="stats-label" style="margin-bottom:10px;"><i class="fa-solid fa-trophy" style="color:var(--gold);margin-right:6px;"></i>ব্যক্তিগত রেকর্ড</div>
       <div class="records-row">
         <div class="records-col">
-          <div class="stats-big-sm">${toBn(r.bestMin)}m</div>
+          <div class="stats-big-sm">${toEn(r.bestMin)}m</div>
           <div class="stats-label">সেরা দিন (সময়)${r.bestMinDate ? ' · ' + formatDateBn(r.bestMinDate) : ''}</div>
         </div>
         <div class="records-col" style="text-align:right;">
-          <div class="stats-big-sm">${toBn(r.bestAyah)}</div>
+          <div class="stats-big-sm">${toEn(r.bestAyah)}</div>
           <div class="stats-label">সেরা দিন (আয়াত)${r.bestAyahDate ? ' · ' + formatDateBn(r.bestAyahDate) : ''}</div>
         </div>
       </div>
