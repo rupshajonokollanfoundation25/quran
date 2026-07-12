@@ -6,6 +6,7 @@ const STATS_LS_KEY = 'qr_activity';
 const DAILY_GOAL_MIN = 1; // matches the "0 min / 1 min" style daily goal
 const STREAK_MILESTONES = [3, 7, 14, 30, 60, 100, 365];
 const WEEKDAY_LABELS_EN = ['SUN','MON','TUE','WED','THU','FRi','SAT'];
+const WEEKDAY_LABELS_BN = ['রবি','সোম','মঙ্গল','বুধ','বৃহঃ','শুক্র','শনি'];
 
 function loadActivity(){
   try{
@@ -65,6 +66,7 @@ function formatDurationEn(totalSeconds){
   if(h <= 0) return `${toEn(m)} Minute`;
   return `${toEn(h)} Hours ${toEn(m)} Minute`;
 }
+
 
 function nextMilestone(streak){
   return STREAK_MILESTONES.find(m => m > streak) || (streak + 30);
@@ -241,7 +243,7 @@ function renderBadgesSummaryBar(){
   const pct = Math.round((unlocked/total)*100);
   return `
     <div class="badges-summary">
-      <div class="badges-summary-text"><b>${toEn(unlocked)}</b> / ${toBn(total)} ব্যাজ অর্জিত</div>
+      <div class="badges-summary-text"><b>${toEn(unlocked)}</b> / ${toEn(total)} ব্যাজ অর্জিত</div>
       <div class="badges-summary-bar"><div class="badges-summary-fill" style="width:${pct}%"></div></div>
     </div>`;
 }
@@ -304,9 +306,9 @@ function renderAccountArea(){
 // ---------- Lifetime activity row ----------
 function renderLifetimeActivity(activity, streak){
   const loggedIn = !!state.user;
-  const ayahCount = loggedIn ? toBn(ayahsReadCount()) : '--';
-  const timeSpent = loggedIn ? formatDurationBn(totalTimeSpentSeconds(activity)) : '--';
-  const best = loggedIn ? toBn(Math.max(state.bestStreak || 0, streak)) : '--';
+  const ayahCount = loggedIn ? toEn(ayahsReadCount()) : '--';
+  const timeSpent = loggedIn ? formatDurationEn(totalTimeSpentSeconds(activity)) : '--';
+  const best = loggedIn ? toEn(Math.max(state.bestStreak || 0, streak)) : '--';
   return `
     <div class="section-title-sm">Lifetime Activity</div>
     <div class="lifetime-grid">
@@ -353,13 +355,13 @@ function renderStatsAodCard(){
   box.innerHTML = `
     <div class="aod-arabic" style="font-size:18px;">${statsAodState.arabic || ''}</div>
     <div class="aod-bengali" style="color:var(--ink-soft);">${statsAodState.bengali || ''}</div>
-    <div class="aod-ref">সূরা ${surahName} — আয়াত ${toBn(statsAodState.a)}</div>
+    <div class="aod-ref">সূরা ${surahName} — আয়াত ${toEn(statsAodState.a)}</div>
     <div class="stats-aod-actions">
       <button id="statsAodShare" title="শেয়ার করুন"><i class="fa-solid fa-share"></i></button>
       <button id="statsAodCopy" title="কপি করুন"><i class="fa-solid fa-arrow-up-right-from-square"></i></button>
       <button id="statsAodRefresh" title="নতুন আয়াত"><i class="fa-solid fa-rotate-right"></i></button>
     </div>`;
-  const shareText = () => `${statsAodState.arabic}\n\n${statsAodState.bengali}\n— সূরা ${surahName}, আয়াত ${toBn(statsAodState.a)}`;
+  const shareText = () => `${statsAodState.arabic}\n\n${statsAodState.bengali}\n— সূরা ${surahName}, আয়াত ${toEn(statsAodState.a)}`;
   document.getElementById('statsAodShare').onclick = async () => {
     if(navigator.share){ try{ await navigator.share({ text: shareText() }); incrementShareCount(); }catch(e){} }
     else { try{ await navigator.clipboard.writeText(shareText()); showToast('কপি করা হয়েছে'); incrementShareCount(); }catch(e){} }
@@ -442,7 +444,7 @@ function renderTimeManagement(ctx){
       </div>
       <div class="time-goal-text">
         <div class="stats-label">Read today</div>
-        <div class="stats-big">${toBn(todayMin)} min <span class="stats-goal">/ ${toEn(DAILY_GOAL_MIN)} min</span></div>
+        <div class="stats-big">${toEn(todayMin)} min <span class="stats-goal">/ ${toEn(DAILY_GOAL_MIN)} min</span></div>
         <div class="stats-label" style="margin-top:12px;">Current streak</div>
         <div class="stats-big">${toEn(streak)} days</div>
       </div>
@@ -458,7 +460,7 @@ function renderTimeManagement(ctx){
           <div class="week-col">
             <div class="week-bar-track"><div class="week-bar-fill" style="height:${Math.round((m/maxWeekMin)*70)}px"></div></div>
             <div class="week-day${i===dow?' today':''}">${WEEKDAY_LABELS_BN[i]}</div>
-            <div class="week-min">${toBn(m)}m</div>
+            <div class="week-min">${toEn(m)}m</div>
           </div>`).join('')}
       </div>
     </div>
