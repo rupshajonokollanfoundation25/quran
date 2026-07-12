@@ -94,7 +94,7 @@ async function drawReportCard(canvas){
 
   ctx.fillStyle = parchment;
   ctx.font = '700 52px "Noto Serif Bengali"';
-  ctx.fillText(`${stats.monthName} Monthly report`, cx, 225);
+  ctx.fillText(`Report ${stats.monthName}`, cx, 225);
 
   ctx.strokeStyle = goldSoft;
   ctx.lineWidth = 2;
