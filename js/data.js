@@ -4,9 +4,6 @@
 // references — only plain constants and pure helper functions belong here.
 const API = 'https://api.alquran.cloud/v1';
 const AUDIO_CDN = 'https://cdn.islamic.network/quran/audio/128';
-// হাফেজ মোডে "সম্পূর্ণ সূরা একটানা" শোনার জন্য — প্রতি-আয়াত ফাইল চেইন করার
-// বদলে গোটা সূরার একটাই mp3 ফাইল, তাই আয়াতে আয়াতে কোনো বাফারিং গ্যাপ থাকে না।
-const AUDIO_SURAH_CDN = 'https://cdn.islamic.network/quran/audio-surah/128';
 const PRAYER_API = 'https://api.aladhan.com/v1';
 
 // ---------- Theme gallery ----------
@@ -30,7 +27,7 @@ const THEMES = [
 
 // Bump the version suffix any time app-shell files change so the service
 // worker picks up a fresh copy instead of serving a stale cached version.
-const SW_VERSION = 'v49';
+const SW_VERSION = 'v46';
 const SHELL_CACHE_NAME = `qr-shell-${SW_VERSION}`;
 const API_CACHE_NAME = `qr-api-${SW_VERSION}`;
 const AUDIO_CACHE_NAME = `qr-audio-${SW_VERSION}`;
