@@ -25,6 +25,11 @@ function initReaderBack(){
 // প্রতিবার নতুন করে খুললে বন্ধ অবস্থাতেই শুরু হয়।
 let hafezTestMode = false;
 let lastRenderedAyahs = null;
+// হাফেজ মোডে প্লে করার সময় "একটা একটা আয়াত" নাকি "সম্পূর্ণ সূরা একটানা" —
+// এই পছন্দটা একবার জিজ্ঞেস করে এখানে মনে রাখা হয় (null = এখনো জিজ্ঞেস করা
+// হয়নি), যাতে একই সূরা/পৃষ্ঠায় বার বার প্লে চাপলে প্রতিবার জিজ্ঞেস না করে।
+// নতুন সূরা/পৃষ্ঠা খুললে (renderReader) বা হাফেজ মোড বন্ধ করলে রিসেট হয়।
+let hafezPlayChoice = null;
 
 function applyHafezModeUI(){
   readerArea.classList.toggle('hafez-mode', !!state.hafezMode);
@@ -32,7 +37,7 @@ function applyHafezModeUI(){
   if(btn) btn.classList.toggle('active', !!state.hafezMode);
   const testBtn = document.getElementById('hafezTestBtn');
   if(testBtn) testBtn.style.display = state.hafezMode ? 'inline-flex' : 'none';
-  if(!state.hafezMode){ hafezTestMode = false; applyHafezTestUI(); }
+  if(!state.hafezMode){ hafezTestMode = false; applyHafezTestUI(); hafezPlayChoice = null; }
   renderHafezPageHint(lastRenderedAyahs);
 }
 
@@ -310,10 +315,30 @@ function wrapArabicWords(arabicText){
   return arabicText.trim().split(/\s+/).map((w, i) => `<span class="qw" data-widx="${i}">${w}</span>`).join(' ');
 }
 
+// ---------- প্লে-বাটন ক্লিক হ্যান্ডেল করার রাউটার ----------
+// পৃষ্ঠা/স্বাভাবিক মোডে সরাসরি playAtIndex (আয়াতে আয়াতে চলতে থাকে, যেমন
+// আগে থেকেই হতো)। হাফেজ মোডে থাকলে, আর ভিউটা একটাই সূরার হলে (juz/page-এ
+// একাধিক সূরা মিশে থাকলে "সম্পূর্ণ সূরা" অপশন অর্থহীন, তাই তখন এড়িয়ে
+// সরাসরি আয়াতে আয়াতে চালানো হয়), প্রথমবার একটা choice জিজ্ঞেস করে সেটা
+// মনে রাখে, পরের ক্লিকগুলোতে আর জিজ্ঞেস করে না।
+function startReaderPlayback(idx, singleSurahNum){
+  if(state.hafezMode && singleSurahNum){
+    if(hafezPlayChoice === 'full'){ playFullSurah(singleSurahNum, true); return; }
+    if(hafezPlayChoice === 'single'){ playAtIndex(idx, true); return; }
+    openHafezPlayChoiceModal({
+      onChooseSingle: () => { hafezPlayChoice = 'single'; playAtIndex(idx, true); },
+      onChooseFull: () => { hafezPlayChoice = 'full'; playFullSurah(singleSurahNum, true); }
+    });
+    return;
+  }
+  playAtIndex(idx, true);
+}
+
 function renderReader({header, showBismillah, surahInfo, surahBenefits, ayahs}){
   showReaderArea();
   readerToolbar.style.display='flex';
   state.playlist = ayahs.map(a => ({ key:`${a.surah}:${a.numberInSurah}`, globalNumber:a.number, surah:a.surah, numberInSurah:a.numberInSurah, title:(surahNamesBn[a.surah-1]||('সূরা '+a.surah)) }));
+  hafezPlayChoice = null; // নতুন ভিউ — আগের সূরায় করা পছন্দ এখানে আর প্রযোজ্য নয়
   const singleSurah = ayahs.length && ayahs.every(a => a.surah === ayahs[0].surah) ? ayahs[0].surah : null;
   const alreadyOffline = singleSurah && isSurahOffline(singleSurah);
   let html = `<div class="surah-header">
@@ -374,7 +399,10 @@ function renderReader({header, showBismillah, surahInfo, surahBenefits, ayahs}){
   if(surahInfoTrigger){
     surahInfoTrigger.onclick = () => openSurahInfoModal(header, surahInfo, surahBenefits);
   }
-  document.getElementById('playAllBtn').onclick = () => playAtIndex(0, true);
+  document.getElementById('playAllBtn').onclick = () => {
+    if(state.isPlaying && (state.fullSurahMode || state.playIndex === 0)){ pausePlayback(); }
+    else { startReaderPlayback(0, singleSurah); }
+  };
   const offlineBtn = document.getElementById('offlineBtn');
   if(offlineBtn) offlineBtn.onclick = () => downloadCurrentAudioForOffline(offlineBtn);
   document.querySelectorAll('.play-toggle').forEach(btn => {
@@ -382,8 +410,8 @@ function renderReader({header, showBismillah, surahInfo, surahBenefits, ayahs}){
       const key = btn.getAttribute('data-key');
       const idx = state.playlist.findIndex(p => p.key === key);
       if(idx === -1) return;
-      if(state.isPlaying && state.playIndex === idx){ pausePlayback(); }
-      else { playAtIndex(idx, true); }
+      if(state.isPlaying && (state.playIndex === idx || state.fullSurahMode)){ pausePlayback(); }
+      else { startReaderPlayback(idx, singleSurah); }
     };
   });
   document.querySelectorAll('.note-toggle-btn').forEach(btn => {
