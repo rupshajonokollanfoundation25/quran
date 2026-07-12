@@ -64,8 +64,6 @@ function currentAudioUrl(item){
 function playAtIndex(idx, userInitiated){
   if(idx < 0 || idx >= state.playlist.length) return;
   const item = state.playlist[idx];
-  state.fullSurahMode = false;
-  state.fullSurahNumber = null;
   state.playIndex = idx;
   playerBar.classList.add('buffering');
   audioEl.src = currentAudioUrl(item);
@@ -87,51 +85,6 @@ function playAtIndex(idx, userInitiated){
   prepareWordHighlight(item);
 }
 
-// ---------- হাফেজ মোডে "সম্পূর্ণ সূরা একটানা" প্লে ----------
-// প্রতি-আয়াত mp3 একের পর এক চেইন করলে প্রতিবার নতুন ফাইল fetch/buffer করতে
-// হয় বলে সামান্য গ্যাপ থেকে যায় — মুখস্থ/শোনার সময় এটা বিরক্তিকর লাগতে পারে।
-// এড়াতে cdn.islamic.network এর audio-surah এন্ডপয়েন্ট থেকে গোটা সূরার
-// একটাই ফাইল আনা হয়, ফলে পুরোপুরি গ্যাপলেস চলে। এই মোডে কোনো নির্দিষ্ট
-// আয়াতের সাথে playIndex বাঁধা থাকে না (state.fullSurahMode = true দিয়ে
-// বাকি প্লেয়ার-লজিক এটা চিনে নেয়), তাই ওয়ার্ড/আয়াত-লেভেল হাইলাইট এখানে হয় না।
-function fullSurahAudioUrl(surahNum){
-  return `${AUDIO_SURAH_CDN}/${state.reciter}/${surahNum}.mp3`;
-}
-
-function playFullSurah(surahNum, userInitiated){
-  state.fullSurahMode = true;
-  state.fullSurahNumber = surahNum;
-  state.playIndex = -1;
-  clearWordHighlight();
-  playerBar.classList.add('buffering');
-  audioEl.src = fullSurahAudioUrl(surahNum);
-  audioEl.playbackRate = state.playbackRate;
-  audioEl.play().then(()=>{ state.isPlaying = true; syncPlayingUI(); }).catch(()=>{ handlePlaybackFailure(-1); });
-  const title = surahNamesBn[surahNum-1] || ('সূরা ' + surahNum);
-  document.getElementById('playerRef').textContent = 'সম্পূর্ণ সূরা — একটানা';
-  document.getElementById('playerTitle').textContent = title;
-  playerBar.classList.add('visible');
-  state.lastRead = { surah: surahNum, ayah: 1 };
-  saveLastRead();
-  addHistoryEntry({ surah: surahNum, title, ayah: 1, reciter: state.reciter, ts: Date.now() });
-  trackAudioSurahPlayed(surahNum);
-  const libList = document.getElementById('libraryListContainer');
-  if(libList && document.getElementById('libTabHistory') && document.getElementById('libTabHistory').classList.contains('active')) renderHistoryList(libList);
-  recordActivityToday();
-  if('mediaSession' in navigator){
-    const reciterName = (reciters.find(r => r.id === state.reciter) || {}).name || '';
-    navigator.mediaSession.metadata = new MediaMetadata({
-      title: `${title} — সম্পূর্ণ সূরা`,
-      artist: reciterName,
-      album: 'কুরআন বাংলা',
-      artwork: [
-        { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-        { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' }
-      ]
-    });
-  }
-}
-
 // Called whenever the current track fails to load/play (404 from the CDN,
 // no network, unsupported file, etc). Without this the spinner in the
 // player bar would spin forever with no feedback, which looks exactly like
@@ -142,13 +95,6 @@ function handlePlaybackFailure(idx){
   state.isPlaying = false;
   clearWordHighlight();
   syncPlayingUI();
-  if(state.fullSurahMode){
-    state.fullSurahMode = false;
-    state.fullSurahNumber = null;
-    document.getElementById('playerRef').textContent = 'এই তিলাওয়াতটি লোড করা যায়নি';
-    showPlaybackError();
-    return;
-  }
   const autoplayChk = document.getElementById('autoplayChk');
   // If we're auto-advancing through a surah, skip the broken ayah instead of
   // getting stuck, but stop after a couple of consecutive failures so we
@@ -182,10 +128,6 @@ function pausePlayback(){
 }
 
 function resumePlayback(){
-  if(state.fullSurahMode && audioEl.src){
-    audioEl.play().then(()=>{ state.isPlaying = true; syncPlayingUI(); }).catch(()=>{});
-    return;
-  }
   if(state.playIndex === -1){ if(state.playlist.length){ playAtIndex(0, false); } return; }
   audioEl.play().then(()=>{ state.isPlaying = true; syncPlayingUI(); }).catch(()=>{});
 }
@@ -193,12 +135,7 @@ function resumePlayback(){
 function syncPlayingUI(){
   document.querySelectorAll('.ayah-card').forEach(c => c.classList.remove('playing'));
   document.querySelectorAll('.play-toggle').forEach(b => { b.classList.remove('is-playing'); b.textContent = '▶ Listen.'; });
-  playerBar.classList.toggle('full-surah-mode', !!state.fullSurahMode);
-  if(state.fullSurahMode){
-    // নির্দিষ্ট কোনো আয়াতের সাথে বাঁধা নয় — পুরো সূরা একটানা চলছে, তাই
-    // পুরো সূরার সব আয়াত কার্ডকেই "চলছে" হিসেবে হালকা হাইলাইট দেখানো হয়।
-    if(state.isPlaying) document.querySelectorAll('.ayah-card').forEach(c => c.classList.add('playing'));
-  } else if(state.playIndex >= 0){
+  if(state.playIndex >= 0){
     const item = state.playlist[state.playIndex];
     const card = document.querySelector(`.ayah-card[data-key="${item.key}"]`);
     if(card){
@@ -343,52 +280,6 @@ async function downloadCurrentAudioForOffline(btn){
   if(isSingleSurah) markSurahOffline(surahNum, reciterAtDownload, urls, urls.length);
 }
 
-// ---------- হাফেজ মোডে অডিও শোনার ধরন বেছে নেওয়ার মোডাল ----------
-// হাফেজ মোডে থাকা অবস্থায় প্রথমবার প্লে চাপলে জিজ্ঞেস করে নেওয়া হয়:
-// "একটা একটা করে আয়াত" (আগের মতো চেইন করে) নাকি "সম্পূর্ণ সূরা একটানা"
-// (গ্যাপলেস, audio-surah API)। এই পছন্দ js/reader.js এর hafezPlayChoice
-// ভেরিয়েবলে মনে রাখা হয়, যাতে প্রতিটা ক্লিকে বার বার জিজ্ঞেস করে বিরক্ত
-// না করে — নতুন সূরা/পৃষ্ঠায় গেলে বা হাফেজ মোড বন্ধ করলে আবার জিজ্ঞেস করবে।
-function openHafezPlayChoiceModal({ onChooseSingle, onChooseFull }){
-  let modal = document.getElementById('hafezPlayChoiceModal');
-  if(!modal){
-    modal = document.createElement('div');
-    modal.className = 'app-modal';
-    modal.id = 'hafezPlayChoiceModal';
-    modal.innerHTML = `
-      <div class="app-modal-box">
-        <div class="app-modal-head">
-          <h3><i class="fa-solid fa-headphones-simple"></i> কীভাবে শুনতে চান?</h3>
-          <button class="app-modal-close" id="hafezPlayChoiceClose">✕</button>
-        </div>
-        <div class="app-modal-body">
-          <div class="lang-picker-list">
-            <button class="lang-picker-item" id="hafezChoiceSingle" type="button">
-              <span class="lp-avatar"><i class="fa-solid fa-list-ol"></i></span>
-              <span class="lp-text">
-                <span class="lp-label">একটা একটা করে আয়াত</span>
-                <span class="lp-sub">থেমে থেমে, মুখস্থ করার জন্য উপযোগী</span>
-              </span>
-            </button>
-            <button class="lang-picker-item" id="hafezChoiceFull" type="button">
-              <span class="lp-avatar"><i class="fa-solid fa-infinity"></i></span>
-              <span class="lp-text">
-                <span class="lp-label">সম্পূর্ণ সূরা একটানা</span>
-                <span class="lp-sub">কোনো গ্যাপ ছাড়া গোটা সূরা একটানা চলবে</span>
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-    wireModalBackdrop('hafezPlayChoiceModal');
-    document.getElementById('hafezPlayChoiceClose').onclick = () => closeModal('hafezPlayChoiceModal');
-  }
-  document.getElementById('hafezChoiceSingle').onclick = () => { closeModal('hafezPlayChoiceModal'); onChooseSingle(); };
-  document.getElementById('hafezChoiceFull').onclick = () => { closeModal('hafezPlayChoiceModal'); onChooseFull(); };
-  openModal('hafezPlayChoiceModal');
-}
-
 let stallTimer = null;
 function initPlayer(){
   updateReciterLabels();
@@ -401,7 +292,6 @@ function initPlayer(){
   document.getElementById('playerClose').onclick = () => {
     audioEl.pause(); audioEl.removeAttribute('src');
     state.isPlaying=false; state.playIndex=-1;
-    state.fullSurahMode=false; state.fullSurahNumber=null;
     playerBar.classList.remove('visible');
     clearWordHighlight();
     syncPlayingUI();
@@ -410,14 +300,6 @@ function initPlayer(){
   if(speedBtn){ speedBtn.onclick = cycleSpeed; applySpeedLabel(); }
 
   audioEl.addEventListener('ended', () => {
-    if(state.fullSurahMode){
-      state.isPlaying = false;
-      state.fullSurahMode = false;
-      state.fullSurahNumber = null;
-      clearWordHighlight();
-      syncPlayingUI();
-      return;
-    }
     const autoplayChk = document.getElementById('autoplayChk');
     if(autoplayChk.checked && state.playIndex < state.playlist.length - 1){
       playAtIndex(state.playIndex + 1, false);
