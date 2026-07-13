@@ -57,7 +57,7 @@ function ensureDonationModal(){
           <a id="donationDonateBtn" class="donation-btn-primary" target="_blank" rel="noopener">
             <i class="fa-solid fa-hand-holding-dollar"></i> <span id="donationBtnLabel"></span>
           </a>
-          <button class="donation-btn-later" id="donationLaterBtn">পরে দেখব</button>
+          <button class="donation-btn-later" id="donationLaterBtn">Skip Now</button>
         </div>
       </div>
     </div>`;
@@ -80,7 +80,7 @@ function renderDonationModal(cfg){
   document.getElementById('donationMessage').textContent = cfg.message || '';
   const btn = document.getElementById('donationDonateBtn');
   btn.href = cfg.buttonLink || '#';
-  document.getElementById('donationBtnLabel').textContent = cfg.buttonText || 'ডোনেট করুন';
+  document.getElementById('donationBtnLabel').textContent = cfg.buttonText || 'দান করুন';
   const imgWrap = document.getElementById('donationImgWrap');
   const img = document.getElementById('donationImg');
   if(cfg.imageUrl){
