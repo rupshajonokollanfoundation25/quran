@@ -126,7 +126,7 @@ body{
   background-image:var(--bg-texture);
   background-attachment:fixed;
   color:var(--ink);
-  font-family:'Hind Siliguri',sans-serif;
+  font-family:var(--font-ui,'Hind Siliguri'),sans-serif;
   min-height:100vh;
   transition:background-color .35s ease,color .35s ease,background-image .35s ease;
 }
