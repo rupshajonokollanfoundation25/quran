@@ -138,14 +138,14 @@ function tbApplyFont(pairId){
 
 // ==== PREMIUM EXTENSION: background patterns (7 now, up from 3) ====
 const TB_PATTERNS = {
-  none:     { image:'none', size:'auto', name:'None' },
-  dots:     { image:"radial-gradient(var(--line) 1.4px, transparent 1.4px)", size:'22px 22px', name:'Dot' },
-  grid:     { image:"linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px)", size:'26px 26px, 26px 26px', name:'Grid' },
-  geo:      { image:"repeating-linear-gradient(45deg, var(--gold) 0 1.5px, transparent 1.5px 26px), repeating-linear-gradient(-45deg, var(--gold) 0 1.5px, transparent 1.5px 26px)", size:'auto', name:'Geometric' },
-  diagonal: { image:"repeating-linear-gradient(60deg, var(--line) 0 2px, transparent 2px 20px)", size:'auto', name:'Diagonal line' },
-  waves:    { image:"radial-gradient(circle at 50% 0%, transparent 9px, var(--line) 10px, transparent 11px)", size:'26px 16px', name:'Wave' },
-  honeycomb:{ image:"radial-gradient(circle at 100% 50%, transparent 9px, var(--line) 10px, transparent 11px), radial-gradient(circle at 0% 50%, transparent 9px, var(--line) 10px, transparent 11px)", size:'24px 24px', name:'Beehive' },
-  confetti: { image:"radial-gradient(var(--gold) 1.6px, transparent 1.6px), radial-gradient(var(--teal) 1.6px, transparent 1.6px)", size:'30px 30px, 30px 30px', name:'Confetti' }
+  none:     { image:'none', size:'auto', name:'কোনোটিই না' },
+  dots:     { image:"radial-gradient(var(--line) 1.4px, transparent 1.4px)", size:'22px 22px', name:'বিন্দু' },
+  grid:     { image:"linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px)", size:'26px 26px, 26px 26px', name:'গ্রিড' },
+  geo:      { image:"repeating-linear-gradient(45deg, var(--gold) 0 1.5px, transparent 1.5px 26px), repeating-linear-gradient(-45deg, var(--gold) 0 1.5px, transparent 1.5px 26px)", size:'auto', name:'জ্যামিতিক' },
+  diagonal: { image:"repeating-linear-gradient(60deg, var(--line) 0 2px, transparent 2px 20px)", size:'auto', name:'তির্যক রেখা' },
+  waves:    { image:"radial-gradient(circle at 50% 0%, transparent 9px, var(--line) 10px, transparent 11px)", size:'26px 16px', name:'ঢেউ' },
+  honeycomb:{ image:"radial-gradient(circle at 100% 50%, transparent 9px, var(--line) 10px, transparent 11px), radial-gradient(circle at 0% 50%, transparent 9px, var(--line) 10px, transparent 11px)", size:'24px 24px', name:'মৌচাক' },
+  confetti: { image:"radial-gradient(var(--gold) 1.6px, transparent 1.6px), radial-gradient(var(--teal) 1.6px, transparent 1.6px)", size:'30px 30px, 30px 30px', name:'কনফেটি' }
 };
 
 // ==== PREMIUM EXTENSION v2: hand-placed floating decorations ====
@@ -157,19 +157,19 @@ const TB_PATTERNS = {
 // fixed hard-coded spot list.
 const TB_DECOR_TYPES = {
   // -- original six, now coded as FA icons instead of emoji --
-  lantern: { icon:'fa-solid fa-lightbulb',           name:'Lantern',     size:22, opacity:.5,  anim:'tbLanternSwing 3.2s ease-in-out infinite', group:'basic' },
-  star:    { icon:'fa-solid fa-star',                name:'star',      size:15, opacity:.42, anim:'tbStarTwinkle 2.5s ease-in-out infinite',  group:'basic' },
-  moon:    { icon:'fa-solid fa-moon',                name:'Moon',      size:20, opacity:.45, anim:'tbMoonFloat 4s ease-in-out infinite',      group:'basic' },
-  flower:  { icon:'fa-solid fa-spa',                 name:'flower',       size:18, opacity:.4,  anim:'tbFlowerDrift 5s ease-in-out infinite',    group:'basic' },
-  sparkle: { icon:'fa-solid fa-wand-magic-sparkles', name:'Sparkle',  size:16, opacity:.5,  anim:'tbStarTwinkle 2.1s ease-in-out infinite',  group:'basic' },
-  feather: { icon:'fa-solid fa-feather',             name:'Feather',      size:18, opacity:.4,  anim:'tbFeatherSway 4.5s ease-in-out infinite',  group:'basic' },
+  lantern: { icon:'fa-solid fa-lightbulb',           name:'লন্ঠন',     size:22, opacity:.5,  anim:'tbLanternSwing 3.2s ease-in-out infinite', group:'basic' },
+  star:    { icon:'fa-solid fa-star',                name:'তারা',      size:15, opacity:.42, anim:'tbStarTwinkle 2.5s ease-in-out infinite',  group:'basic' },
+  moon:    { icon:'fa-solid fa-moon',                name:'চাঁদ',      size:20, opacity:.45, anim:'tbMoonFloat 4s ease-in-out infinite',      group:'basic' },
+  flower:  { icon:'fa-solid fa-spa',                 name:'ফুল',       size:18, opacity:.4,  anim:'tbFlowerDrift 5s ease-in-out infinite',    group:'basic' },
+  sparkle: { icon:'fa-solid fa-wand-magic-sparkles', name:'স্পার্কল',  size:16, opacity:.5,  anim:'tbStarTwinkle 2.1s ease-in-out infinite',  group:'basic' },
+  feather: { icon:'fa-solid fa-feather',             name:'পালক',      size:18, opacity:.4,  anim:'tbFeatherSway 4.5s ease-in-out infinite',  group:'basic' },
   // -- new additions --
-  sun:      { icon:'fa-solid fa-sun',               name:'Sun',       size:19, opacity:.4,  anim:'tbMoonFloat 4.5s ease-in-out infinite',   group:'new' },
-  cloud:    { icon:'fa-solid fa-cloud',             name:'Cloud',         size:20, opacity:.38, anim:'tbFlowerDrift 6s ease-in-out infinite',   group:'new' },
-  crescent: { icon:'fa-solid fa-star-and-crescent', name:'Moon and stars',   size:20, opacity:.46, anim:'tbMoonFloat 4.2s ease-in-out infinite',   group:'new' },
-  mosque:   { icon:'fa-solid fa-mosque',            name:'Mosque',       size:20, opacity:.4,  anim:'tbFeatherSway 5s ease-in-out infinite',   group:'new' },
-  gem:      { icon:'fa-solid fa-gem',               name:'Gem',        size:16, opacity:.44, anim:'tbStarTwinkle 2.8s ease-in-out infinite', group:'new' },
-  crown:    { icon:'fa-solid fa-crown',             name:'Crown',       size:18, opacity:.4,  anim:'tbLanternSwing 3.6s ease-in-out infinite', group:'new' }
+  sun:      { icon:'fa-solid fa-sun',               name:'সূর্য',       size:19, opacity:.4,  anim:'tbMoonFloat 4.5s ease-in-out infinite',   group:'new' },
+  cloud:    { icon:'fa-solid fa-cloud',             name:'মেঘ',         size:20, opacity:.38, anim:'tbFlowerDrift 6s ease-in-out infinite',   group:'new' },
+  crescent: { icon:'fa-solid fa-star-and-crescent', name:'চাঁদ-তারা',   size:20, opacity:.46, anim:'tbMoonFloat 4.2s ease-in-out infinite',   group:'new' },
+  mosque:   { icon:'fa-solid fa-mosque',            name:'মসজিদ',       size:20, opacity:.4,  anim:'tbFeatherSway 5s ease-in-out infinite',   group:'new' },
+  gem:      { icon:'fa-solid fa-gem',               name:'রত্ন',        size:16, opacity:.44, anim:'tbStarTwinkle 2.8s ease-in-out infinite', group:'new' },
+  crown:    { icon:'fa-solid fa-crown',             name:'মুকুট',       size:18, opacity:.4,  anim:'tbLanternSwing 3.6s ease-in-out infinite', group:'new' }
 };
 const TB_DECOR_MAX_PER_TYPE = 6;
 const TB_DECOR_MAX_TOTAL = 18;
@@ -365,8 +365,8 @@ function loadCustomTheme(){
 (function patchI18nForCustomTheme(){
   if(typeof I18N === 'undefined') return;
   Object.keys(I18N).forEach(lang => {
-    if(I18N[lang].theme_custom === undefined) I18N[lang].theme_custom = (lang === 'bn') ? 'Custom theme' : 'Custom theme';
-    if(I18N[lang].theme_custom_desc === undefined) I18N[lang].theme_custom_desc = (lang === 'bn') ? 'Theme created in your own chosen colors' : 'A theme built from your own hand-picked colors';
+    if(I18N[lang].theme_custom === undefined) I18N[lang].theme_custom = (lang === 'bn') ? 'কাস্টম থিম' : 'Custom theme';
+    if(I18N[lang].theme_custom_desc === undefined) I18N[lang].theme_custom_desc = (lang === 'bn') ? 'আপনার নিজের বাছাই করা রঙে তৈরি থিম' : 'A theme built from your own hand-picked colors';
   });
 })();
 
@@ -396,20 +396,20 @@ function appendCustomThemeCard(grid, t){
     card.innerHTML = `
       <span class="theme-picker-swatch tb-locked-swatch"><i class="fa-solid fa-lock"></i></span>
       <span class="theme-picker-name">${t('theme_custom')}</span>
-      <span class="theme-picker-desc">Please complete a 30-day reading streak to become a completely free customer (${toBn(streak)}/৩০ Day)  </span>`;
-    card.onclick = () => showToast(`And ${toBn(Math.max(0, 30-streak))} Premium customization will be unlocked as the day progresses.`);
+      <span class="theme-picker-desc">৩০ দিনের রিডিং স্ট্রিক প্রয়োজন (${toBn(streak)}/৩০ দিন) — রঙ, ফন্ট, ব্যাকগ্রাউন্ড, ডেকোরেশন, প্লেয়ার, হেডার-ন্যাভ ও পপ-আপ ডিজাইন সহ সম্পূর্ণ অ্যাপ কাস্টমাইজেশন আনলক হবে</span>`;
+    card.onclick = () => showToast(`আর ${toBn(Math.max(0, 30-streak))} দিন পড়লে প্রিমিয়াম কাস্টমাইজেশন আনলক হবে`);
   } else if(!cfg){
     card.innerHTML = `
       <span class="theme-picker-swatch tb-add-swatch"><i class="fa-solid fa-palette"></i></span>
       <span class="theme-picker-name">${t('theme_custom')} <i class="fa-solid fa-lock-open"></i></span>
-      <span class="theme-picker-desc"> Dear Reader User Congratulations, your custom theme has been unlocked.</span>`;
+      <span class="theme-picker-desc">রঙ, ফন্ট, ব্যাকগ্রাউন্ড, ডেকোরেশন, প্লেয়ার, হেডার-ন্যাভ ও পপ-আপ — পুরো অ্যাপ নিজের মনমতো সাজান</span>`;
     card.onclick = () => openThemeBuilder();
   } else {
     const active = state.theme === 'custom';
     card.classList.toggle('active', active);
     card.innerHTML = `
       <span class="theme-picker-swatch">${[cfg.parchment, cfg.teal, cfg.gold].map(c => `<span style="background:${c}"></span>`).join('')}</span>
-      <span class="theme-picker-name">${t('theme_custom')}${active ? ' <i class="fa-solid fa-circle-check"></i>' : ''} <button type="button" class="tb-edit-btn" title="Edit"><i class="fa-solid fa-pen"></i></button></span>
+      <span class="theme-picker-name">${t('theme_custom')}${active ? ' <i class="fa-solid fa-circle-check"></i>' : ''} <button type="button" class="tb-edit-btn" title="সম্পাদনা করুন"><i class="fa-solid fa-pen"></i></button></span>
       <span class="theme-picker-desc">${t('theme_custom_desc')}</span>`;
     card.onclick = (e) => { if(e.target.closest('.tb-edit-btn')) return; applyTheme('custom'); };
   }
@@ -464,7 +464,7 @@ function tbSave(){
   tbApplyPlayer(tbDraft);
   tbApplyNavHeader(tbDraft);
   tbApplyModal(tbDraft);
-  showToast(' Your custom theme has been saved. ✓');
+  showToast('প্রিমিয়াম কাস্টমাইজেশন সংরক্ষিত হয়েছে ✓');
 }
 
 function tbFieldRow(id, label, value){
@@ -476,7 +476,7 @@ function tbFieldRow(id, label, value){
 function tbSectionHeader(iconClass, title, resetId){
   return `<div class="tb-section-label">
     ${iconClass ? `<i class="${iconClass}"></i>` : ''}<span class="tb-section-title">${title}</span>
-    <button type="button" class="tb-section-reset" id="${resetId}" title="Reset this section to default."><i class="fa-solid fa-arrow-rotate-left"></i></button>
+    <button type="button" class="tb-section-reset" id="${resetId}" title="এই অংশ ডিফল্টে ফিরিয়ে নিন"><i class="fa-solid fa-arrow-rotate-left"></i></button>
   </div>`;
 }
 function tbCheckRow(id, emoji, label, desc, checked){
@@ -540,18 +540,18 @@ function tbRenderDecorChips(groupKey){
       <span class="tdc-emoji"><i class="${meta.icon}"></i></span>
       <span class="tdc-name">${meta.name}</span>
       <span class="tdc-count">${toBn(count)}/${toBn(TB_DECOR_MAX_PER_TYPE)}</span>
-      <button type="button" class="tdc-add" data-add="${type}" title="${meta.name} Add"><i class="fa-solid fa-plus"></i></button>
+      <button type="button" class="tdc-add" data-add="${type}" title="${meta.name} যোগ করুন"><i class="fa-solid fa-plus"></i></button>
     </div>`;
   }).join('');
 }
 
 function tbRenderDecorSection(){
   return `
-    <div class="tb-decor-group-label">Basic icons</div>
+    <div class="tb-decor-group-label">মৌলিক আইকন</div>
     <div class="tb-decor-chip-grid" id="tbDecorChipGridBasic">${tbRenderDecorChips('basic')}</div>
-    <div class="tb-decor-group-label">New additions</div>
+    <div class="tb-decor-group-label">নতুন সংযোজন</div>
     <div class="tb-decor-chip-grid" id="tbDecorChipGridNew">${tbRenderDecorChips('new')}</div>
-    <div class="tb-decor-hint"><i class="fa-solid fa-hand-pointer"></i> <span><i class="fa-solid fa-plus"></i> Tap to add the icon, then drag it to the preview below to adjust its position. Tap ✕ on the item to delete. Total max. ${toBn(TB_DECOR_MAX_TOTAL)}, Each icon is max. ${toBn(TB_DECOR_MAX_PER_TYPE)}.</span></div>
+    <div class="tb-decor-hint"><i class="fa-solid fa-hand-pointer"></i> <span><i class="fa-solid fa-plus"></i> চাপুন আইকন যোগ করতে, তারপর নিচের প্রিভিউতে টেনে জায়গা ঠিক করুন। মুছতে আইটেমের ✕ চাপুন। মোট সর্বোচ্চ ${toBn(TB_DECOR_MAX_TOTAL)}টি, প্রতিটি আইকন সর্বোচ্চ ${toBn(TB_DECOR_MAX_PER_TYPE)}টি।</span></div>
     <div class="tb-decor-preview" id="tbDecorPreview"></div>
   `;
 }
@@ -632,8 +632,8 @@ function tbWireDecorSection(){
     btn.onclick = () => {
       const type = btn.getAttribute('data-add');
       const countForType = tbDraft.decorations.filter(d => d.type === type).length;
-      if(countForType >= TB_DECOR_MAX_PER_TYPE){ showToast(`This item is the highest ${toBn(TB_DECOR_MAX_PER_TYPE)} Can be installed`); return; }
-      if(tbDraft.decorations.length >= TB_DECOR_MAX_TOTAL){ showToast(`Max ${toBn(TB_DECOR_MAX_TOTAL)}  Decorations can be placed.`); return; }
+      if(countForType >= TB_DECOR_MAX_PER_TYPE){ showToast(`এই আইটেম সর্বোচ্চ ${toBn(TB_DECOR_MAX_PER_TYPE)}টি বসানো যায়`); return; }
+      if(tbDraft.decorations.length >= TB_DECOR_MAX_TOTAL){ showToast(`সর্বোচ্চ ${toBn(TB_DECOR_MAX_TOTAL)}টি ডেকোরেশন বসানো যায়`); return; }
       tbDraft.decorations.push({ id:tbNewDecorId(), type, top: 10 + Math.random()*70, left: 8 + Math.random()*80 });
       tbRenderDecorSection2();
       tbPreview();
@@ -652,7 +652,7 @@ function tbVariantCard(id, active, label, sampleStyle){
 
 function openThemeBuilder(){
   if(!customThemeUnlocked()){
-    showToast(`30-day streak required (Currently ${toBn(tbCurrentStreak())} Days)`);
+    showToast(`৩০ দিনের স্ট্রিক প্রয়োজন (বর্তমানে ${toBn(tbCurrentStreak())} দিন)`);
     return;
   }
   tbPrevThemeId = state.theme;
@@ -666,7 +666,7 @@ function openThemeBuilder(){
     modal.innerHTML = `
       <div class="app-modal-box">
         <div class="app-modal-head">
-          <h3><i class="fa-solid fa-palette"></i> Premium customization</h3>
+          <h3><i class="fa-solid fa-palette"></i> প্রিমিয়াম কাস্টমাইজেশন</h3>
           <button class="app-modal-close" id="tbClose">✕</button>
         </div>
         <div class="app-modal-body">
@@ -674,53 +674,53 @@ function openThemeBuilder(){
           <div class="tb-fields" id="tbFields"></div>
           <div class="tb-contrast-info" id="tbContrastInfo"></div>
           <div class="tb-row tb-row-radius">
-            <label for="tbRadius">Rounded corners</label>
+            <label for="tbRadius">কোণা গোলাকার (Radius)</label>
             <input type="range" id="tbRadius" min="4" max="26" step="1">
           </div>
           <label class="tb-dark-toggle">
-            <input type="checkbox" id="tbDarkChk"> This is a dark theme (auto-determined according to the background, change if necessary)
+            <input type="checkbox" id="tbDarkChk"> এটি একটি ডার্ক থিম (ব্যাকগ্রাউন্ড অনুযায়ী auto-নির্ধারিত, প্রয়োজনে বদলে দিন)
           </label>
 
-          ${tbSectionHeader('fa-solid fa-font', 'Font style', 'tbResetFont')}
+          ${tbSectionHeader('fa-solid fa-font', 'ফন্ট স্টাইল', 'tbResetFont')}
           <div class="tb-font-grid" id="tbFontGrid"></div>
 
-          ${tbSectionHeader('fa-solid fa-brush', 'Background pattern', 'tbResetPattern')}
+          ${tbSectionHeader('fa-solid fa-brush', 'ব্যাকগ্রাউন্ড প্যাটার্ন', 'tbResetPattern')}
           <div class="tb-pattern-grid" id="tbPatternGrid"></div>
           <div class="tb-row tb-row-opacity" id="tbOpacityRow">
-            <label for="tbOpacity">Pattern density</label>
+            <label for="tbOpacity">প্যাটার্নের গাঢ়ত্ব</label>
             <input type="range" id="tbOpacity" min="0.1" max="0.6" step="0.05">
           </div>
 
-          ${tbSectionHeader('fa-solid fa-wand-magic-sparkles', 'Decorative element', 'tbResetDecor')}
-          <div class="tb-section-hint">Which icons, how many, and where to place them — decide everything yourself.</div>
+          ${tbSectionHeader('fa-solid fa-wand-magic-sparkles', 'ডেকোরেটিভ এলিমেন্ট', 'tbResetDecor')}
+          <div class="tb-section-hint">কোন আইকন, কয়টি, আর কোথায় বসবে — সবকিছু নিজে ঠিক করুন। মাঝখানে বা অন্য আইকনের বরাবর টানলে সোনালি গাইডলাইন দেখিয়ে সাথে সাথে সোজা করে দেবে।</div>
           <div id="tbDecorWrap"></div>
 
-          ${tbSectionHeader('fa-solid fa-house', 'What will appear on the homepage', 'tbResetHome')}
+          ${tbSectionHeader('fa-solid fa-house', 'হোমপেজে যা দেখাবে', 'tbResetHome')}
           <div id="tbHomeChecks"></div>
 
-          ${tbSectionHeader('fa-solid fa-headphones', 'Audio player', 'tbResetPlayer')}
+          ${tbSectionHeader('fa-solid fa-headphones', 'অডিও প্লেয়ার', 'tbResetPlayer')}
           <label class="tb-check-row" for="tbPlayerEnabled" style="border-bottom:none;">
             <input type="checkbox" id="tbPlayerEnabled">
             <span class="tcr-emoji"><i class="fa-solid fa-sliders"></i></span>
-            <span><span>Use a different color/style in the player</span><span class="tcr-desc">If off, the theme's default player will be shown.</span></span>
+            <span><span>প্লেয়ারে আলাদা রঙ/স্টাইল ব্যবহার করুন</span><span class="tcr-desc">বন্ধ থাকলে থিমের ডিফল্ট প্লেয়ার দেখাবে</span></span>
           </label>
           <div id="tbPlayerOptions"></div>
 
-          ${tbSectionHeader('fa-solid fa-window-maximize', 'Header and bottom nav bar', 'tbResetNav')}
+          ${tbSectionHeader('fa-solid fa-window-maximize', 'হেডার ও নিচের ন্যাভ বার', 'tbResetNav')}
           <label class="tb-check-row" for="tbNavEnabled" style="border-bottom:none;">
             <input type="checkbox" id="tbNavEnabled">
             <span class="tcr-emoji"><i class="fa-solid fa-sliders"></i></span>
-            <span><span>Use different colors/styles in header/nav</span><span class="tcr-desc">If off, the theme's default color will be displayed.</span></span>
+            <span><span>হেডার/ন্যাভে আলাদা রঙ/স্টাইল ব্যবহার করুন</span><span class="tcr-desc">বন্ধ থাকলে থিমের ডিফল্ট রঙ দেখাবে</span></span>
           </label>
           <div id="tbNavOptions"></div>
 
-          ${tbSectionHeader('fa-solid fa-square', 'Pop-up / Modal Design', 'tbResetModal')}
+          ${tbSectionHeader('fa-solid fa-square', 'পপ-আপ / মোডাল ডিজাইন', 'tbResetModal')}
           <div id="tbModalOptions"></div>
 
-          <div class="tb-preview-note"><i class="fa-solid fa-eye"></i> As you change, you can see a live preview throughout the app.</div>
+          <div class="tb-preview-note"><i class="fa-solid fa-eye"></i> বদলানোর সাথে সাথে পুরো অ্যাপে লাইভ প্রিভিউ দেখা যাবে</div>
           <div class="input-box-actions" style="margin-top:14px;">
-            <button class="tw-cancel-btn" id="tbCancelBtn">Cancel</button>
-            <button class="tw-save-btn" id="tbSaveBtn">Save</button>
+            <button class="tw-cancel-btn" id="tbCancelBtn">বাতিল</button>
+            <button class="tw-save-btn" id="tbSaveBtn">সংরক্ষণ করুন</button>
           </div>
         </div>
       </div>`;
@@ -737,16 +737,16 @@ function openThemeBuilder(){
   const darkChk = document.getElementById('tbDarkChk');
   const renderContrastInfo = () => {
     document.getElementById('tbContrastInfo').innerHTML =
-      tbContrastRow('Writing ↔ Background', tbDraft.ink, tbDraft.parchment) +
-      tbContrastRow('Writing ↔ Panel/Card', tbDraft.ink, tbDraft.panel);
+      tbContrastRow('লেখা ↔ ব্যাকগ্রাউন্ড', tbDraft.ink, tbDraft.parchment) +
+      tbContrastRow('লেখা ↔ প্যানেল/কার্ড', tbDraft.ink, tbDraft.panel);
   };
   const renderColorsSection = () => {
     fields.innerHTML = [
-      tbFieldRow('tbParchment', 'Background', tbDraft.parchment),
-      tbFieldRow('tbPanel', 'Panel/Card', tbDraft.panel),
-      tbFieldRow('tbTeal', 'Main color (header)', tbDraft.teal),
-      tbFieldRow('tbGold', 'Golden accents', tbDraft.gold),
-      tbFieldRow('tbInk', 'Text color', tbDraft.ink)
+      tbFieldRow('tbParchment', 'ব্যাকগ্রাউন্ড', tbDraft.parchment),
+      tbFieldRow('tbPanel', 'প্যানেল / কার্ড', tbDraft.panel),
+      tbFieldRow('tbTeal', 'প্রধান রঙ (হেডার)', tbDraft.teal),
+      tbFieldRow('tbGold', 'সোনালি অ্যাকসেন্ট', tbDraft.gold),
+      tbFieldRow('tbInk', 'লেখার রঙ', tbDraft.ink)
     ].join('');
     const onColorChange = (key, id) => {
       document.getElementById(id).oninput = (e) => {
@@ -776,7 +776,7 @@ function openThemeBuilder(){
     renderColorsSection();
     tbPreview();
     tbRenderDecorPreview();
-    showToast('Color restored to default.');
+    showToast('রঙ ডিফল্টে ফেরানো হয়েছে');
   };
 
   // ---- Font pair ----
@@ -798,7 +798,7 @@ function openThemeBuilder(){
     tbDraft.fontPair = tbDefaults().fontPair;
     renderFontGrid();
     tbPreview();
-    showToast('Font restored to default.');
+    showToast('ফন্ট ডিফল্টে ফেরানো হয়েছে');
   };
 
   // ---- Background pattern ----
@@ -833,7 +833,7 @@ function openThemeBuilder(){
     opacityRow.style.display = tbDraft.bgPattern === 'none' ? 'none' : 'flex';
     opacityEl.value = tbDraft.bgPatternOpacity;
     tbPreview();
-    showToast('Pattern has been reset to default.');
+    showToast('প্যাটার্ন ডিফল্টে ফেরানো হয়েছে');
   };
 
   // ---- Decorations (v2: multi-type, hand-placed, draggable) ----
@@ -843,7 +843,7 @@ function openThemeBuilder(){
     tbDraft.decorations = [];
     tbRenderDecorSection2();
     tbApplyAmbient(tbDraft);
-    showToast('All decorations have been removed and returned to default.');
+    showToast('সব ডেকোরেশন মুছে ডিফল্টে ফেরানো হয়েছে');
   };
 
   // ---- Home sections ----
@@ -851,10 +851,10 @@ function openThemeBuilder(){
   const homeMap = { tbHomeAyah:'ayah', tbHomeStreak:'streak', tbHomeLastRead:'lastread', tbHomeQuick:'quicklinks' };
   const renderHomeChecks = () => {
     homeWrap.innerHTML = [
-      tbCheckRow('tbHomeAyah', '<i class="fa-solid fa-book-open"></i>', 'Today's Verse Card', 'Verse card on top of homepage', tbDraft.homeSections.ayah),
-      tbCheckRow('tbHomeStreak', '<i class="fa-solid fa-fire"></i>', 'Streak Ring', 'Reading continuity ring', tbDraft.homeSections.streak),
-      tbCheckRow('tbHomeLastRead', '<i class="fa-solid fa-clock-rotate-left"></i>', 'Last read', '"Last read" Row', tbDraft.homeSections.lastread),
-      tbCheckRow('tbHomeQuick', '<i class="fa-solid fa-link"></i>', 'Quick Link', 'Quick Link Row', tbDraft.homeSections.quicklinks)
+      tbCheckRow('tbHomeAyah', '<i class="fa-solid fa-book-open"></i>', 'আজকের আয়াত কার্ড', 'হোমপেজের উপরে আয়াত কার্ড', tbDraft.homeSections.ayah),
+      tbCheckRow('tbHomeStreak', '<i class="fa-solid fa-fire"></i>', 'স্ট্রিক রিং', 'পড়ার ধারাবাহিকতার রিং', tbDraft.homeSections.streak),
+      tbCheckRow('tbHomeLastRead', '<i class="fa-solid fa-clock-rotate-left"></i>', 'সর্বশেষ পড়া', '"সর্বশেষ পড়েছিলেন" সারি', tbDraft.homeSections.lastread),
+      tbCheckRow('tbHomeQuick', '<i class="fa-solid fa-link"></i>', 'কুইক লিংক', 'কুইক লিংক সারি', tbDraft.homeSections.quicklinks)
     ].join('');
     Object.keys(homeMap).forEach(id => {
       document.getElementById(id).onchange = (e) => { tbDraft.homeSections[homeMap[id]] = e.target.checked; tbPreview(); };
@@ -865,7 +865,7 @@ function openThemeBuilder(){
     tbDraft.homeSections = Object.assign({}, tbDefaults().homeSections);
     renderHomeChecks();
     tbPreview();
-    showToast('Homepage section has been restored to default.');
+    showToast('হোমপেজ সেকশন ডিফল্টে ফেরানো হয়েছে');
   };
 
   // ---- Audio player look ----
@@ -875,17 +875,17 @@ function openThemeBuilder(){
     if(!tbDraft.player.enabled){ playerOptions.innerHTML = ''; return; }
     playerOptions.innerHTML = `
       <div class="tb-style-grid">
-        ${tbVariantCard('classic', tbDraft.player.variant==='classic', 'Gradient', `background:linear-gradient(180deg, ${tbDraft.player.bg1} 0%, ${tbDraft.player.bg2} 100%)`)}
-        ${tbVariantCard('flat', tbDraft.player.variant==='flat', 'Flat', `background:${tbDraft.player.bg1}`)}
-        ${tbVariantCard('glass', tbDraft.player.variant==='glass', 'Glass', `background:${tbAlpha(tbDraft.player.bg1,.5)}`)}
+        ${tbVariantCard('classic', tbDraft.player.variant==='classic', 'গ্র্যাডিয়েন্ট', `background:linear-gradient(180deg, ${tbDraft.player.bg1} 0%, ${tbDraft.player.bg2} 100%)`)}
+        ${tbVariantCard('flat', tbDraft.player.variant==='flat', 'ফ্ল্যাট', `background:${tbDraft.player.bg1}`)}
+        ${tbVariantCard('glass', tbDraft.player.variant==='glass', 'গ্লাস', `background:${tbAlpha(tbDraft.player.bg1,.5)}`)}
       </div>
       <div class="tb-fields">
-        ${tbFieldRow('tbPlayerBg1', 'Background 1', tbDraft.player.bg1)}
-        ${tbDraft.player.variant==='classic' ? tbFieldRow('tbPlayerBg2', 'Background 2', tbDraft.player.bg2) : ''}
-        ${tbFieldRow('tbPlayerAccent', 'Button/Accent Color', tbDraft.player.accent)}
-        ${tbFieldRow('tbPlayerText', 'Text color', tbDraft.player.text)}
+        ${tbFieldRow('tbPlayerBg1', 'ব্যাকগ্রাউন্ড ১', tbDraft.player.bg1)}
+        ${tbDraft.player.variant==='classic' ? tbFieldRow('tbPlayerBg2', 'ব্যাকগ্রাউন্ড ২', tbDraft.player.bg2) : ''}
+        ${tbFieldRow('tbPlayerAccent', 'বাটন/অ্যাকসেন্ট রঙ', tbDraft.player.accent)}
+        ${tbFieldRow('tbPlayerText', 'লেখার রঙ', tbDraft.player.text)}
       </div>
-      <div class="tb-contrast-info">${tbContrastRow('Text ↔ Background 1', tbDraft.player.text, tbDraft.player.bg1)}</div>`;
+      <div class="tb-contrast-info">${tbContrastRow('লেখা ↔ ব্যাকগ্রাউন্ড ১', tbDraft.player.text, tbDraft.player.bg1)}</div>`;
     playerOptions.querySelectorAll('.tb-style-card').forEach(card => {
       card.onclick = () => { tbDraft.player.variant = card.getAttribute('data-variant'); renderPlayerOptions(); tbPreview(); };
     });
@@ -900,7 +900,7 @@ function openThemeBuilder(){
     playerEnabled.checked = !!tbDraft.player.enabled;
     renderPlayerOptions();
     tbPreview();
-    showToast('Audio player restored to default');
+    showToast('অডিও প্লেয়ার ডিফল্টে ফেরানো হয়েছে');
   };
 
   // ---- Header + bottom-nav look ----
@@ -910,15 +910,15 @@ function openThemeBuilder(){
     if(!tbDraft.navHeader.enabled){ navOptions.innerHTML = ''; return; }
     navOptions.innerHTML = `
       <div class="tb-style-grid tb-style-grid-2">
-        ${tbVariantCard('solid', tbDraft.navHeader.variant==='solid', 'Solid', `background:${tbDraft.navHeader.bg}`)}
-        ${tbVariantCard('glass', tbDraft.navHeader.variant==='glass', 'Glass', `background:${tbAlpha(tbDraft.navHeader.bg,.68)}`)}
+        ${tbVariantCard('solid', tbDraft.navHeader.variant==='solid', 'সলিড', `background:${tbDraft.navHeader.bg}`)}
+        ${tbVariantCard('glass', tbDraft.navHeader.variant==='glass', 'গ্লাস', `background:${tbAlpha(tbDraft.navHeader.bg,.68)}`)}
       </div>
       <div class="tb-fields">
-        ${tbFieldRow('tbNavBg', 'Background', tbDraft.navHeader.bg)}
-        ${tbFieldRow('tbNavText', 'Text/Icon Color', tbDraft.navHeader.text)}
-        ${tbFieldRow('tbNavAccent', 'Active Color', tbDraft.navHeader.accent)}
+        ${tbFieldRow('tbNavBg', 'ব্যাকগ্রাউন্ড', tbDraft.navHeader.bg)}
+        ${tbFieldRow('tbNavText', 'লেখা/আইকন রঙ', tbDraft.navHeader.text)}
+        ${tbFieldRow('tbNavAccent', 'সক্রিয় (Active) রঙ', tbDraft.navHeader.accent)}
       </div>
-      <div class="tb-contrast-info">${tbContrastRow('Writing ↔ Background', tbDraft.navHeader.text, tbDraft.navHeader.bg)}</div>`;
+      <div class="tb-contrast-info">${tbContrastRow('লেখা ↔ ব্যাকগ্রাউন্ড', tbDraft.navHeader.text, tbDraft.navHeader.bg)}</div>`;
     navOptions.querySelectorAll('.tb-style-card').forEach(card => {
       card.onclick = () => { tbDraft.navHeader.variant = card.getAttribute('data-variant'); renderNavOptions(); tbPreview(); };
     });
@@ -933,23 +933,23 @@ function openThemeBuilder(){
     navEnabled.checked = !!tbDraft.navHeader.enabled;
     renderNavOptions();
     tbPreview();
-    showToast('Header/Nav restored to default');
+    showToast('হেডার/ন্যাভ ডিফল্টে ফেরানো হয়েছে');
   };
 
   // ---- Popup / modal look ----
   const modalOptions = document.getElementById('tbModalOptions');
-  const TB_MODAL_ANIMS = { none:'None', fade:'Fade in', slide:'Slide from the bottom', scale:'Zoom in' };
+  const TB_MODAL_ANIMS = { none:'কোনোটি না', fade:'ফেড ইন', slide:'নিচ থেকে স্লাইড', scale:'জুম ইন' };
   const renderModalOptions = () => {
     modalOptions.innerHTML = `
       <div class="tb-row">
-        <label for="tbModalRadius">Pop-up corners are rounded.</label>
+        <label for="tbModalRadius">পপ-আপের কোণা গোলাকার</label>
         <input type="range" id="tbModalRadius" min="0" max="30" step="1" value="${tbDraft.modal.radius}">
       </div>
       <div class="tb-row">
-        <label for="tbModalShadow">Shadow depth</label>
+        <label for="tbModalShadow">ছায়ার গাঢ়ত্ব</label>
         <input type="range" id="tbModalShadow" min="0" max="1" step="0.05" value="${tbDraft.modal.shadowIntensity}">
       </div>
-      <div class="tb-section-hint" style="margin-top:6px;">Opening animation</div>
+      <div class="tb-section-hint" style="margin-top:6px;">খোলার অ্যানিমেশন</div>
       <div class="tb-anim-grid">
         ${Object.keys(TB_MODAL_ANIMS).map(id => `<button type="button" class="tb-anim-card${tbDraft.modal.anim===id?' active':''}" data-anim="${id}">${TB_MODAL_ANIMS[id]}</button>`).join('')}
       </div>`;
@@ -964,7 +964,7 @@ function openThemeBuilder(){
     tbDraft.modal = Object.assign({}, tbDefaults().modal);
     renderModalOptions();
     tbPreview();
-    showToast('Pop-up design has been restored to default.');
+    showToast('পপ-আপ ডিজাইন ডিফল্টে ফেরানো হয়েছে');
   };
 
   tbPreview();
