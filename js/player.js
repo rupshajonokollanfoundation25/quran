@@ -58,20 +58,38 @@ function fmtTime(sec){
 }
 
 function currentAudioUrl(item){
-  return `${AUDIO_CDN}/${state.reciter}/${item.globalNumber}.mp3`;
+  return buildAudioUrl(state.reciter, item.surah, item.globalNumber);
+}
+
+// কিছু ক্বারীর (যেমন ইয়াসির আল-দোসারী) অডিও শুধু সম্পূর্ণ সূরা আকারে পাওয়া যায় —
+// একটি সূরার সব আয়াতের URL একই mp3 ফাইলে গিয়ে মেলে। এই ক্ষেত্রে পরের/আগের আয়াতে
+// গেলে একই ফাইল নতুন করে reload/restart না করে, চলমান তিলাওয়াতটি নির্বিঘ্নে
+// চলতে থাকে — শুধু নিচের রেফারেন্স/টাইটেল ও কার্ড-হাইলাইট আপডেট হয়।
+function isFullSurahReciter(){
+  const r = reciters.find(x => x.id === state.reciter);
+  return !!(r && r.audioType === 'surah');
 }
 
 function playAtIndex(idx, userInitiated){
   if(idx < 0 || idx >= state.playlist.length) return;
   const item = state.playlist[idx];
+  const newUrl = currentAudioUrl(item);
+  const prevItem = state.playlist[state.playIndex];
+  const sameTrackAlreadyLoaded = isFullSurahReciter() && audioEl.src && audioEl.src === newUrl && prevItem && prevItem.surah === item.surah;
   state.playIndex = idx;
-  playerBar.classList.add('buffering');
-  audioEl.src = currentAudioUrl(item);
-  audioEl.playbackRate = state.playbackRate;
-  audioEl.play().then(()=>{ state.isPlaying = true; syncPlayingUI(); }).catch(()=>{ handlePlaybackFailure(idx); });
   document.getElementById('playerRef').textContent = `আয়াত ${toBn(item.numberInSurah)}`;
   document.getElementById('playerTitle').textContent = item.title;
   playerBar.classList.add('visible');
+  if(sameTrackAlreadyLoaded){
+    // একই সূরার অডিও আগে থেকেই চলছে/লোড হয়ে আছে — নতুন করে শুরু না করে শুধু UI সিঙ্ক করা।
+    if(audioEl.paused) audioEl.play().then(()=>{ state.isPlaying = true; syncPlayingUI(); }).catch(()=>{});
+    else syncPlayingUI();
+  } else {
+    playerBar.classList.add('buffering');
+    audioEl.src = newUrl;
+    audioEl.playbackRate = state.playbackRate;
+    audioEl.play().then(()=>{ state.isPlaying = true; syncPlayingUI(); }).catch(()=>{ handlePlaybackFailure(idx); });
+  }
   state.lastRead = { surah: item.surah, ayah: item.numberInSurah };
   saveLastRead();
   addHistoryEntry({ surah: item.surah, title: item.title, ayah: item.numberInSurah, reciter: state.reciter, ts: Date.now() });
@@ -234,7 +252,7 @@ async function downloadCurrentAudioForOffline(btn){
   if(!state.playlist.length) return;
   const surahNum = state.playlist[0].surah;
   const isSingleSurah = state.playlist.every(item => item.surah === surahNum);
-  const urls = state.playlist.map(item => currentAudioUrl(item));
+  const urls = [...new Set(state.playlist.map(item => currentAudioUrl(item)))];
   const reciterAtDownload = state.reciter;
   btn.disabled = true;
   btn.textContent = offlineButtonLabel(0, urls.length);
@@ -302,12 +320,20 @@ function initPlayer(){
   audioEl.addEventListener('ended', () => {
     const autoplayChk = document.getElementById('autoplayChk');
     if(autoplayChk.checked && state.playIndex < state.playlist.length - 1){
-      playAtIndex(state.playIndex + 1, false);
-    } else {
-      state.isPlaying = false;
-      clearWordHighlight();
-      syncPlayingUI();
+      if(isFullSurahReciter()){
+        // পুরো সূরার একটাই mp3 ফাইল শেষ হয়েছে — পরের আয়াতে না গিয়ে, প্লেলিস্টে
+        // থাকলে পরবর্তী ভিন্ন সূরার প্রথম আয়াতে যায়; না থাকলে থেমে যায়।
+        const curSurah = state.playlist[state.playIndex].surah;
+        const nextIdx = state.playlist.findIndex((it, i) => i > state.playIndex && it.surah !== curSurah);
+        if(nextIdx !== -1){ playAtIndex(nextIdx, false); return; }
+      } else {
+        playAtIndex(state.playIndex + 1, false);
+        return;
+      }
     }
+    state.isPlaying = false;
+    clearWordHighlight();
+    syncPlayingUI();
   });
   audioEl.addEventListener('timeupdate', () => {
     document.getElementById('curTime').textContent = fmtTime(audioEl.currentTime);
