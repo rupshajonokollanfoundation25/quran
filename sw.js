@@ -99,7 +99,9 @@ self.addEventListener('fetch', (event) => {
   }
 
 
-if (url.href.startsWith(AUDIO_CDN)) {
+const isKnownAudioHost = url.href.startsWith(AUDIO_CDN) ||
+    (typeof reciters !== 'undefined' && reciters.some(r => r.audioType === 'surah' && r.surahBase && url.href.startsWith(r.surahBase)));
+  if (isKnownAudioHost) {
     event.respondWith(cacheFirstAudio(req));
     return;
   }
