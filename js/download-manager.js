@@ -41,8 +41,9 @@ async function dlmFetchGlobalNumbers(surahNum){
   if(!data || !data.data || !Array.isArray(data.data.ayahs)) throw new Error('bad-response');
   return data.data.ayahs.map(a => a.number);
 }
-function dlmAudioUrls(globalNumbers, reciter){
-  return globalNumbers.map(n => `${AUDIO_CDN}/${reciter}/${n}.mp3`);
+function dlmAudioUrls(globalNumbers, reciter, surahNum){
+  const urls = globalNumbers.map(n => buildAudioUrl(reciter, surahNum, n));
+  return [...new Set(urls)]; // পুরো-সূরা-শুধু ক্বারীর ক্ষেত্রে একই ফাইল বারবার না ফেরানোর জন্য
 }
 
 // ---------- Storage summary (whole-origin estimate; browsers don't expose
@@ -144,7 +145,7 @@ async function dlmStartDownload(surahNum, rowEl){
     dlmRenderRowAction(actionSlot, surahNum);
     return;
   }
-  const urls = dlmAudioUrls(globalNumbers, reciter);
+  const urls = dlmAudioUrls(globalNumbers, reciter, surahNum);
   const finish = () => {
     markSurahOffline(surahNum, reciter, urls, urls.length);
     dlmRenderRowAction(actionSlot, surahNum);
